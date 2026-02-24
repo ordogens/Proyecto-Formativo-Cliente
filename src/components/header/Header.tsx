@@ -45,8 +45,9 @@ export const Header = () => {
           {/* Iconos */}
           <div className="flex gap-4 items-center">
             <ShoppingCart size={26} />
-            <Moon size={26} />
-            <Sun size={26} />
+            <button className ="cursor-pointer" onClick={() => setOpen(!open)}>
+              {open ? <Sun size={26} color="yellow"/> : <Moon size={26} />}
+            </button>
             <LogIn size={26} />
           </div>
 
