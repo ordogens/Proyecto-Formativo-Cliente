@@ -22,31 +22,15 @@ export const Personalizacion = () => {
 
   return (
     <div className="flex flex-col lg:flex-row h-full bg-zinc-950 text-zinc-100">
-
       {/* ================= MAIN ================= */}
       <main className="flex-1 flex flex-col p-4 md:p-6">
-
         {/* Header */}
-        <header className="flex justify-between items-center mb-4">
-          <h1 className="text-lg md:text-xl font-bold tracking-tighter text-yellow-400 uppercase">
-            CraftYourStyle Canvas
-          </h1>
 
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 text-sm bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
-              Descargar
-            </button>
-            <button className="px-3 py-1.5 text-sm bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
-              Compartir
-            </button>
-          </div>
-        </header>
 
         {/* Canvas */}
-       <div className="flex-1 bg-zinc-900 rounded-2xl border border-zinc-800 flex items-center justify-center overflow-hidden shadow-2xl relative">
-
+        <div className=" bg-zinc-900 rounded-2xl border pt-15 border-zinc-800 flex items-center justify-center overflow-hidden shadow-2xl relative">
           {!image ? (
-            <div className="text-zinc-500 text-center">
+            <div className="text-zinc-500 text-center w-auto h-120 flex flex-col items-center justify-center">
               <Image size={64} className="mx-auto mb-4 opacity-20" />
               <p className="mb-4 text-sm">Tu creación aparecerá aquí</p>
 
@@ -65,7 +49,7 @@ export const Personalizacion = () => {
               <img
                 src={image}
                 alt="preview"
-                className="object-contain"
+                className="object-contain ratio-1/1 w-auto h-120 cursor-zoom-in"
               />
 
               <button
@@ -79,7 +63,7 @@ export const Personalizacion = () => {
         </div>
 
         {/* Historial */}
-        <div className="h-20 mt-4 flex gap-3 overflow-x-auto pb-2">
+        <div className="h-15 mt-4 flex gap-3 overflow-x-auto pb-2">
           {[1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
@@ -91,12 +75,18 @@ export const Personalizacion = () => {
 
       {/* ================= ASIDE ================= */}
       <aside className="w-full lg:w-80 bg-zinc-900 border-t lg:border-t-0 lg:border-l border-zinc-800 p-4 md:p-6 flex flex-col gap-6">
-
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
             <Wand2 size={18} className="text-black" />
           </div>
-          <h2 className="font-bold text-lg">CraftYourStyle Engine</h2>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 text-sm bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
+              Descargar
+            </button>
+            <button className="px-3 py-1.5 text-sm bg-zinc-800 rounded-lg hover:bg-zinc-700 transition">
+              Compartir
+            </button>
+          </div>
         </div>
 
         {/* Prompt */}
@@ -127,7 +117,7 @@ export const Personalizacion = () => {
               </button>
             ))}
           </div>
-          </section>
+        </section>
 
         {/* Creatividad */}
         <section>
