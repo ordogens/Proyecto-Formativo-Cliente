@@ -1,0 +1,65 @@
+import { useState } from "react";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+export const DropMenu = () => {
+  const [open, setOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const navigate = useNavigate();
+
+  const options = [
+    {
+      label: "Theme",
+      action: () => setDarkMode(prev => !prev),
+    },
+    {
+      label: "Catálogo",
+      action: () => navigate("/catalogo"),
+    },
+    {
+      label: "Personalización",
+      action: () => navigate("/personalizacion"),
+    },
+    {
+      label: "Login",
+      action: () => navigate("/login"),
+    }
+  ];
+
+  const handleClick = (action) => {
+    action();
+    setOpen(false);
+  };
+
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen(!open)}>
+        {open ? <X size={30} /> : <Menu size={30} />}
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white shadow-lg z-50">
+          <ul className="p-2 text-sm text-gray-700 flex flex-col gap-2 ">
+            {options.map(({ label, action }) => (
+              <li key={label}>
+                <button
+                  className="w-full flex items-center justify-between px-4 py-1 rounded-md bg-gray-100"
+                  onClick={() => handleClick(action)}
+                >
+                  {label}
+
+                  {label === "Theme" &&
+                    (darkMode ? (
+                      <Sun size={18} color="orange" />
+                    ) : (
+                      <Moon size={18} />
+                    ))}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};

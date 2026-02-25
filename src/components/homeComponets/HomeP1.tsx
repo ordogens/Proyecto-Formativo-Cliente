@@ -3,14 +3,14 @@ import modelo from "../../assets/Sleeveless shirt.png";
 
 export const HomeP1 = () => {
   return (
-    <section className="min-h-screen bg-[#0f0a08] text-white flex flex-col md:grid md:grid-cols-2 items-center px-6 md:px-20 py-16 md:py-20">
+    <section className="min-h-200 bg-[#0f0a08] text-white flex flex-col md:grid md:grid-cols-2 items-center px-6 md:px-20 md:pl-75 py-16 md:py-20 md:gap-50">
       
       {/* Imagen (arriba en móvil, derecha en desktop) */}
-      <div className="order-1 md:order-2 w-full flex justify-center">
+      <div className="order-1 md:order-2 w-fit flex justify-center">
         <img
           src={modelo}
           alt="Modelo con camiseta personalizada"
-          className="w-full max-w-sm md:max-w rounded-3xl object-cover shadow-2xl"
+          className="w-full max-w-sm md:max-w h-100 md:h-150 rounded-3xl object-cover shadow-2xl"
         />
       </div>
 
@@ -21,11 +21,11 @@ export const HomeP1 = () => {
           Inteligencia artificial + moda
         </p>
 
-        <h1 className="text-3xl md:text-6xl font-semibold font-serif leading-tight">
+        <h1 className="text-4xl md:text-6xl font-serif leading-tight">
           Personaliza tu estilo con IA
         </h1>
 
-        <p className="text-gray-400 text-base md:text-lg">
+        <p className="text-gray-400 text- md:text-lg">
           Crea prendas únicas con diseños generados por inteligencia
           artificial. Tu imaginación es el límite.
         </p>
