@@ -1,5 +1,6 @@
 import { ProductCard } from "../../components/cards/ProductCard";
 import { gorros } from "../../data/Productos";
+import { NavLink } from "react-router-dom";
 
 
 export const Gorros = () => {
@@ -15,6 +16,8 @@ export const Gorros = () => {
           <p className="text-gray-500 text-sm mt-2">
             {gorros.length} productos disponibles
           </p>
+          <NavLink to="/vista-dinamica"><p>prueva</p></NavLink>
+          
         </div>
 
         <div className="flex gap-3 ">

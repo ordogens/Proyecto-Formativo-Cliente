@@ -6,6 +6,8 @@ import { Personalizacion } from "./pages/Personalizacion";
 import { RopaHombre } from "./pages/RHombre/RopaHombre";
 import { RopaMujer } from "./pages/RMujer/RopaMujer";
 import { Gorros } from "./pages/Gorros/Gorros";
+import { VistaDinamica } from "./pages/vistaDinamica/VistaDinamica";
+import { CarritoDeCompras } from "./pages/carrito/CarritoDeCompras";
 
 import { PrincipalLayout } from "./layouts/PrincipalLayout";
 
@@ -19,6 +21,8 @@ export const App = () => {
         <Route path="/ropa-hombre" element={<RopaHombre />} />
         <Route path="/ropa-mujer" element={<RopaMujer />} />
         <Route path="/gorros" element={<Gorros />} />
+        <Route path="/vista-dinamica" element={<VistaDinamica />} />
+        <Route path="/carrito" element={<CarritoDeCompras />} />
       </Routes>
     </PrincipalLayout>
   );
