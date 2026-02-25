@@ -5,8 +5,7 @@ import gorros from "../assets/gorros.jpg";
 import { useNavigate } from "react-router-dom";
 
 export const Catalogo = () => {
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   return (
     <section className="bg-[#f3f0eb] text-black py-4 h-full px-8 md:px-20">
       {/* Encabezado */}
@@ -33,13 +32,13 @@ export const Catalogo = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
 
           {/* Contenido */}
-          <div className="absolute bottom-8 left-8 text-white">
+          <div className="absolute bottom-8 left-8 text-white" >
             <h3 className="text-3xl font-semibold">Hombre</h3>
             <p className="text-gray-300 mt-2">Estilo masculino moderno</p>
             <span className="text-red-400 mt-4 inline-block">
-              <NavLink to="/ropa-hombre">
+              
                 <p>Explorar →</p>
-              </NavLink>
+             
             </span>
           </div>
         </div>
@@ -58,7 +57,7 @@ export const Catalogo = () => {
             <h3 className="text-3xl font-semibold">Mujer</h3>
             <p className="text-gray-300 mt-2">Elegancia contemporánea</p>
             <span className="text-red-400 mt-4 inline-block">
-              <NavLink to="/ropa-mujer">Explorar →</NavLink>
+              Explorar →
             </span>
           </div>
         </div>
@@ -77,7 +76,7 @@ export const Catalogo = () => {
             <h3 className="text-3xl font-semibold">Gorros</h3>
             <p className="text-gray-300 mt-2">Accesorios con actitud</p>
             <span className="text-red-400 mt-4 inline-block">
-              <NavLink to="/gorros">Explorar →</NavLink>
+              Explorar →
             </span>
           </div>
         </div>

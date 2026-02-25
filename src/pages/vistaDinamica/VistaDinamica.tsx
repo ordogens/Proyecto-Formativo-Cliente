@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { productos } from "../../data/Productos";
 import { ShopContext } from "../../context/shopContext";
 
@@ -11,7 +11,22 @@ export const VistaDinamica = () => {
     throw new Error("Must be inside ShopProvider");
   }
 
-  const { addToCart } = shop;
+  const { addToCart, cart } = shop;
+  const [addedMessageVisible, setAddedMessageVisible] = useState(false);
+
+  useEffect(() => {
+    if (!addedMessageVisible) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setAddedMessageVisible(false);
+    }, 1800);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [addedMessageVisible]);
 
   const producto = productos.find(
     (p) => p.id === Number(id)
@@ -20,6 +35,10 @@ export const VistaDinamica = () => {
   if (!producto) {
     return <h1 className="text-center mt-20">Producto no encontrado</h1>;
   }
+
+  const productCountInCart = cart
+    .filter((item) => item.productId === producto.id)
+    .reduce((acc, item) => acc + item.quantity, 0);
 
   const handleAddToCart = () => {
     addToCart({
@@ -31,6 +50,7 @@ export const VistaDinamica = () => {
       image: producto.imagen,
       personalized: false,
     });
+    setAddedMessageVisible(true);
   };
 
   return (
@@ -71,6 +91,16 @@ export const VistaDinamica = () => {
             >
               Agregar al carrito
             </button>
+
+            {addedMessageVisible && (
+              <p className="text-sm text-green-700 font-medium">
+                Se agregó al carrito
+              </p>
+            )}
+
+            <p className="text-sm text-gray-600">
+              En carrito: <span className="font-semibold">{productCountInCart}</span>
+            </p>
 
             <button className="w-full border border-red-300 text-red-400 py-3 rounded-lg cursor-pointer">
               Personalizar con IA
