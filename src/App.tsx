@@ -21,7 +21,7 @@ export const App = () => {
         <Route path="/ropa-hombre" element={<RopaHombre />} />
         <Route path="/ropa-mujer" element={<RopaMujer />} />
         <Route path="/gorros" element={<Gorros />} />
-        <Route path="/vista-dinamica" element={<VistaDinamica />} />
+        <Route path="/vista-dinamica/:id" element={<VistaDinamica />} />
         <Route path="/carrito" element={<CarritoDeCompras />} />
       </Routes>
     </PrincipalLayout>

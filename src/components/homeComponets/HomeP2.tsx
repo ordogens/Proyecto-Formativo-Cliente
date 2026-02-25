@@ -12,7 +12,7 @@ export const HomeP2 = () => {
           Nuestras colecciones
         </p>
         <h2 className="text-4xl font-serif md:text-5xl font-semibold mt-4">
-          Catalogo
+          Explora por categorias
         </h2>
         <p className="text-md md:text-lg text-gray-500 mt-4">Explora nuestras categorias y encuentra tu prenda perfecta</p>
       </div>

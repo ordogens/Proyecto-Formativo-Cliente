@@ -1,12 +1,13 @@
-
-import { createRoot } from 'react-dom/client'
-// import ReactDOM from "react-dom/client";
+import { createRoot } from "react-dom/client";
+import { ShopProvider } from "./context/shopProvide";
 import { BrowserRouter } from "react-router-dom";
-import './index.css'
-import {App} from './App.tsx'
+import "./index.css";
+import { App } from "./App.tsx";
 
-createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById("root")!).render(
+  <ShopProvider>
     <BrowserRouter>
-    <App />
-  </BrowserRouter>
-)
+      <App />
+    </BrowserRouter>
+  </ShopProvider>
+);
