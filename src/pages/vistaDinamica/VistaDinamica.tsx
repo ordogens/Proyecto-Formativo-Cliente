@@ -67,12 +67,12 @@ export const VistaDinamica = () => {
           <div className="space-y-3">
             <button
               onClick={handleAddToCart}
-              className="w-full bg-black text-white py-3 rounded-lg"
+              className="w-full bg-black text-white py-3 rounded-lg cursor-pointer"
             >
               Agregar al carrito
             </button>
 
-            <button className="w-full border border-red-300 text-red-400 py-3 rounded-lg">
+            <button className="w-full border border-red-300 text-red-400 py-3 rounded-lg cursor-pointer">
               Personalizar con IA
             </button>
           </div>

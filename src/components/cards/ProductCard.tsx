@@ -34,7 +34,7 @@ export const ProductCard = ({ producto }: ProductCardProps) => {
 
         <button
           onClick={handleClick}
-          className="w-full border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition"
+          className="w-full border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition cursor-pointer"
         >
           Ver detalles
         </button>

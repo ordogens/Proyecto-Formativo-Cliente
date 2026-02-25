@@ -1,9 +1,11 @@
 import { Trash2 } from "lucide-react";
 import { useContext } from "react";
 import { ShopContext } from "../../context/shopContext";
+import { useNavigate } from "react-router-dom";
 
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
+  const navigate = useNavigate();
 
   if (!shop) {
     throw new Error("ShopContext must be used inside ShopProvider");
@@ -22,7 +24,7 @@ export const CarritoDeCompras = () => {
   const finalTotal = total + shipping;
 
   return (
-    <div className="h-full bg-[#f5f2ee] p-4 md:p-10">
+    <div className="min-h-screen bg-[#f5f2ee] p-4 md:p-10">
       {/* Título */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-serif">Tu carrito</h1>
@@ -32,7 +34,7 @@ export const CarritoDeCompras = () => {
       </div>
 
       {/* Layout principal */}
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-8 ">
         {/* Lista de productos */}
         <div className="flex-1 space-y-6">
           {cart.length === 0 ? (
@@ -120,11 +122,13 @@ export const CarritoDeCompras = () => {
             <span>${finalTotal.toLocaleString()}</span>
           </div>
 
-          <button className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition">
+          <button className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer">
             Finalizar compra
           </button>
 
-          <button className="w-full border py-3 rounded-lg hover:bg-gray-50 transition">
+          <button 
+              onClick={() => navigate("/catalogo")}
+          className="w-full border py-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
             Seguir comprando
           </button>
         </div>
