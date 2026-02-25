@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { ShopProvider } from "./context/shopProvide";
+import { ShopProvider } from "./context/ShopProvide";
 import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import { App } from "./App.tsx";

@@ -10,7 +10,23 @@ export const ShopProvider = ({ children }: Props) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const addToCart = (item: CartItem) => {
-    setCart(prev => [...prev, item]);
+    setCart((prev) => {
+      const existingItem = prev.find(
+        (cartItem) =>
+          cartItem.productId === item.productId &&
+          cartItem.personalized === item.personalized
+      );
+
+      if (existingItem) {
+        return prev.map((cartItem) =>
+          cartItem.cartId === existingItem.cartId
+            ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
+            : cartItem
+        );
+      }
+
+      return [...prev, item];
+    });
   };
 
   const removeFromCart = (cartId: string) => {

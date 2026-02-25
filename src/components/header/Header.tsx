@@ -1,29 +1,40 @@
 import { Moon, Sun, LogIn, X, ShoppingBag } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { DropMenu } from "./DropMenu";
+import { ShopContext } from "../../context/shopContext";
 
 export const Header = () => {
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
-  const cartCount = 2;
+  const shop = useContext(ShopContext);
+
+  if (!shop) {
+    throw new Error("ShopContext must be used inside ShopProvider");
+  }
+
+  const { totalItems: cartCount } = shop;
 
   return (
     <header className="w-full border-b border-gray-200">
       <div className="w-full bg-gray-200 md:bg-white h-16 flex justify-between items-center px-4 md:px-8">
-
         {/* ===== MOBILE VIEW ===== */}
         <div className="flex items-center md:hidden w-full justify-between">
-
-          <img src="/logo-cys-pos.png" alt="logo" className="size-12" onClick={() => navigate("/")} />
+          <img
+            src="/logo-cys-pos.png"
+            alt="logo"
+            className="size-12"
+            onClick={() => navigate("/")}
+          />
 
           <div className="flex items-center gap-4">
             <div className="relative">
               <ShoppingBag size={26} onClick={() => navigate("/carrito")} />
 
               {cartCount > 0 && (
-                <span className="
+                <span
+                  className="
                   absolute -top-1 -right-1
                   bg-red-500 text-white
                   text-[10px] font-bold
@@ -31,7 +42,8 @@ export const Header = () => {
                   min-w-[16px] h-[16px]
                   flex items-center justify-center
                   px-1
-                ">
+                "
+                >
                   {cartCount}
                 </span>
               )}
@@ -61,10 +73,15 @@ export const Header = () => {
 
           <div className="flex gap-4 items-center">
             <div className="relative">
-              <ShoppingBag className="cursor-pointer" size={26} onClick={() => navigate("/carrito")} />
+              <ShoppingBag
+                className="cursor-pointer"
+                size={26}
+                onClick={() => navigate("/carrito")}
+              />
 
               {cartCount > 0 && (
-                <span className="
+                <span
+                  className="
                   absolute -top-1 -right-1
                   bg-red-500 text-white
                   text-[10px] font-bold
@@ -72,13 +89,17 @@ export const Header = () => {
                   min-w-[16px] h-[16px]
                   flex items-center justify-center
                   px-1
-                ">
+                "
+                >
                   {cartCount}
                 </span>
               )}
             </div>
 
-            <button className="cursor-pointer" onClick={() => setDarkMode(!darkMode)}>
+            <button
+              className="cursor-pointer"
+              onClick={() => setDarkMode(!darkMode)}
+            >
               {darkMode ? <Sun size={26} color="yellow" /> : <Moon size={26} />}
             </button>
 
