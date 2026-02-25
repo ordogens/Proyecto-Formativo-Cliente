@@ -2,8 +2,11 @@ import { NavLink } from "react-router-dom";
 import hombre from "../assets/photo.png";
 import mujer from "../assets/mujer.jpg";
 import gorros from "../assets/gorros.jpg";
+import { useNavigate } from "react-router-dom";
 
 export const Catalogo = () => {
+  const navigate = useNavigate()
+
   return (
     <section className="bg-[#f3f0eb] text-black py-4 h-full px-8 md:px-20">
       {/* Encabezado */}
@@ -19,7 +22,7 @@ export const Catalogo = () => {
       {/* Grid de cards */}
       <div className="grid md:grid-cols-3 gap-10">
         {/* Card 1 */}
-        <div className="relative rounded-3xl overflow-hidden group cursor-pointer">
+        <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => navigate("/ropa-hombre")}>
           <img
             src={hombre}
             alt="Moda hombre"
@@ -42,7 +45,7 @@ export const Catalogo = () => {
         </div>
 
         {/* Card 2 */}
-        <div className="relative rounded-3xl overflow-hidden group cursor-pointer">
+        <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => navigate("/ropa-mujer")}>
           <img
             src={mujer}
             alt="Moda mujer"
@@ -61,7 +64,7 @@ export const Catalogo = () => {
         </div>
 
         {/* Card 3 */}
-        <div className="relative rounded-3xl overflow-hidden group cursor-pointer">
+        <div className="relative rounded-3xl overflow-hidden group cursor-pointer" onClick={() => navigate("/gorros")}>
           <img
             src={gorros}
             alt="Gorras"
