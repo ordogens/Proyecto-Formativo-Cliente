@@ -1,7 +1,12 @@
 import { ProductCard } from "../../components/cards/ProductCard";
-import { productoM } from "../../data/Productos";
+import { productos } from "../../data/Productos";
 
 export const RopaMujer = () => {
+
+  const productosMujer = productos.filter(
+  (p) => p.categoria === "mujer"
+);
+
   return (
     <section className="h-full bg-[#f3f0eb] py-12">
       {/* Header */}
@@ -12,7 +17,7 @@ export const RopaMujer = () => {
             Ropa de Mujer
           </h1>
           <p className="text-gray-500 text-sm mt-2">
-            {productoM.length} productos disponibles
+            {productosMujer.length} productos disponibles
           </p>
         </div>
 
@@ -28,7 +33,7 @@ export const RopaMujer = () => {
 
       {/* Grid */}
       <div className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-5  w-screen md:px-10">
-        {productoM.map((producto) => (
+        {productosMujer.map((producto) => (
           <ProductCard key={producto.id} producto={producto} />
         ))}
       </div>

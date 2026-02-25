@@ -1,9 +1,9 @@
 import { ProductCard } from "../../components/cards/ProductCard";
-import { gorros } from "../../data/Productos";
-import { NavLink } from "react-router-dom";
-
+import { productos } from "../../data/Productos";
 
 export const Gorros = () => {
+  const productosGorros = productos.filter((p) => p.categoria === "gorros");
+
   return (
     <section className="h-full bg-[#f3f0eb] py-12">
       {/* Header */}
@@ -14,10 +14,8 @@ export const Gorros = () => {
             Ropa de gorros
           </h1>
           <p className="text-gray-500 text-sm mt-2">
-            {gorros.length} productos disponibles
+            {productosGorros.length} productos disponibles
           </p>
-          <NavLink to="/vista-dinamica"><p>prueva</p></NavLink>
-          
         </div>
 
         <div className="flex gap-3 ">
@@ -32,7 +30,7 @@ export const Gorros = () => {
 
       {/* Grid */}
       <div className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-2 lg:grid-cols-5  w-screen md:px-10">
-        {gorros.map((producto) => (
+        {productosGorros.map((producto) => (
           <ProductCard key={producto.id} producto={producto} />
         ))}
       </div>

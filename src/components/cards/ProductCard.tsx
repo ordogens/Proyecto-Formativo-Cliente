@@ -1,13 +1,22 @@
-import { Producto } from "../../data/Productos";
+import type { Producto } from "../../data/Productos";
+import { useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   producto: Producto;
 }
 
 export const ProductCard = ({ producto }: ProductCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/vista-dinamica/${producto.id}`);
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden  ">
-      
+    <div
+      onClick={handleClick}
+      className="bg-white rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden cursor-pointer"
+    >
       <img
         src={producto.imagen}
         alt={producto.nombre}
@@ -23,7 +32,10 @@ export const ProductCard = ({ producto }: ProductCardProps) => {
           ${producto.precio.toLocaleString()}
         </p>
 
-        <button className="w-full border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition">
+        <button
+          onClick={handleClick}
+          className="w-full border border-gray-300 rounded-lg py-2 text-sm hover:bg-gray-100 transition cursor-pointer"
+        >
           Ver detalles
         </button>
       </div>
