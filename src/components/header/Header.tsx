@@ -3,10 +3,12 @@ import { useNavigate, NavLink } from "react-router-dom";
 import { useContext, useState } from "react";
 import { DropMenu } from "./DropMenu";
 import { ShopContext } from "../../context/shopContext";
+import { AuthModal } from "../auth/AuthModal";
 
 export const Header = () => {
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const navigate = useNavigate();
   const shop = useContext(ShopContext);
 
@@ -48,7 +50,7 @@ export const Header = () => {
                 </span>
               )}
             </div>
-            <DropMenu />
+            <DropMenu onLoginClick={() => setIsLoginOpen(true)} />
 
             <button onClick={() => setMenuMobileOpen(!menuMobileOpen)}>
               {menuMobileOpen ? <X size={30} /> : null}
@@ -103,10 +105,21 @@ export const Header = () => {
               {darkMode ? <Sun size={26} color="yellow" /> : <Moon size={26} />}
             </button>
 
-            <LogIn size={26} />
+            <button
+              type="button"
+              className="cursor-pointer"
+              onClick={() => setIsLoginOpen(true)}
+              aria-label="Abrir login"
+            >
+              <LogIn size={26} />
+            </button>
           </div>
         </div>
       </div>
+
+      {isLoginOpen && (
+        <AuthModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      )}
     </header>
   );
 };

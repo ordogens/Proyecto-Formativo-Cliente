@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-export const DropMenu = () => {
+interface DropMenuProps {
+  onLoginClick: () => void;
+}
+
+type MenuAction = () => void;
+
+export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
   const [open, setOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
@@ -22,11 +28,11 @@ export const DropMenu = () => {
     },
     {
       label: "Login",
-      action: () => navigate("/login"),
-    }
+      action: onLoginClick,
+    },
   ];
 
-  const handleClick = (action) => {
+  const handleClick = (action: MenuAction) => {
     action();
     setOpen(false);
   };

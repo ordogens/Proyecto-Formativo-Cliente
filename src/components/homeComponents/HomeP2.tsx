@@ -1,4 +1,3 @@
-import { NavLink } from "react-router-dom";
 import hombre from "../../assets/photo.png";
 import mujer from "../../assets/mujer.jpg";
 import gorros from "../../assets/gorros.jpg";

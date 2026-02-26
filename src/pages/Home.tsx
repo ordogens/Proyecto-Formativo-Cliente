@@ -1,7 +1,7 @@
-import { Footer } from "../components/homeComponets/Footer";
-import { HomeP1 } from "../components/homeComponets/HomeP1";
-import { HomeP2 } from "../components/homeComponets/HomeP2";
-import { HomeP3 } from "../components/homeComponets/HomeP3";
+import { Footer } from "../components/homeComponents/Footer";
+import { HomeP1 } from "../components/homeComponents/HomeP1";
+import { HomeP2 } from "../components/homeComponents/HomeP2";
+import { HomeP3 } from "../components/homeComponents/HomeP3";
 
 export const Home = () => {
   return (

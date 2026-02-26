@@ -1,11 +1,9 @@
 import { productos } from "../../data/Productos";
-import { ProductCard } from "../../components/cards/ProductCard";
+import { ProductCard } from "../../components/ui/cards/ProductCard";
 import { ProductsLayout } from "../../layouts/ProductsLayout";
 
 export const RopaHombre = () => {
-  const productosHombre = productos.filter(
-    (p) => p.categoria === "hombre"
-  );
+  const productosHombre = productos.filter((p) => p.categoria === "hombre");
 
   return (
     <ProductsLayout
