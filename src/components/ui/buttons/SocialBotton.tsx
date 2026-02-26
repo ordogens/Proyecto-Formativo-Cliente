@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type{ ReactNode } from "react";
 
 interface SocialButtonProps {
   icon: ReactNode;
@@ -8,7 +8,7 @@ interface SocialButtonProps {
 export const SocialButton = ({ icon, text }: SocialButtonProps) => {
   return (
     <div className="relative group">
-      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 group-hover:text-emerald-600 transition-colors duration-300">
+      <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 transition-colors duration-300">
         {icon}
       </div>
 

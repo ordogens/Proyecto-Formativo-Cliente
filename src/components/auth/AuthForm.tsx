@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { EyeIcon, EyeOffIcon, MailIcon, LockIcon, Facebook, Chromium } from "lucide-react";
+import {
+  EyeIcon,
+  EyeOffIcon,
+  MailIcon,
+  LockIcon,
+  Facebook,
+  Chromium,
+} from "lucide-react";
 import { CustomInput } from "../ui/inputs/CustomInput";
 import { SocialButton } from "../ui/buttons/SocialBotton";
 
@@ -26,7 +33,11 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password || (!isLogin && !formData.username)) {
+    if (
+      !formData.email ||
+      !formData.password ||
+      (!isLogin && !formData.username)
+    ) {
       setError("Todos los campos son obligatorios");
       return;
     }
@@ -38,15 +49,16 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <>
-      <h1 className="text-emerald-600 text-center text-2xl font-bold mb-4">
+      <h1 className="text-red-500 text-center text-2xl font-bold mb-4">
         {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
       </h1>
-
+      
       <SocialButton icon={<Chromium size={20} />} text="Continuar con Google" />
-      <SocialButton icon={<Facebook size={20} />} text="Continuar con Facebook" />
-
+      <SocialButton
+        icon={<Facebook size={20} />}
+        text="Continuar con Facebook"
+      />
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-
         {!isLogin && (
           <CustomInput
             label="Nombre de usuario"
@@ -76,16 +88,17 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           placeholder="Tu contraseña"
           icon={<LockIcon size={18} />}
           rightElement={
-            <button type="button" onClick={() => setShowPassword(!showPassword)}>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+            >
               {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
             </button>
           }
           onChange={handleChange}
         />
 
-        {error && (
-          <p className="text-red-500 text-sm text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
         <button
           type="submit"
@@ -94,14 +107,13 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           {isLogin ? "Iniciar sesión" : "Crear cuenta"}
         </button>
       </form>
-
       <div className="flex justify-center mt-4 text-sm">
         {isLogin ? (
           <>
             <p>¿No tienes cuenta?</p>
             <p
               onClick={() => setIsLogin(false)}
-              className="ml-1 text-emerald-600 cursor-pointer hover:underline"
+              className="ml-1 text-red-500 cursor-pointer hover:underline"
             >
               Regístrate aquí
             </p>
@@ -111,7 +123,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <p>¿Ya tienes cuenta?</p>
             <p
               onClick={() => setIsLogin(true)}
-              className="ml-1 text-emerald-600 cursor-pointer hover:underline"
+              className="ml-1 text-red-500 cursor-pointer hover:underline"
             >
               Inicia sesión
             </p>

@@ -1,0 +1,80 @@
+﻿FLUJO DE LOGIN (ARQUITECTURA MODULAR)
+Proyecto: cliente
+Carpeta: src/components/auth
+
+1) VISTA GENERAL
+Tu login está modularizado en 4 piezas principales:
+- Header.tsx: controla el estado de apertura/cierre del login.
+- AuthModal.tsx: puente entre Header y el modal genérico.
+- Modal.tsx: contenedor reutilizable (overlay + caja + cierre).
+- AuthForm.tsx: lógica y UI del formulario (login/registro simulado).
+
+2) JERARQUÍA DE COMPONENTES (DE ARRIBA HACIA ABAJO)
+Header
+   -> AuthModal
+         -> Modal
+           -> AuthForm
+              -> SocialButton (Google/Facebook)
+                -> CustomInput (username/email/password)
+
+3) ORDEN REAL DE CONEXIÓN (EVENTOS)
+A. Abrir login
+1. En Header, el estado local isLoginOpen inicia en false.
+2. Click en botón de login (desktop) o opción Login en DropMenu (mobile).
+3. Header ejecuta setIsLoginOpen(true).
+4. Header renderiza <AuthModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />.
+5. AuthModal monta <Modal ...> y dentro monta <AuthForm onSuccess={onClose} />.
+
+B. Cerrar login
+1. El usuario puede cerrar desde:
+   - Botón X del Modal.
+   - Click fuera de la caja (overlay).
+   - Envío exitoso del formulario (onSuccess).
+2. En los 3 casos, se ejecuta onClose.
+3. onClose en Header hace setIsLoginOpen(false).
+4. AuthModal deja de renderizarse.
+
+C. Enviar formulario (AuthForm)
+1. AuthForm maneja estados internos:
+   - isLogin: alterna entre "Iniciar Sesión" y "Crear Cuenta".
+   - showPassword: muestra/oculta contraseña.
+   - formData: { email, password, username }.
+   - error: mensaje de validación.
+2. handleSubmit previene recarga (e.preventDefault()).
+3. Valida campos obligatorios:
+   - Login: email + password.
+   - Registro: username + email + password.
+4. Si falta algo, setError("Todos los campos son obligatorios") y corta el flujo.
+5. Si todo está completo:
+   - Muestra alert de éxito simulado.
+   - Ejecuta onSuccess() -> eso cierra el modal (sube hasta Header).
+
+4) RESPONSABILIDAD DE CADA MÓDULO
+- Header.tsx
+  - Estado maestro de visibilidad del login (isLoginOpen).
+  - Punto de entrada de acciones UI (icono login y menú móvil).
+
+- AuthModal.tsx
+  - Adaptador simple: conecta auth con el modal reutilizable.
+  - Pasa onClose al Modal y onSuccess al AuthForm.
+
+- Modal.tsx
+  - Reutilizable para cualquier contenido.
+  - Controla comportamiento de overlay, caja y botón de cierre.
+
+- AuthForm.tsx
+  - Encapsula lógica de formulario y alternancia login/registro.
+  - No llama API real todavía (flujo simulado con alert).
+
+- CustomInput.tsx / SocialButton.tsx
+  - Componentes de UI reutilizables sin lógica de negocio de autenticación.
+
+5) TIPO DE ARQUITECTURA QUE TIENES
+Es una arquitectura por capas de UI:
+- Capa de orquestación (Header).
+- Capa de composición (AuthModal + Modal).
+- Capa de lógica local de feature (AuthForm).
+- Capa de presentación reusable (CustomInput, SocialButton).
+
+6) RESUMEN EN UNA LÍNEA
+Header decide CUÁNDO abrir/cerrar, Modal decide CÓMO mostrar, y AuthForm decide QUÉ validar/enviar.
