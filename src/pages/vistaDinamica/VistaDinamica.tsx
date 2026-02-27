@@ -2,10 +2,12 @@ import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { productos } from "../../data/Productos";
 import { ShopContext } from "../../context/shopContext";
+import { useNavigate } from "react-router-dom";
 
 export const VistaDinamica = () => {
   const { id } = useParams();
   const shop = useContext(ShopContext);
+  const navigate = useNavigate();
 
   if (!shop) {
     throw new Error("Must be inside ShopProvider");
@@ -102,7 +104,7 @@ export const VistaDinamica = () => {
               En carrito: <span className="font-semibold">{productCountInCart}</span>
             </p>
 
-            <button className="w-full border border-red-300 text-red-400 py-3 rounded-lg cursor-pointer">
+            <button onClick={() => navigate("/personalizacion")} className="w-full border border-red-300 text-red-400 py-3 rounded-lg cursor-pointer">
               Personalizar con IA
             </button>
           </div>

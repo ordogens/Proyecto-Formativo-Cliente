@@ -2,6 +2,7 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
 import { CustomInput } from "../ui/inputs/CustomInput";
 import { SocialButton } from "../ui/buttons/SocialBotton";
+import Swal from "sweetalert2";
 import { GoogleIcon } from "../icons/GoogleIcon"
 import { FacebookIcon } from "../icons/FacebookIcon";
 
@@ -36,10 +37,19 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return;
     }
 
-    alert(isLogin ? "Login simulado ✅" : "Registro simulado ✅");
+    Swal.fire({
+      title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
+      text: isLogin
+        ? "Bienvenido de nuevo"
+        : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
+      icon: "success",
+      confirmButtonColor: "#059669",
+    });
 
     onSuccess();
   };
+
+  //=======================ALERTS========================//
 
   return (
     <>
