@@ -19,37 +19,53 @@ export const Header = () => {
   const { totalItems: cartCount } = shop;
 
   return (
-    <header className="w-full border-b border-gray-200">
-      <div className="w-full bg-gray-200 md:bg-white h-16 flex justify-between items-center px-4 md:px-8">
+    <header
+      className="
+        sticky
+        top-0
+        z-50
+        w-full
+        border-b
+        border-gray-200
+        bg-[#f3f0eb]/10
+        backdrop-blur-md
+      "
+    >
+      <div className="h-16 flex justify-between items-center px-4 md:px-8">
         {/* ===== MOBILE VIEW ===== */}
         <div className="flex items-center md:hidden w-full justify-between">
           <img
             src="/logo-cys-pos.png"
             alt="logo"
-            className="size-12"
+            className="size-12 cursor-pointer"
             onClick={() => navigate("/")}
           />
 
           <div className="flex items-center gap-4">
             <div className="relative">
-              <ShoppingBag size={26} onClick={() => navigate("/carrito")} />
+              <ShoppingBag
+                size={26}
+                className="cursor-pointer"
+                onClick={() => navigate("/carrito")}
+              />
 
               {cartCount > 0 && (
                 <span
                   className="
-                  absolute -top-1 -right-1
-                  bg-red-500 text-white
-                  text-[10px] font-bold
-                  rounded-full
-                  min-w-[16px] h-[16px]
-                  flex items-center justify-center
-                  px-1
-                "
+                    absolute -top-1 -right-1
+                    bg-red-500 text-white
+                    text-[10px] font-bold
+                    rounded-full
+                    min-w-[16px] h-[16px]
+                    flex items-center justify-center
+                    px-1
+                  "
                 >
                   {cartCount}
                 </span>
               )}
             </div>
+
             <DropMenu onLoginClick={() => setIsLoginOpen(true)} />
 
             <button onClick={() => setMenuMobileOpen(!menuMobileOpen)}>
@@ -60,7 +76,10 @@ export const Header = () => {
 
         {/* ===== DESKTOP VIEW ===== */}
         <div className="hidden md:flex w-full justify-between items-center">
-          <NavLink to="/" className="text-2xl font-semibold hover:text-red-500 transition duration-300">
+          <NavLink
+            to="/"
+            className="text-2xl font-semibold hover:text-red-500 transition duration-300"
+          >
             CraftYourStyle
           </NavLink>
 
@@ -84,14 +103,14 @@ export const Header = () => {
               {cartCount > 0 && (
                 <span
                   className="
-                  absolute -top-1 -right-1
-                  bg-red-500 text-white
-                  text-[10px] font-bold
-                  rounded-full
-                  min-w-[16px] h-[16px]
-                  flex items-center justify-center
-                  px-1 
-                "
+                    absolute -top-1 -right-1
+                    bg-red-500 text-white
+                    text-[10px] font-bold
+                    rounded-full
+                    min-w-[16px] h-[16px]
+                    flex items-center justify-center
+                    px-1 
+                  "
                 >
                   {cartCount}
                 </span>
@@ -102,24 +121,36 @@ export const Header = () => {
               className="cursor-pointer"
               onClick={() => setDarkMode(!darkMode)}
             >
-              {darkMode ? <Sun size={26} color="yellow" /> : <Moon size={26} className="hover:text-red-500"/>}
+              {darkMode ? (
+                <Sun size={26} color="yellow" />
+              ) : (
+                <Moon size={26} className="hover:text-red-500" />
+              )}
             </button>
 
             <button
               type="button"
-              className="border-1 border-zinc-200 group w-22 hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer"
+              className="border border-zinc-200 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
               onClick={() => setIsLoginOpen(true)}
               aria-label="Abrir login"
             >
-              <p className="text-lg text-orange-600 group-hover:text-[#f3f0eb]">Login</p>
-              <LogIn size={20} className="text-red-500 group-hover:text-[#f3f0eb]" />
+              <p className="text-lg text-orange-600 group-hover:text-[#f3f0eb]">
+                Login
+              </p>
+              <LogIn
+                size={20}
+                className="text-red-500 group-hover:text-[#f3f0eb]"
+              />
             </button>
           </div>
         </div>
       </div>
 
       {isLoginOpen && (
-        <AuthModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+        <AuthModal
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+        />
       )}
     </header>
   );
