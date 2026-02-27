@@ -64,7 +64,7 @@ export const ProductsLayout = ({
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto md:px-16 ">
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-14">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
           {children}
         </div>
       </div>
