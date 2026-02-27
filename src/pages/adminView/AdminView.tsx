@@ -10,8 +10,8 @@ export const AdminView = () => {
   return (
     <div className="px-4 md:px-8 flex flex-col gap-4">
       <section>
-        <h1 className="font-bold font-serif text-3xl">Panel de Administración</h1>
-        <p className="text-sm text-gray-400">
+        <h1 className="font-bold font-serif text-xl md:text-3xl">Panel de Administración</h1>
+        <p className="text-sm font-extralight md:font-normal text-gray-500">
           Gestiona productos, pedidos y personalizaciones IA.
         </p>
       </section>

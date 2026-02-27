@@ -127,7 +127,7 @@ export const Header = () => {
             <span className="w-1 hover:text-red-500 hover:scale-110 ">y</span>
             <span className="w-1 hover:text-red-500 hover:scale-110 ">l</span>
             <span className="w-1 hover:text-red-500 hover:scale-110 ">e</span> */}
-            <img ref={penRef} src="/pluma-de-tinta.png" alt="pluma" className="size-7 transition-transform duration-75 origin-center pointer-events-none" />
+            <img ref={penRef} src="/pluma-de-tinta.png" alt="pluma" className="size-7 ml-2 transition-transform duration-75 origin-center pointer-events-none" />
 
           </NavLink>
 
