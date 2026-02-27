@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 export const Catalogo = () => {
   const navigate = useNavigate();
   return (
-    <section className="bg-[#f3f0eb] text-black py-4 h-full px-8 md:px-20 flex flex-col gap-12">
+    <section className="bg-[#f3f0eb] dark:bg-gray-900 text-black dark:text-gray-300 transition-colors duration-300 py-4 px-8 md:px-20 flex flex-col gap-12">
       {/* Encabezado */}
       <div className="text-center mb-8">
         <p className="text-red-500 font-semibold tracking-widest uppercase text-sm">

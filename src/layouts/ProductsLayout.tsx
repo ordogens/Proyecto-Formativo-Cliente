@@ -21,6 +21,11 @@ export const ProductsLayout = ({
         h-220
         md:h-240
         bg-[#f3f0eb]
+        dark:bg-gray-900
+        text-black
+        dark:text-gray-300
+        transition-colors
+        duration-300
         p-4
         flex
         flex-col
@@ -34,7 +39,7 @@ export const ProductsLayout = ({
           <h1 className="text-3xl md:text-4xl font-serif font-semibold">
             {titulo}
           </h1>
-          <p className="text-gray-500 text-sm mt-2">
+          <p className="text-gray-500 dark:text-gray-300 text-sm mt-2">
             {totalProductos} productos disponibles
           </p>
         </div>
@@ -46,14 +51,19 @@ export const ProductsLayout = ({
                 key={filtro}
                 className="
                   border
+                  border-gray-300
+                  dark:border-gray-600
                   px-4
                   py-2
                   rounded-lg
                   text-sm
                   hover:bg-gray-200
+                  dark:hover:bg-gray-700
                   transition
                   focus:bg-black
                   focus:text-[#f3f0eb]
+                  dark:focus:bg-gray-100
+                  dark:focus:text-gray-900
                 "
               >
                 {filtro}

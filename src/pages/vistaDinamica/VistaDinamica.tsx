@@ -11,8 +11,8 @@ export const VistaDinamica = () => {
   const { id } = useParams();
   const shop = useContext(ShopContext);
   const navigate = useNavigate();
-  const [stock, useStock] = useState(true);
-  const [customizable, useCustomizable] = useState(false)
+  const stock = true;
+  const customizable = false;
 
   if (!shop) {
     throw new Error("Must be inside ShopProvider");
@@ -40,7 +40,7 @@ export const VistaDinamica = () => {
   );
 
   if (!producto) {
-    return <h1 className="text-center mt-20">Producto no encontrado</h1>;
+    return <h1 className="text-center mt-20 dark:text-gray-300">Producto no encontrado</h1>;
   }
 
   // const productCountInCart = cart
@@ -61,7 +61,7 @@ export const VistaDinamica = () => {
   };
 
   return (
-    <section className="h-full bg-[#f5f3ef] flex md:justify-center px-6 ">
+    <section className="h-full bg-[#f5f3ef] dark:bg-gray-900 text-black dark:text-gray-300 transition-colors duration-300 flex md:justify-center px-6 ">
       <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 md:gap-10 md:items-center">
 
         <div className="flex justify-center md:scale-120">
@@ -79,15 +79,15 @@ export const VistaDinamica = () => {
             <span className="text-sm text-red-400 capitalize">
               {producto.categoria}
             </span>
-            <h1 className="flex flex-col text-3xl md:text-4xl font-semibold font-serif text-gray-900">
+            <h1 className="flex flex-col text-3xl md:text-4xl font-semibold font-serif text-gray-900 dark:text-gray-300">
               {producto.nombre}
             </h1>
 
-            <p className="text-xl font-bold text-gray-900 font-serif">
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-300 font-serif">
               ${producto.precio.toLocaleString()}
             </p>
 
-            <p className="text-gray-500 leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-300 leading-relaxed">
               {producto.descripcion}
             </p>
           </section>
@@ -96,7 +96,7 @@ export const VistaDinamica = () => {
             <section className="flex flex-col gap-2 md:gap-3">
               <button
                 onClick={handleAddToCart}
-                className="w-full border flex gap-2 justify-center bg-black text-white py-3 rounded-lg cursor-pointer"
+                className="w-full border border-black dark:border-gray-600 hover:border-gray-400 flex gap-2 justify-center bg-black dark:bg-zinc-950 text-white dark:text-gray-300 py-3 rounded-lg cursor-pointer"
               >
                 <ShoppingBag size={20} />
                 Agregar al carrito
@@ -115,7 +115,7 @@ export const VistaDinamica = () => {
             </section>
 
           </div>
-          <section className="bg-[#EFEBE4] p-4 text-sm font-extralight flex flex-col gap-2 rounded-lg">
+          <section className="bg-[#EFEBE4] dark:bg-gray-800 p-4 text-sm font-extralight flex flex-col gap-2 rounded-lg">
             <p className="flex items-center">
               <span
                 className={`${stock ? "bg-green-400" : "bg-red-600"} size-2.5 inline-block rounded-2xl mr-3`}

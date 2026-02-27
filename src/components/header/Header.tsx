@@ -4,13 +4,14 @@ import { useContext, useState } from "react";
 import { DropMenu } from "./DropMenu";
 import { ShopContext } from "../../context/shopContext";
 import { AuthModal } from "../auth/AuthModal";
+import { useThemeContext } from "../../context/ThemeContext";
 
 export const Header = () => {
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const navigate = useNavigate();
   const shop = useContext(ShopContext);
+  const { theme, toggleTheme } = useThemeContext();
 
   if (!shop) {
     throw new Error("ShopContext must be used inside ShopProvider");
@@ -26,8 +27,9 @@ export const Header = () => {
         z-50
         w-full
         border-b
-        border-gray-200
-        bg-[#f3f0eb]/40
+        border-gray-200 dark:border-gray-700
+        bg-[#f3f0eb]/40 dark:bg-gray-900
+        text-gray-900 dark:text-gray-100
         backdrop-blur-md
       "
     >
@@ -78,16 +80,16 @@ export const Header = () => {
         <div className="hidden md:flex w-full justify-between items-center">
           <NavLink
             to="/"
-            className="text-2xl font-semibold hover:text-red-500 transition duration-300"
+            className="text-2xl font-semibold hover:text-red-500 dark:text-gray-300"
           >
             CraftYourStyle
           </NavLink>
 
           <nav className="flex gap-10">
-            <NavLink to="/catalogo" className="hover:text-red-500">
+            <NavLink to="/catalogo" className="hover:text-red-500 dark:text-gray-300">
               Catálogo
             </NavLink>
-            <NavLink to="/personalizacion" className="hover:text-red-500">
+            <NavLink to="/personalizacion" className="hover:text-red-500 dark:text-gray-300">
               Personalización
             </NavLink>
           </nav>
@@ -95,7 +97,7 @@ export const Header = () => {
           <div className="flex gap-4 items-center">
             <div className="relative">
               <ShoppingBag
-                className="cursor-pointer hover:text-red-500"
+                className="cursor-pointer hover:text-red-500 dark:text-gray-300"
                 size={26}
                 onClick={() => navigate("/carrito")}
               />
@@ -118,28 +120,30 @@ export const Header = () => {
             </div>
 
             <button
-              className="cursor-pointer"
-              onClick={() => setDarkMode(!darkMode)}
+              type="button"
+              className="cursor-pointer transition-none"
+              onClick={toggleTheme}
+              aria-label="Cambiar tema"
             >
-              {darkMode ? (
-                <Sun size={26} color="yellow" />
+              {theme === "dark" ? (
+                <Sun size={26} className="text-yellow-400" />
               ) : (
-                <Moon size={26} color="black" className="" />
+                <Moon size={26} className="text-gray-700" />
               )}
             </button>
 
             <button
               type="button"
-              className="border border-zinc-200 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors"
+              className="border border-zinc-200 dark:border-gray-600 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors duration-300"
               onClick={() => setIsLoginOpen(true)}
               aria-label="Abrir login"
             >
-              <p className="text-lg text-orange-600 group-hover:text-[#f3f0eb]">
+              <p className="text-lg text-orange-600 dark:text-orange-400 group-hover:text-[#f3f0eb]">
                 Login
               </p>
               <LogIn
                 size={20}
-                className="text-red-500 group-hover:text-[#f3f0eb]"
+                className="text-red-500 dark:text-red-400 group-hover:text-[#f3f0eb]"
               />
             </button>
           </div>
