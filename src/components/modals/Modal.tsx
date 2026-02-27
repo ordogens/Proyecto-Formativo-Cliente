@@ -12,11 +12,11 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
 
   return (
     <div
-      className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 w-screen h-screen " 
+      className="fixed inset-0 bg-black/70 flex justify-center items-center z-50 w-screen h-screen"
       onClick={onClose}
     >
       <div
-        className="relative bg-[#f3f0eb] p-6 rounded-2xl shadow-xl w-96 border-1 border-red-500"
+        className="relative bg-[#f3f0eb] p-8 rounded-2xl flex flex-col gap-2 shadow-xl w-96 border-1 border-red-500"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -25,7 +25,6 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         >
           <X className="size-5 cursor-pointer hover:text-red-500" />
         </button>
-
         {children}
       </div>
     </div>

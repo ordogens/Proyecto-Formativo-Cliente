@@ -1,17 +1,18 @@
 import { Trash2 } from "lucide-react";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { ShopContext } from "../../context/shopContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-
+import { InvoiceModal } from "../../components/invoice/InvoiceModal";
 
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
   const navigate = useNavigate();
+  const [invoice, setInvoice] = useState(false)
+  const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
-  if (!shop) {
+  if (!shop)
     throw new Error("ShopContext must be used inside ShopProvider");
-  }
 
   const {
     cart,
@@ -133,13 +134,28 @@ export const CarritoDeCompras = () => {
             <span>${finalTotal.toLocaleString()}</span>
           </div>
 
-          <button onClick={handleFinalizePurchase} className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer">
+          <button
+            onClick={() => {
+              handleFinalizePurchase();
+              setInvoice(true);
+              setIsInvoiceOpen(true);
+            }}
+            className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer"
+          >
             Finalizar compra
           </button>
 
-          <button 
-              onClick={() => navigate("/catalogo")}
-          className="w-full border py-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+          {invoice && (
+            // <Invoice onClose={() => setInvoice(false)} />
+            <InvoiceModal
+              isOpen={isInvoiceOpen}
+              onClose={() => setIsInvoiceOpen(false)}
+            />
+          )}
+
+          <button
+            onClick={() => navigate("/catalogo")}
+            className="w-full border py-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
             Seguir comprando
           </button>
         </div>
