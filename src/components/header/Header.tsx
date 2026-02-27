@@ -28,7 +28,7 @@ export const Header = () => {
         w-full
         border-b
         border-gray-200 dark:border-gray-700
-        bg-[#f3f0eb]/40 dark:bg-gray-900
+        bg-[#f3f0eb]/40 dark:bg-gray-900/40
         text-gray-900 dark:text-gray-100
         backdrop-blur-md
       "
