@@ -6,7 +6,6 @@ import { HomeP3 } from "../components/homeComponents/HomeP3";
 export const Home = () => {
   return (
     <div className="bg-[#130e0a] text-white overflow-x-hidden min-h-screen">
-
       {/* HERO */}
       <HomeP1 />
       
@@ -18,7 +17,6 @@ export const Home = () => {
 
       {/* FOOTER */}
       <Footer />
-      
     </div>
   );
 };

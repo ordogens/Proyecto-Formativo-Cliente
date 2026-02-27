@@ -10,6 +10,7 @@ import { VistaDinamica } from "./pages/vistaDinamica/VistaDinamica";
 import { CarritoDeCompras } from "./pages/carrito/CarritoDeCompras";
 
 import { PrincipalLayout } from "./layouts/PrincipalLayout";
+import { AdminView } from "./pages/adminView/AdminView";
 
 export const App = () => {
   return (
@@ -23,6 +24,7 @@ export const App = () => {
         <Route path="/gorros" element={<Gorros />} />
         <Route path="/vista-dinamica/:id" element={<VistaDinamica />} />
         <Route path="/carrito" element={<CarritoDeCompras />} />
+        <Route path="/admin-view" element={<AdminView />} />
       </Routes>
     </PrincipalLayout>
   );

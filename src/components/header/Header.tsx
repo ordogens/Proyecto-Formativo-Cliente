@@ -105,9 +105,28 @@ export const Header = () => {
         <div className="hidden md:flex w-full justify-between items-center">
           <NavLink
             to="/"
-            className="text-2xl font-semibold hover:text-red-500 dark:text-gray-300 flex gap-2 items-center"
+            className="text-xl font-serif font-semibold dark:text-gray-300 flex gap-2 items-center"
           >
-            CraftYourStyle
+            <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Craft</span>
+            <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Your</span>
+            <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Style</span>
+
+            {/* <span className="w-1 hover:text-red-500 hover:scale-110 ">C</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">r</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">a</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">f</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">t</span>
+
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">Y</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">o</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">u</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">r</span>
+
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">S</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">t</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">y</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">l</span>
+            <span className="w-1 hover:text-red-500 hover:scale-110 ">e</span> */}
             <img ref={penRef} src="/pluma-de-tinta.png" alt="pluma" className="size-7 transition-transform duration-75 origin-center pointer-events-none" />
 
           </NavLink>
