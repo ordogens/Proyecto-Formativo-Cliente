@@ -7,16 +7,16 @@ export const HomeP2 = () => {
   const navigate = useNavigate();
 
   return (
-    <section className="bg-[#f3f0eb] text-black py-24 px-8 md:px-20">
+    <section className="bg-[#f3f0eb] dark:bg-gray-900 text-black dark:text-gray-100 transition-colors duration-300 py-24 px-8 md:px-20">
       {/* Encabezado */}
       <div className="text-center mb-16">
         <p className="text-red-500 font-bold tracking-widest uppercase text-sm">
           Nuestras colecciones
         </p>
-        <h2 className="text-4xl font-serif md:text-5xl font-semibold mt-4">
+        <h2 className="text-4xl font-serif md:text-5xl font-semibold mt-4 dark:text-gray-300">
           Explora por categorias
         </h2>
-        <p className="text-md md:text-lg text-gray-500 mt-4">Explora nuestras categorias y encuentra tu prenda perfecta</p>
+        <p className="text-md md:text-lg text-gray-600 dark:text-gray-300 mt-4">Explora nuestras categorias y encuentra tu prenda perfecta</p>
       </div>
 
       {/* Grid de cards */}

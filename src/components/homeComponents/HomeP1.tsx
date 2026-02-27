@@ -21,7 +21,7 @@ export const HomeP1 = () => {
           Inteligencia artificial + moda
         </p>
 
-        <h1 className="text-4xl md:text-6xl font-serif leading-tight">
+        <h1 className="text-4xl md:text-6xl font-serif leading-tight dark:text-gray-300">
           Personaliza tu estilo con IA
         </h1>
 
@@ -40,7 +40,7 @@ export const HomeP1 = () => {
 
           <NavLink
             to="/personalizacion"
-            className="border border-gray-600 hover:border-white transition px-6 py-3 rounded-lg"
+            className="border border-gray-600 hover:border-white transition px-6 py-3 rounded-lg dark:text-gray-300"
           >
             Personalizar
           </NavLink>

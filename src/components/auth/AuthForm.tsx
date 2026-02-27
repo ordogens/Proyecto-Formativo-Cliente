@@ -53,7 +53,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <>
-      <h1 className="text-black font-serif text-center text-2xl font-bold mb-6">
+      <h1 className="text-black dark:text-gray-100 font-serif text-center text-2xl font-bold mb-6">
         {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
       </h1>
 
@@ -132,7 +132,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           {isLogin ? "Iniciar sesión" : "Crear cuenta"}
         </button>
       </form>
-      <div className="flex justify-center mt-4 text-sm">
+      <div className="flex justify-center mt-4 text-sm text-gray-700 dark:text-gray-300">
         {isLogin ? (
           <>
             <p>¿No tienes cuenta?</p>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useThemeContext } from "../../context/ThemeContext";
 
 interface DropMenuProps {
   onLoginClick: () => void;
@@ -10,13 +11,13 @@ type MenuAction = () => void;
 
 export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
   const [open, setOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useThemeContext();
 
   const options = [
     {
       label: "Theme",
-      action: () => setDarkMode(prev => !prev),
+      action: toggleTheme,
     },
     {
       label: "Catálogo",
@@ -55,7 +56,7 @@ export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
                   {label}
 
                   {label === "Theme" &&
-                    (darkMode ? (
+                    (theme === "dark" ? (
                       <Sun size={18} color="orange" />
                     ) : (
                       <Moon size={18} />

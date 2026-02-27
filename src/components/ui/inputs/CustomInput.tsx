@@ -23,7 +23,7 @@ export const CustomInput = ({
 }: InputProps) => {
   return (
     <div className="group">
-      <label className="block text-sm font-medium text-black">
+      <label className="block text-sm font-medium text-black dark:text-gray-200">
         {label}
       </label>
 
@@ -44,12 +44,20 @@ export const CustomInput = ({
             w-full
             rounded-md
             border
+            border-gray-300
+            bg-white
+            text-gray-900
+            placeholder:text-gray-400
             py-2
             text-sm
             shadow-sm
             transition-colors
             focus:outline-none
             focus:border-red-500
+            dark:border-gray-600
+            dark:bg-gray-800
+            dark:text-gray-100
+            dark:placeholder:text-gray-400
             ${icon ? "pl-10" : "pl-3"}
             ${rightElement ? "pr-10" : "pr-3"}
           `}

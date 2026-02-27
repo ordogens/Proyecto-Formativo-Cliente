@@ -4,7 +4,6 @@ import { ShopContext } from "../../context/shopContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
   const navigate = useNavigate();
@@ -35,35 +34,30 @@ export const CarritoDeCompras = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f2ee] p-4 md:p-10">
-      {/* Título */}
+    <div className="min-h-screen bg-[#f5f2ee] dark:bg-gray-900 text-black dark:text-gray-300 transition-colors duration-300 p-4 md:p-10">
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-serif">Tu carrito</h1>
-        <p className="text-gray-500 text-sm mt-2">
-          {totalItems} artículos en tu carrito
+        <p className="text-gray-500 dark:text-gray-300 text-sm mt-2">
+          {totalItems} articulos en tu carrito
         </p>
       </div>
 
-      {/* Layout principal */}
-      <div className="flex flex-col lg:flex-row gap-8 ">
-        {/* Lista de productos */}
+      <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-6">
           {cart.length === 0 ? (
-            <p className="text-gray-500">Tu carrito está vacío</p>
+            <p className="text-gray-500 dark:text-gray-300">Tu carrito esta vacio</p>
           ) : (
             cart.map((item) => (
               <div
                 key={item.cartId}
-                className="bg-white rounded-xl p-4 shadow-sm flex gap-4 items-center"
+                className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm flex gap-4 items-center transition-colors duration-300"
               >
-                {/* Imagen */}
                 <img
                   src={item.image}
                   alt={item.name}
                   className="w-24 h-24 rounded-lg object-cover"
                 />
 
-                {/* Info */}
                 <div className="flex-1">
                   <div className="flex justify-between items-start">
                     <div>
@@ -78,32 +72,26 @@ export const CarritoDeCompras = () => {
 
                     <Trash2
                       size={18}
-                      className="text-gray-400 cursor-pointer"
+                      className="text-gray-400 dark:text-gray-300 cursor-pointer"
                       onClick={() => removeFromCart(item.cartId)}
                     />
                   </div>
 
-                  {/* Cantidad */}
                   <div className="mt-4 flex items-center gap-3">
-                    <div className="flex items-center border rounded-md px-3 py-1 gap-4">
-                      <button
-                        onClick={() => decreaseQuantity(item.cartId)}
-                      >
+                    <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1 gap-4">
+                      <button onClick={() => decreaseQuantity(item.cartId)}>
                         -
                       </button>
 
                       <span>{item.quantity}</span>
 
-                      <button
-                        onClick={() => increaseQuantity(item.cartId)}
-                      >
+                      <button onClick={() => increaseQuantity(item.cartId)}>
                         +
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Precio */}
                 <div className="font-semibold text-right">
                   ${(item.price * item.quantity).toLocaleString()}
                 </div>
@@ -112,34 +100,37 @@ export const CarritoDeCompras = () => {
           )}
         </div>
 
-        {/* Resumen */}
-        <div className="w-full lg:w-[350px] bg-white rounded-xl p-6 shadow-sm h-fit">
+        <div className="w-full lg:w-[350px] bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm h-fit transition-colors duration-300">
           <h2 className="text-xl font-serif mb-4">Resumen del pedido</h2>
 
-          <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-2">
             <span>Subtotal</span>
             <span>${total.toLocaleString()}</span>
           </div>
 
-          <div className="flex justify-between text-sm text-gray-600 mb-4">
-            <span>Envío</span>
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-4">
+            <span>Envio</span>
             <span>${shipping.toLocaleString()}</span>
           </div>
 
-          <hr className="mb-4" />
+          <hr className="mb-4 border-gray-300 dark:border-gray-600" />
 
           <div className="flex justify-between font-semibold mb-6">
             <span>Total</span>
             <span>${finalTotal.toLocaleString()}</span>
           </div>
 
-          <button onClick={handleFinalizePurchase} className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer">
+          <button
+            onClick={handleFinalizePurchase}
+            className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer"
+          >
             Finalizar compra
           </button>
 
-          <button 
-              onClick={() => navigate("/catalogo")}
-          className="w-full border py-3 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+          <button
+            onClick={() => navigate("/catalogo")}
+            className="w-full border border-gray-300 dark:border-gray-600 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
+          >
             Seguir comprando
           </button>
         </div>
