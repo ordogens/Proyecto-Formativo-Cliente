@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  EyeIcon,
-  EyeOffIcon,
-  MailIcon,
-  LockIcon,
-  Facebook,
-  Chromium,
-} from "lucide-react";
+import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
 import { CustomInput } from "../ui/inputs/CustomInput";
 import { SocialButton } from "../ui/buttons/SocialBotton";
 import Swal from "sweetalert2";
@@ -14,7 +7,6 @@ import Swal from "sweetalert2";
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -59,15 +51,36 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <>
-      <h1 className="text-red-500 text-center text-2xl font-bold mb-4">
+      <h1 className="text-black font-serif text-center text-2xl font-bold mb-6">
         {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
       </h1>
 
-      <SocialButton icon={<Chromium size={20} />} text="Continuar con Google" />
-      <SocialButton
-        icon={<Facebook size={20} />}
-        text="Continuar con Facebook"
-      />
+      <section className="flex flex-col gap-1">
+        <SocialButton
+          border="#ff6467"
+          bgColor="#fffafa"
+          icon={
+            <GoogleIcon
+              size={20}
+              className="text-[#666666] group-hover:text-[#ff6467] transition-colors"
+            />
+          }
+          text="Continuar con Google"
+        />
+
+        <SocialButton
+          border="#0866ff"
+          bgColor="#f4f8ff"
+          icon={
+            <FacebookIcon
+              size={22}
+              className="text-[#666666] group-hover:text-[#0866ff] transition-colors"
+            />
+          }
+          text="Continuar con Facebook"
+        />
+      </section>
+
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
         {!isLogin && (
           <CustomInput
@@ -86,7 +99,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           type="email"
           value={formData.email}
           placeholder="tu@email.com"
-          icon={<MailIcon size={18} />}
+          icon={<MailIcon size={18} className="" />}
           onChange={handleChange}
         />
 
@@ -96,7 +109,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           type={showPassword ? "text" : "password"}
           value={formData.password}
           placeholder="Tu contraseña"
-          icon={<LockIcon size={18} />}
+          icon={<LockIcon size={18} className="" />}
           rightElement={
             <button
               type="button"
@@ -112,7 +125,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
         <button
           type="submit"
-          className="w-full rounded-md bg-red-500 px-6 py-3 text-white text-sm font-medium hover:bg-red-600 transition cursor-pointer"
+          className="w-full bg-red-500/90 hover:bg-red-500 text-white transition px-6 py-2 mt-2 rounded-lg font-medium cursor-pointer"
         >
           {isLogin ? "Iniciar sesión" : "Crear cuenta"}
         </button>

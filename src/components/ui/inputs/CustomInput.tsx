@@ -22,14 +22,14 @@ export const CustomInput = ({
   onChange,
 }: InputProps) => {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700">
+    <div className="group">
+      <label className="block text-sm font-medium text-black">
         {label}
       </label>
 
       <div className="relative mt-1">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-red-500 transition-colors">
             {icon}
           </div>
         )}
@@ -40,13 +40,23 @@ export const CustomInput = ({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          className={`w-full rounded-md border py-2 text-sm shadow-sm focus:outline-none focus:border-emerald-500 ${
-            icon ? "pl-10" : "pl-3"
-          } ${rightElement ? "pr-10" : "pr-3"}`}
+          className={`
+            w-full
+            rounded-md
+            border
+            py-2
+            text-sm
+            shadow-sm
+            transition-colors
+            focus:outline-none
+            focus:border-red-500
+            ${icon ? "pl-10" : "pl-3"}
+            ${rightElement ? "pr-10" : "pr-3"}
+          `}
         />
 
         {rightElement && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 group-focus-within:text-red-500 transition-colors">
             {rightElement}
           </div>
         )}
