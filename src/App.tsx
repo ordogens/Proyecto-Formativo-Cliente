@@ -8,7 +8,6 @@ import { RopaMujer } from "./pages/RMujer/RopaMujer";
 import { Gorros } from "./pages/Gorros/Gorros";
 import { VistaDinamica } from "./pages/vistaDinamica/VistaDinamica";
 import { CarritoDeCompras } from "./pages/carrito/CarritoDeCompras";
-
 import { PrincipalLayout } from "./layouts/PrincipalLayout";
 import { AdminView } from "./pages/adminView/AdminView";
 
