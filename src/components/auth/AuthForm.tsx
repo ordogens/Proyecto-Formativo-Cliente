@@ -45,6 +45,14 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       icon: "success",
       confirmButtonColor: "#059669",
     });
+    Swal.fire({
+      title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
+      text: isLogin
+        ? "Bienvenido de nuevo"
+        : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
+      icon: "success",
+      confirmButtonColor: "#059669",
+    });
 
     onSuccess();
   };
