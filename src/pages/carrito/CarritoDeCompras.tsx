@@ -2,6 +2,8 @@ import { Trash2 } from "lucide-react";
 import { useContext } from "react";
 import { ShopContext } from "../../context/shopContext";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+
 
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
@@ -22,6 +24,15 @@ export const CarritoDeCompras = () => {
 
   const shipping = 9000;
   const finalTotal = total + shipping;
+
+  const handleFinalizePurchase = () => {
+    Swal.fire({
+      title: "Compra exitosa",
+      text: "Dirigite a tu correo para revisar el mail que te llego.",
+      icon: "success",
+      confirmButtonText: "Entendido",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-[#f5f2ee] p-4 md:p-10">
@@ -122,7 +133,7 @@ export const CarritoDeCompras = () => {
             <span>${finalTotal.toLocaleString()}</span>
           </div>
 
-          <button className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer">
+          <button onClick={handleFinalizePurchase} className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer">
             Finalizar compra
           </button>
 

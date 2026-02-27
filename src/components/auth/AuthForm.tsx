@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { CustomInput } from "../ui/inputs/CustomInput";
 import { SocialButton } from "../ui/buttons/SocialBotton";
+import Swal from "sweetalert2";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,17 +43,26 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return;
     }
 
-    alert(isLogin ? "Login simulado ✅" : "Registro simulado ✅");
+    Swal.fire({
+      title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
+      text: isLogin
+        ? "Bienvenido de nuevo"
+        : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
+      icon: "success",
+      confirmButtonColor: "#059669",
+    });
 
     onSuccess();
   };
+
+  //=======================ALERTS========================//
 
   return (
     <>
       <h1 className="text-red-500 text-center text-2xl font-bold mb-4">
         {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
       </h1>
-      
+
       <SocialButton icon={<Chromium size={20} />} text="Continuar con Google" />
       <SocialButton
         icon={<Facebook size={20} />}
@@ -102,7 +112,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
         <button
           type="submit"
-          className="w-full rounded-md bg-emerald-600 px-6 py-3 text-white text-sm font-medium hover:bg-emerald-700 transition"
+          className="w-full rounded-md bg-red-500 px-6 py-3 text-white text-sm font-medium hover:bg-red-600 transition cursor-pointer"
         >
           {isLogin ? "Iniciar sesión" : "Crear cuenta"}
         </button>
