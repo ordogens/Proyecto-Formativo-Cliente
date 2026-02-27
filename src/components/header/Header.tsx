@@ -1,6 +1,6 @@
 import { Moon, Sun, LogIn, X, ShoppingBag } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { DropMenu } from "./DropMenu";
 import { ShopContext } from "../../context/shopContext";
 import { AuthModal } from "../auth/AuthModal";
@@ -8,10 +8,35 @@ import { useThemeContext } from "../../context/ThemeContext";
 
 export const Header = () => {
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
+  const penRef = useRef<HTMLImageElement | null>(null);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const navigate = useNavigate();
   const shop = useContext(ShopContext);
   const { theme, toggleTheme } = useThemeContext();
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!penRef.current) return;
+
+      const rect = penRef.current.getBoundingClientRect();
+
+      const penX = rect.left + rect.width / 2;
+      const penY = rect.top + rect.height / 2;
+
+      const deltaX = e.clientX - penX;
+      const deltaY = e.clientY - penY;
+
+      const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+      penRef.current.style.transform = `rotate(${angle + 90}deg)`;
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   if (!shop) {
     throw new Error("ShopContext must be used inside ShopProvider");
@@ -80,9 +105,11 @@ export const Header = () => {
         <div className="hidden md:flex w-full justify-between items-center">
           <NavLink
             to="/"
-            className="text-2xl font-semibold hover:text-red-500 dark:text-gray-300"
+            className="text-2xl font-semibold hover:text-red-500 dark:text-gray-300 flex gap-2 items-center"
           >
             CraftYourStyle
+            <img ref={penRef} src="/pluma-de-tinta.png" alt="pluma" className="size-7 transition-transform duration-75 origin-center pointer-events-none" />
+
           </NavLink>
 
           <nav className="flex gap-10">
