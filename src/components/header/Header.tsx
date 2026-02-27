@@ -60,7 +60,7 @@ export const Header = () => {
 
         {/* ===== DESKTOP VIEW ===== */}
         <div className="hidden md:flex w-full justify-between items-center">
-          <NavLink to="/" className="text-2xl font-semibold">
+          <NavLink to="/" className="text-2xl font-semibold hover:text-red-500 transition duration-300">
             CraftYourStyle
           </NavLink>
 
@@ -76,7 +76,7 @@ export const Header = () => {
           <div className="flex gap-4 items-center">
             <div className="relative">
               <ShoppingBag
-                className="cursor-pointer"
+                className="cursor-pointer hover:text-red-500"
                 size={26}
                 onClick={() => navigate("/carrito")}
               />
@@ -90,7 +90,7 @@ export const Header = () => {
                   rounded-full
                   min-w-[16px] h-[16px]
                   flex items-center justify-center
-                  px-1
+                  px-1 
                 "
                 >
                   {cartCount}
@@ -102,7 +102,7 @@ export const Header = () => {
               className="cursor-pointer"
               onClick={() => setDarkMode(!darkMode)}
             >
-              {darkMode ? <Sun size={26} color="yellow" /> : <Moon size={26} />}
+              {darkMode ? <Sun size={26} color="yellow" /> : <Moon size={26} className="hover:text-red-500"/>}
             </button>
 
             <button
