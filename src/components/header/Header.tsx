@@ -134,16 +134,16 @@ export const Header = () => {
 
             <button
               type="button"
-              className="border border-zinc-200 dark:border-gray-600 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors duration-300"
+              className="border border-zinc-200 dark:border-gray-600 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors duration-200"
               onClick={() => setIsLoginOpen(true)}
               aria-label="Abrir login"
             >
-              <p className="text-lg text-orange-600 dark:text-orange-400 group-hover:text-[#f3f0eb]">
+              <p className="text-lg text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200">
                 Login
               </p>
               <LogIn
                 size={20}
-                className="text-red-500 dark:text-red-400 group-hover:text-[#f3f0eb]"
+                className="text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200"
               />
             </button>
           </div>

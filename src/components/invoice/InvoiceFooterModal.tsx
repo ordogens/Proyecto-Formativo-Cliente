@@ -38,18 +38,18 @@ export const InvoiceFooterModal = ({ onClose }: Props) => {
 
       <section className="flex gap-2 border-t-1 pt-2 border-zinc-600">
         <button
-          className="flex items-center justify-center gap-1 bg-gray-200 p-1 border-1 border-zinc-500 group hover:bg-gray-800 transition duration-200 rounded-md cursor-pointer w-full"
+          className="flex items-center justify-center gap-1 bg-gray-200 p-1 border-1 dark:bg-transparent dark:hover:bg-gray-950 border-zinc-500 group hover:bg-gray-800 transition duration-200 rounded-md cursor-pointer w-full"
           onClick={() => { }}
         >
-          <PrinterIcon strokeWidth={1.5} size={20} className="text-zinc-700 group-hover:text-zinc-100 transition duration-200" />
-          <p className="text-zinc-700 group-hover:text-zinc-100 transition duration-200">Descargar</p>
+          <PrinterIcon strokeWidth={1.5} size={20} className="text-zinc-700 dark:text-zinc-300 dark:group-hover:text-red-500 group-hover:text-zinc-100 transition duration-200" />
+          <p className="text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-100 dark:group-hover:text-red-500 transition duration-200">Descargar</p>
         </button>
         <button
-          className="flex items-center justify-center gap-1 bg-red-200 p-1 border-1 border-red-500 group transition duration-200 hover:bg-red-500 rounded-md cursor-pointer w-full"
+          className="flex items-center justify-center gap-1 bg-red-200 dark:bg-transparent dark:hover:bg-red-500 p-1 border-1 border-red-500 group transition duration-200 hover:bg-red-500 rounded-md cursor-pointer w-full"
           onClick={onClose}
         >
           <CircleX strokeWidth={1.5} size={20} className="text-red-500 rotate-180 group-hover:text-white transition duration-200" />
-          <p className="text-red-500 group-hover:text-white transition duration-200">Volver</p>
+          <p className="text-red-500 group-hover:text-white transition duration-200 ">Volver</p>
         </button>
       </section>
     </footer>
