@@ -45,12 +45,12 @@ export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-lg border bg-white shadow-lg z-50">
-          <ul className="p-2 text-sm text-gray-700 flex flex-col gap-2 ">
+        <div className="absolute right-0 mt-2 w-48 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg z-50 transition-colors duration-300">
+          <ul className="p-2 text-sm text-gray-700 dark:text-gray-300 flex flex-col gap-2">
             {options.map(({ label, action }) => (
               <li key={label}>
                 <button
-                  className="w-full flex items-center justify-between px-4 py-1 rounded-md bg-gray-100"
+                  className="w-full flex items-center justify-between px-4 py-1 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
                   onClick={() => handleClick(action)}
                 >
                   {label}
