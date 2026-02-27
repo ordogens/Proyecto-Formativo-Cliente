@@ -1,2 +1,7 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
+
+.pdf-safe {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+}

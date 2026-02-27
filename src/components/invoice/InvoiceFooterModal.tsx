@@ -1,10 +1,19 @@
 import { CircleX, PrinterIcon } from "lucide-react"
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { InvoicePDF } from "../../pdf/InvoicePDF";
+import type { Product } from "../../types/invoice";
+import { formatDate } from "../../utils/invoice";
 
 interface Props {
   onClose: () => void;
+  products: Product[];
+  totalProducts: number;
+  totalValor: number;
+  issueDate: Date;
+  dueDate: Date;
 }
 
-export const InvoiceFooterModal = ({ onClose }: Props) => {
+export const InvoiceFooterModal = ({ onClose, products, totalProducts, totalValor, issueDate, dueDate }: Props) => {
   return (
     <footer className="mt-1">
       <p className="text-[10px] text-justify">Gracias por su compra. Para cualquier consulta relacionada con esta factura, comuníquese con nosotros dentro de los plazos establecidos.</p>
@@ -37,13 +46,32 @@ export const InvoiceFooterModal = ({ onClose }: Props) => {
       </section>
 
       <section className="flex gap-2 border-t-1 pt-2 border-zinc-600">
-        <button
+        <PDFDownloadLink
+          document={
+            <InvoicePDF
+              products={products}
+              totalProducts={totalProducts}
+              totalValor={totalValor}
+              issueDate={formatDate(issueDate)}
+              dueDate={formatDate(dueDate)}
+            />
+          }
+          fileName="factura-compra.pdf"
           className="flex items-center justify-center gap-1 bg-gray-200 p-1 border-1 dark:bg-transparent dark:hover:bg-gray-950 border-zinc-500 group hover:bg-gray-800 transition duration-200 rounded-md cursor-pointer w-full"
-          onClick={() => { }}
         >
-          <PrinterIcon strokeWidth={1.5} size={20} className="text-zinc-700 dark:text-zinc-300 dark:group-hover:text-red-500 group-hover:text-zinc-100 transition duration-200" />
-          <p className="text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-100 dark:group-hover:text-red-500 transition duration-200">Descargar</p>
-        </button>
+          {({ loading }) => (
+            <>
+              <PrinterIcon
+                strokeWidth={1.5}
+                size={20}
+                className="text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-100 transition duration-200"
+              />
+              <p className="text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-100 transition duration-200">
+                {loading ? "Generando..." : "Descargar"}
+              </p>
+            </>
+          )}
+        </PDFDownloadLink>
         <button
           className="flex items-center justify-center gap-1 bg-red-200 dark:bg-transparent dark:hover:bg-red-500 p-1 border-1 border-red-500 group transition duration-200 hover:bg-red-500 rounded-md cursor-pointer w-full"
           onClick={onClose}

@@ -15,7 +15,7 @@ const products: Product[] = [
 ];
 
 interface Props {
-    onClose: () => void;
+  onClose: () => void;
 }
 
 export const Invoice = ({ onClose }: Props) => {
@@ -26,7 +26,7 @@ export const Invoice = ({ onClose }: Props) => {
   const { totalProducts, totalValor } = getInvoiceTotals(products);
 
   return (
-    <div className="py-2 px-2 mr-2 rounded-lg w-full relative font-mono">
+    <div id="invoice-pdf" className="py-2 px-2 bg-white text-black mr-2 rounded-lg w-full relative font-mono pdg-safe">
 
       <header className="flex flex-col gap-2">
         <h2 className="text-xl text-center">FACTURA DE COMPRA</h2>
@@ -47,7 +47,13 @@ export const Invoice = ({ onClose }: Props) => {
         totalProducts={totalProducts}
         totalValor={totalValor}
       />
-      <InvoiceFooterModal onClose={onClose} />
-    </div>
+      <InvoiceFooterModal
+        onClose={onClose}
+        products={products}
+        totalProducts={totalProducts}
+        totalValor={totalValor}
+        issueDate={issueDate}
+        dueDate={dueDate}
+      />    </div>
   );
 };
