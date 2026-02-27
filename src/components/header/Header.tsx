@@ -1,4 +1,4 @@
-import { Moon, Sun, LogIn, X, ShoppingBag } from "lucide-react";
+import { Moon, Sun, LogIn, X, ShoppingBag, User } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { DropMenu } from "./DropMenu";
@@ -164,6 +164,8 @@ export const Header = () => {
                 </span>
               )}
             </div>
+
+            <User className="text-black dark:text-white cursor-pointer hover:text-red-500" onClick={() => navigate("/admin-view")} />
 
             <button
               type="button"

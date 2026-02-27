@@ -9,9 +9,9 @@ interface Props {
 
 export const AdminNavbar = ({ active, onChange }: Props) => {
   const itemClass = (view: AdminViewType) =>
-    `flex gap-2 items-center rounded-md w-fit px-3 py-1 cursor-pointer border border-gray-300
-     ${active === view ? "bg-red-100 text-red-500 border-red-500" : "bg-[#f3f0eb] text-gray-800"}
-     hover:border-red-500 hover:bg-red-50 w-full md:w-fit justify-center`
+    `flex gap-2 items-center rounded-md w-fit px-3 py-1 cursor-pointer border dark:hover:bg-gary-700 dark:text-gray-500 border-gray-300 dark:hover:text-gray-200 dark:border-gray-500
+     ${active === view ? "bg-red-100 dark:bg-red-100/50 dark:hover:bg-black text-red-500 dark:text-white border-red-500 dark:border-red-500" : "bg-[#f3f0eb] dark:bg-gray-900 text-gray-800 "}
+     hover:border-red-500 hover:bg-red-50 w-full md:w-fit justify-center dark:hover:bg-gray-700`
 
   return (
     <nav>
