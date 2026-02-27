@@ -10,7 +10,7 @@ export const ResumenView = () => {
         ))}
       </div>
       <div>
-        // TODO: Aquí van las gráficas estadísticas de barra con un scroll vertical con el fin de que queden todas en la misma vista y sean accesibles desde ahí
+        {/* Aquí van las gráficas estadísticas de barra con un scroll vertical con el fin de que queden todas en la misma vista y sean accesibles desde ahí */}
       </div>
     </div >
   )
