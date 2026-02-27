@@ -5,8 +5,6 @@ import { SocialButton } from "../ui/buttons/SocialBotton";
 import { FacebookIcon } from "../icons/FacebookIcon";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import Swal from "sweetalert2";
-import { GoogleIcon } from "../icons/GoogleIcon"
-import { FacebookIcon } from "../icons/FacebookIcon";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -39,14 +37,6 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return;
     }
 
-    Swal.fire({
-      title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
-      text: isLogin
-        ? "Bienvenido de nuevo"
-        : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
-      icon: "success",
-      confirmButtonColor: "#059669",
-    });
     Swal.fire({
       title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
       text: isLogin
