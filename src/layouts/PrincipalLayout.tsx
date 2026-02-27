@@ -7,7 +7,7 @@ interface Props {
 
 export const PrincipalLayout = ({ children }: Props) => {
   return (
-    <div className="h-screen w-screen flex flex-col overflow-x-hidden bg-[#f3f0eb]">
+    <div className="h-screen w-screen flex flex-col overflow-x-hidden bg-[#f3f0eb] dark:bg-gray-900">
       <Header />
       <div className="flex-1 h-screen w-screen">{children}</div>
     </div>
