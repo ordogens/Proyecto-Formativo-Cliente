@@ -15,10 +15,11 @@ export const ProductCard = ({ producto }: ProductCardProps) => {
       onClick={handleClick}
       className="bg-white rounded-2xl flex flex-col gap-2 shadow-sm hover:shadow-md w-45 md:w-60 h-75 md:h-95 transition overflow-hidden cursor-pointer mt-3 md:mt-1"
     >
+      {/* <p className="relative flex self-end pr-2 pt-1 text-[12px] text-red-500/60 font-bold md:text-transparent  rounded-4xl drop-shadow-xl">Click para ver detalles</p> */}
       <img
         src={producto.imagen}
         alt={producto.nombre}
-        className="w-full h-50 md:h-70"
+        className="w-full h-50 md:h-70 "
       />
 
       <div className="px-2 flex flex-col gap-1">
@@ -29,7 +30,7 @@ export const ProductCard = ({ producto }: ProductCardProps) => {
 
         <button
           onClick={handleClick}
-          className="w-full border border-gray-300 rounded-lg p-1 text-sm hover:bg-gray-100 transition cursor-pointer"
+          className="w-full border border-red-500 text-red-500 bg-red-100 rounded-lg p-1 text-sm hover:bg-red-500 hover:text-white transition cursor-pointer"
         >
           Ver detalles
         </button>

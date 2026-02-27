@@ -31,7 +31,118 @@ export const productos: Producto[] = [
     categoria: "hombre",
     descripcion: "Diseño moderno ajustado al cuerpo."
   },
-
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
+  {
+    id: 1,
+    nombre: "Camisa Gris Premium",
+    precio: 10000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Camisa elegante de algodón premium para ocasiones especiales."
+  },
+  {
+    id: 2,
+    nombre: "Camisa Negra Slim Fit",
+    precio: 12000,
+    imagen: camisa,
+    categoria: "hombre",
+    descripcion: "Diseño moderno ajustado al cuerpo."
+  },
   // MUJER
   {
     id: 3,
