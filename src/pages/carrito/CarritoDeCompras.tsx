@@ -27,11 +27,18 @@ export const CarritoDeCompras = () => {
   const finalTotal = total + shipping;
 
   const handleFinalizePurchase = () => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+
     Swal.fire({
       title: "Compra exitosa",
       text: "Dirigite a tu correo para revisar el mail que te llego.",
       icon: "success",
       confirmButtonText: "Entendido",
+      confirmButtonColor: "#fb2c36",
+      ...(isDarkMode && {
+        background: "#101828",
+        color: "#e5e7eb",
+      }),
     });
   };
 
@@ -66,7 +73,7 @@ export const CarritoDeCompras = () => {
                       <h3 className="font-medium">{item.name}</h3>
 
                       {item.personalized && (
-                        <p className="text-xs text-red-400 mt-1">
+                        <p className="text-xs text-red-500 mt-1">
                           + Personalizado con IA
                         </p>
                       )}

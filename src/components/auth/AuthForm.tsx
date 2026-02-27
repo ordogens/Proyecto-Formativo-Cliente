@@ -37,13 +37,19 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return;
     }
 
+    const isDarkMode = document.documentElement.classList.contains("dark");
     Swal.fire({
+
       title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
       text: isLogin
         ? "Bienvenido de nuevo"
         : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
       icon: "success",
-      confirmButtonColor: "#059669",
+      confirmButtonColor: "#fb2c36",
+      ...(isDarkMode && {
+        background: "#101828",
+        color: "#e5e7eb",
+      }),
     });
 
     onSuccess();
