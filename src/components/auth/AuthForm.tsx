@@ -2,6 +2,8 @@ import { useState } from "react";
 import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
 import { CustomInput } from "../ui/inputs/CustomInput";
 import { SocialButton } from "../ui/buttons/SocialBotton";
+import { FacebookIcon } from "../icons/FacebookIcon";
+import { GoogleIcon } from "../icons/GoogleIcon";
 import Swal from "sweetalert2";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
