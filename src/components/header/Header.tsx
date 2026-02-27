@@ -27,7 +27,7 @@ export const Header = () => {
         w-full
         border-b
         border-gray-200
-        bg-[#f3f0eb]/10
+        bg-[#f3f0eb]/40
         backdrop-blur-md
       "
     >
@@ -124,7 +124,7 @@ export const Header = () => {
               {darkMode ? (
                 <Sun size={26} color="yellow" />
               ) : (
-                <Moon size={26} className="hover:text-red-500" />
+                <Moon size={26} color="black" className="" />
               )}
             </button>
 
