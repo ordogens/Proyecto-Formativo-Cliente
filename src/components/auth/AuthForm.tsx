@@ -129,7 +129,6 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <p
               onClick={() => setIsLogin(false)}
               className="ml-1 text-red-500 cursor-pointer hover:underline"
-              className="ml-1 text-red-500 cursor-pointer hover:underline"
             >
               Regístrate aquí
             </p>
@@ -139,7 +138,6 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
             <p>¿Ya tienes cuenta?</p>
             <p
               onClick={() => setIsLogin(true)}
-              className="ml-1 text-red-500 cursor-pointer hover:underline"
               className="ml-1 text-red-500 cursor-pointer hover:underline"
             >
               Inicia sesión
