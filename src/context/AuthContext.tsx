@@ -1,7 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
-import type { AuthContextType, User, Role } from "../types/auth.types";
+import type { AuthContextType, User, Role } from "../data/auth.types";
+
+const AUTH_STORAGE_KEY = "auth_user_session";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -10,7 +12,26 @@ interface Props {
 }
 
 export const AuthProvider = ({ children }: Props) => {
-  const [user, setUser] = useState<User | null>(null);
+  // Restaura la sesion guardada para mantener el rol al recargar la pagina.
+  const [user, setUser] = useState<User | null>(() => {
+    try {
+      const persisted = localStorage.getItem(AUTH_STORAGE_KEY);
+      if (!persisted) return null;
+
+      const parsedUser = JSON.parse(persisted) as User;
+      const hasValidRole = parsedUser.role === "admin" || parsedUser.role === "user";
+
+      if (!parsedUser.id || !parsedUser.name || !hasValidRole) {
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        return null;
+      }
+
+      return parsedUser;
+    } catch {
+      localStorage.removeItem(AUTH_STORAGE_KEY);
+      return null;
+    }
+  });
 
   const login = (role: Role) => {
     // 🔥 Simulación de login
@@ -21,10 +42,13 @@ export const AuthProvider = ({ children }: Props) => {
     };
 
     setUser(fakeUser);
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(fakeUser));
   };
 
   const logout = () => {
     setUser(null);
+    // Limpia sesion persistida al cerrar sesion.
+    localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 
   return (

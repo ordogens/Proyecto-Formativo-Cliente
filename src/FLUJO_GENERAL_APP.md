@@ -10,7 +10,7 @@ La app es una SPA en React + TypeScript + Vite con:
 - Estado global con Context API para:
   - Tema (`ThemeContext`)
   - Carrito (`ShopContext`)
-  - Autenticacion simulada y rol (`AuthContext`)
+  - Autenticacion simulada por rol con persistencia local (`AuthContext`)
 - Layout principal con header persistente.
 - Vistas publicas (home, catalogo, categorias, detalle, carrito, personalizacion).
 - Vista administrativa protegida por rol (`admin`).
@@ -72,7 +72,7 @@ El header conecta varias capacidades transversales:
 
 En la practica, el header es la "capa de control UI" global de la app.
 
-## 5) Flujo de autenticacion actual (simulada)
+## 5) Flujo de autenticacion actual (simulada con persistencia local)
 
 Archivos clave:
 - `src/context/AuthContext.tsx`
@@ -86,17 +86,18 @@ Flujo:
 2. `AuthModal` monta `AuthForm` dentro de `Modal`.
 3. En login, `AuthForm` permite elegir rol simulado: `Usuario` o `Admin`.
 4. Al enviar, llama `login(role)` del contexto.
-5. `AuthContext` crea usuario fake en memoria.
+5. `AuthContext` crea usuario fake y lo guarda en `localStorage` (`auth_user_session`).
 6. UI se actualiza automaticamente (React state):
    - login -> logout
    - badge de rol
    - opcion admin habilitada si es admin
-7. Si navega a `/admin-view`, el guard valida rol.
+7. Al recargar la app, `AuthProvider` intenta restaurar la sesion desde `localStorage`.
+8. Si navega a `/admin-view`, el guard valida rol.
 
 Estado actual:
 - No hay backend.
 - No hay tokens.
-- No hay persistencia: al recargar se pierde sesion.
+- Si hay persistencia de sesion local por navegador.
 
 ## 6) Flujo de carrito y compra
 
@@ -135,6 +136,7 @@ En `CarritoDeCompras`:
 Archivo: `src/pages/Catalogo.tsx`
 - Muestra 3 cards de categoria.
 - Cada card navega a su pagina.
+- En home, el bloque de categorias visuales lo renderiza `HomeP2`.
 
 ### 7.2 Paginas por categoria
 Archivos:
@@ -150,7 +152,23 @@ Patron comun:
 ### 7.3 Card y detalle
 `ProductCard` navega a `/vista-dinamica/:id` para ver informacion completa y comprar.
 
-## 8) Flujo de tema (light/dark)
+## 8) Flujo de personalizacion (subir, arrastrar, descargar, compartir)
+
+Archivo: `src/pages/Personalizacion.tsx`
+
+Comportamiento actual:
+1. Permite subir imagen desde selector de archivos (`input type="file"`).
+2. Permite arrastrar y soltar imagen directamente en el canvas (drag & drop).
+3. Valida tipo de archivo (`image/*`) antes de cargar.
+4. Muestra estado visual mientras arrastras (`isDragging`).
+5. Permite eliminar la imagen cargada.
+6. Boton `Descargar`:
+   - descarga la imagen actual como `.png`.
+7. Boton `Compartir`:
+   - intenta compartir archivo con Web Share API.
+   - si el navegador no soporta compartir archivos, hace fallback a descarga.
+
+## 9) Flujo de tema (light/dark)
 
 Archivos:
 - `src/context/ThemeProvider.tsx`
@@ -165,7 +183,7 @@ Comportamiento:
 4. Guarda cambios en `localStorage`.
 5. Header y menu movil exponen boton para alternar tema.
 
-## 9) Flujo de panel administrador
+## 10) Flujo de panel administrador
 
 Archivos:
 - `src/pages/adminView/AdminView.tsx`
@@ -183,7 +201,7 @@ Como opera:
 Resultado:
 - Navegacion interna del panel sin cambiar URL.
 
-## 10) Dependencias funcionales entre capas
+## 11) Dependencias funcionales entre capas
 
 Mapa simplificado:
 
@@ -200,7 +218,7 @@ Regla general del proyecto:
 - Datos de vista puntual: `useState` local en componentes.
 - Navegacion: router.
 
-## 11) Que permite que tu app funcione hoy
+## 12) Que permite que tu app funcione hoy
 
 1. Providers en `main.tsx` correctamente montados.
 2. Router y rutas en `App.tsx`.
@@ -212,9 +230,9 @@ Regla general del proyecto:
 
 Sin cualquiera de esos bloques, el flujo end-to-end se rompe.
 
-## 12) Observaciones tecnicas actuales (importante para estudiar)
+## 13) Observaciones tecnicas actuales (importante para estudiar)
 
-1. La autenticacion es simulada, no segura para produccion.
+1. La autenticacion es simulada (aunque persista localmente), no segura para produccion.
 2. En `Gorros.tsx` se esta filtrando por `"hombre"` y no por `"gorros"`.
 3. En `data/Productos.ts` hay IDs repetidos en productos de hombre.
 4. La factura actual usa lista de productos hardcodeada en `Invoice.tsx`, no toma directamente el carrito real.
@@ -222,7 +240,7 @@ Sin cualquiera de esos bloques, el flujo end-to-end se rompe.
 
 Estas observaciones no impiden estudiar arquitectura, pero si son puntos claros de mejora.
 
-## 13) Orden recomendado para estudiar tu codigo
+## 14) Orden recomendado para estudiar tu codigo
 
 1. `src/main.tsx`
 2. `src/App.tsx`
@@ -232,11 +250,12 @@ Estas observaciones no impiden estudiar arquitectura, pero si son puntos claros 
 6. `src/pages/Catalogo.tsx`
 7. `src/pages/RHombre|RMujer|Gorros/*.tsx`
 8. `src/pages/vistaDinamica/VistaDinamica.tsx`
-9. `src/pages/carrito/CarritoDeCompras.tsx`
-10. `src/pages/adminView/*`
-11. `src/components/invoice/*`
+9. `src/pages/Personalizacion.tsx`
+10. `src/pages/carrito/CarritoDeCompras.tsx`
+11. `src/pages/adminView/*`
+12. `src/components/invoice/*`
 
-## 14) Resumen rapido
+## 15) Resumen rapido
 
 Tu app funciona porque combina:
 - Router para mover pantallas,

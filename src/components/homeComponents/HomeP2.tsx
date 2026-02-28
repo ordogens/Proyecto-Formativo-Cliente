@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { categorias } from "../../data/categorias";
 
-export const Catalogo = () => {
+export const HomeP2 = () => {
   const navigate = useNavigate();
 
   return (

@@ -12,6 +12,7 @@ Este modulo implementa una autenticacion simulada para probar flujo de login, ci
   - Estado global de sesion.
   - Expone `user`, `login(role)` y `logout()`.
   - Simula usuario con datos fake (`Admin Master` o `Usuario Normal`).
+  - Persiste sesion en `localStorage` y la restaura al iniciar la app.
 
 - `src/data/auth.types.ts`
   - Contratos de tipos:
@@ -64,14 +65,16 @@ Este modulo implementa una autenticacion simulada para probar flujo de login, ci
    - Boton cambia de `Login` a `Logout`.
    - Aparece badge de rol.
    - Se habilita opcion admin solo si corresponde.
+   - La sesion queda guardada para mantener el rol al recargar.
 5. Al navegar a `/admin-view`:
    - `RequireAdmin` permite acceso solo a `admin`.
    - `user` normal o no autenticado: redireccion a `/`.
 6. `logout()` limpia `user` y revierte UI/permisos.
+7. `AuthProvider` restaura automaticamente la sesion guardada al montar.
 
 ## 4) Estado y permisos actuales
 
-- Persistencia: no hay (se pierde al recargar).
+- Persistencia: si hay, usando `localStorage` (`auth_user_session`).
 - Seguridad real: no hay (es simulacion frontend).
 - Autorizacion real: no hay validacion del servidor.
 - Tokens: no se usan aun.
