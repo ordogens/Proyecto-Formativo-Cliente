@@ -5,6 +5,7 @@ import { DropMenu } from "./DropMenu";
 import { ShopContext } from "../../context/shopContext";
 import { AuthModal } from "../auth/AuthModal";
 import { useThemeContext } from "../../context/ThemeContext";
+import { useAuth } from "../../context/AuthContext";
 
 export const Header = () => {
   const [menuMobileOpen, setMenuMobileOpen] = useState(false);
@@ -13,6 +14,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const shop = useContext(ShopContext);
   const { theme, toggleTheme } = useThemeContext();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -93,7 +95,12 @@ export const Header = () => {
               )}
             </div>
 
-            <DropMenu onLoginClick={() => setIsLoginOpen(true)} />
+            <DropMenu
+              onLoginClick={() => setIsLoginOpen(true)}
+              isLoggedIn={Boolean(user)}
+              isAdmin={user?.role === "admin"}
+              onLogout={logout}
+            />
 
             <button onClick={() => setMenuMobileOpen(!menuMobileOpen)}>
               {menuMobileOpen ? <X size={30} /> : null}
@@ -165,7 +172,17 @@ export const Header = () => {
               )}
             </div>
 
-            <User className="text-black dark:text-white cursor-pointer hover:text-red-500" onClick={() => navigate("/admin-view")} />
+            <User
+              className={`text-black dark:text-white hover:text-red-500 ${
+                user?.role === "admin" ? "cursor-pointer" : "opacity-40 cursor-not-allowed"
+              }`}
+              onClick={() => user?.role === "admin" && navigate("/admin-view")}
+            />
+            {user && (
+              <span className="text-xs border border-zinc-300 dark:border-gray-600 rounded px-2 py-1">
+                {user.role === "admin" ? "Admin" : "Usuario"}
+              </span>
+            )}
 
             <button
               type="button"
@@ -180,20 +197,30 @@ export const Header = () => {
               )}
             </button>
 
-            <button
-              type="button"
-              className="border border-zinc-200 dark:border-gray-600 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors duration-200"
-              onClick={() => setIsLoginOpen(true)}
-              aria-label="Abrir login"
-            >
-              <p className="text-lg text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200">
-                Login
-              </p>
-              <LogIn
-                size={20}
-                className="text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200"
-              />
-            </button>
+            {!user ? (
+              <button
+                type="button"
+                className="border border-zinc-200 dark:border-gray-600 group hover:bg-red-500 py-1 px-2 rounded-md flex items-center gap-1 cursor-pointer transition-colors duration-200"
+                onClick={() => setIsLoginOpen(true)}
+                aria-label="Abrir login"
+              >
+                <p className="text-lg text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200">
+                  Login
+                </p>
+                <LogIn
+                  size={20}
+                  className="text-red-500 dark:text-red-500 group-hover:text-[#f3f0eb] transition duration-200"
+                />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="border border-zinc-200 dark:border-gray-600 hover:bg-red-500 hover:text-white py-1 px-2 rounded-md cursor-pointer transition-colors duration-200"
+                onClick={logout}
+              >
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>

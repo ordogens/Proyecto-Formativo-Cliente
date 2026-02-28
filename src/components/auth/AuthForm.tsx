@@ -5,10 +5,14 @@ import { SocialButton } from "../ui/buttons/SocialBotton";
 import { FacebookIcon } from "../icons/FacebookIcon";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import Swal from "sweetalert2";
+import { useAuth } from "../../context/AuthContext";
+import type { Role } from "../../data/auth.types";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<Role>("user");
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -36,6 +40,8 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       setError("Todos los campos son obligatorios");
       return;
     }
+
+    login(isLogin ? selectedRole : "user");
 
     const isDarkMode = document.documentElement.classList.contains("dark");
     Swal.fire({
@@ -90,6 +96,38 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </section>
 
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        {isLogin && (
+          <div>
+            <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
+              Simular ingreso como:
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSelectedRole("user")}
+                className={`rounded-md border px-3 py-2 text-sm cursor-pointer ${
+                  selectedRole === "user"
+                    ? "border-red-500 bg-red-500 text-white"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}
+              >
+                Usuario
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedRole("admin")}
+                className={`rounded-md border px-3 py-2 text-sm cursor-pointer ${
+                  selectedRole === "admin"
+                    ? "border-red-500 bg-red-500 text-white"
+                    : "border-gray-300 dark:border-gray-700"
+                }`}
+              >
+                Admin
+              </button>
+            </div>
+          </div>
+        )}
+
         {!isLogin && (
           <CustomInput
             label="Nombre de usuario"

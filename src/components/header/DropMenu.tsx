@@ -5,11 +5,19 @@ import { useThemeContext } from "../../context/ThemeContext";
 
 interface DropMenuProps {
   onLoginClick: () => void;
+  onLogout: () => void;
+  isLoggedIn: boolean;
+  isAdmin: boolean;
 }
 
 type MenuAction = () => void;
 
-export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
+export const DropMenu = ({
+  onLoginClick,
+  onLogout,
+  isLoggedIn,
+  isAdmin,
+}: DropMenuProps) => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useThemeContext();
@@ -27,10 +35,27 @@ export const DropMenu = ({ onLoginClick }: DropMenuProps) => {
       label: "Personalización",
       action: () => navigate("/personalizacion"),
     },
-    {
-      label: "Login",
-      action: onLoginClick,
-    },
+    ...(isAdmin
+      ? [
+          {
+            label: "Panel admin",
+            action: () => navigate("/admin-view"),
+          },
+        ]
+      : []),
+    ...(isLoggedIn
+      ? [
+          {
+            label: "Logout",
+            action: onLogout,
+          },
+        ]
+      : [
+          {
+            label: "Login",
+            action: onLoginClick,
+          },
+        ]),
   ];
 
   const handleClick = (action: MenuAction) => {
