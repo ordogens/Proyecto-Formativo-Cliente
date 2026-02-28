@@ -155,6 +155,7 @@ Patron comun:
 ## 8) Flujo de personalizacion (subir, arrastrar, descargar, compartir)
 
 Archivo: `src/pages/Personalizacion.tsx`
+Documentacion detallada del modulo: `src/components/componentesPersonalizacion/PERSONALIZACION_DOCUMENTACION.md`
 
 Comportamiento actual:
 1. Permite subir imagen desde selector de archivos (`input type="file"`).
@@ -263,3 +264,32 @@ Tu app funciona porque combina:
 - Layout con header persistente,
 - Componentes de feature por dominio (catalogo, carrito, auth, admin, invoice),
 - y guardias de rol para separar usuario comun vs administrador en modo simulacion.
+
+## 16) Estado general del proyecto
+
+Estado actual: `Funcional en frontend (MVP avanzado)`.
+
+El proyecto ya tiene:
+1. Flujo completo de navegacion y estructura modular.
+2. Simulacion de autenticacion por roles con persistencia local.
+3. Carrito funcional con calculos y flujo de compra simulado.
+4. Panel administrativo en frontend protegido por rol.
+5. Modulo de personalizacion funcional (subir, arrastrar, generar, descargar, compartir).
+
+Limitacion principal:
+- Todavia depende de simulaciones y no tiene cierre completo de backend/produccion.
+
+## 17) Lo que falta para ser un producto mas completo
+
+1. Integrar autenticacion real con backend (`login`, `register`, `me`, `logout`, refresh token).
+2. Validar autorizacion por rol en backend (no solo ocultar/permitir en frontend).
+3. Persistir carrito en backend o base de datos por usuario.
+4. Conectar catalogo/productos a API y eliminar datos hardcodeados.
+5. Corregir inconsistencias de datos actuales (IDs duplicados, filtro de gorros).
+6. Conectar factura al carrito real (no lista fija de productos).
+7. Manejar errores y estados de carga globales de forma unificada (UI/UX).
+8. Agregar pruebas automatizadas (unitarias + integracion + e2e basico).
+9. Endurecer seguridad (tokens seguros, validaciones servidor, proteccion de endpoints).
+10. Mejorar rendimiento de bundle (code splitting/chunks) y optimizacion de assets.
+11. Estandarizar encoding/textos para evitar caracteres mal renderizados.
+12. Definir pipeline de despliegue (ambientes dev/staging/prod + variables de entorno).
