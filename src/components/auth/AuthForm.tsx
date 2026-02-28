@@ -6,7 +6,7 @@ import { FacebookIcon } from "../icons/FacebookIcon";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
-import type { Role } from "../../data/auth.types";
+import type { Role } from "../../types/auth.types";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -45,7 +45,6 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
     const isDarkMode = document.documentElement.classList.contains("dark");
     Swal.fire({
-
       title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
       text: isLogin
         ? "Bienvenido de nuevo"
