@@ -10,7 +10,7 @@ export const AdminView = () => {
   const { user } = useAuth()
 
   return (
-    <div className="px-4 md:px-8 flex flex-col gap-4">
+    <div className="px-4 md:px-8 flex flex-col gap-4 bg-[#f3f0eb]">
       <section>
         <h1 className="font-bold font-serif text-xl md:text-3xl flex justify-between items-center gap-2 dark:text-gray-300">
           Panel de Administración
