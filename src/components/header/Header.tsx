@@ -1,4 +1,4 @@
-import { Moon, Sun, LogIn, X, ShoppingBag, User } from "lucide-react";
+import { Moon, Sun, LogIn, X, ShoppingBag, Shield } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 import { useContext, useState, useEffect, useRef } from "react";
 import { DropMenu } from "./DropMenu";
@@ -15,6 +15,7 @@ export const Header = () => {
   const shop = useContext(ShopContext);
   const { theme, toggleTheme } = useThemeContext();
   const { user, logout } = useAuth();
+  const isDarkMode = theme === "dark";
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -45,7 +46,6 @@ export const Header = () => {
   }
 
   const { totalItems: cartCount } = shop;
-
   return (
     <header
       className="
@@ -63,8 +63,9 @@ export const Header = () => {
       <div className="h-16 flex justify-between items-center px-4 md:px-8">
         {/* ===== MOBILE VIEW ===== */}
         <div className="flex items-center md:hidden w-full justify-between">
-          <img
-            src="/logo-cys-pos.png"
+
+          < img
+            src={isDarkMode ? "/logo-cys-neg.png" : "/logo-cys-pos.png"}
             alt="logo"
             className="size-12 cursor-pointer"
             onClick={() => navigate("/")}
@@ -117,24 +118,7 @@ export const Header = () => {
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Craft</span>
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Your</span>
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Style</span>
-
-            {/* <span className="w-1 hover:text-red-500 hover:scale-110 ">C</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">r</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">a</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">f</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">t</span>
-
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">Y</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">o</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">u</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">r</span>
-
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">S</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">t</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">y</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">l</span>
-            <span className="w-1 hover:text-red-500 hover:scale-110 ">e</span> */}
-            <img ref={penRef} src="/pluma-de-tinta.png" alt="pluma" className="size-7 ml-2 transition-transform duration-75 origin-center pointer-events-none" />
+            <img ref={penRef} src={isDarkMode ? "/pluma-bl.png" : "/pluma-de-tinta.png"} alt="pluma" className="size-7 ml-2 transition-transform duration-75 origin-center pointer-events-none" />
 
           </NavLink>
 
@@ -172,14 +156,15 @@ export const Header = () => {
               )}
             </div>
 
-            <User
-              className={`text-black dark:text-white hover:text-red-500 ${
-                user?.role === "admin" ? "cursor-pointer" : "opacity-40 cursor-not-allowed"
-              }`}
-              onClick={() => user?.role === "admin" && navigate("/admin-view")}
-            />
+            {user?.role === "admin" && (
+              <Shield
+                className="text-black dark:text-white hover:text-red-500 cursor-pointer"
+                onClick={() => navigate("/admin-view")}
+              />
+            )}
+
             {user && (
-              <span className="text-xs border border-zinc-300 dark:border-gray-600 rounded px-2 py-1">
+              <span className="text-xs border bg-zinc-100 border-zinc-300 text-red-500 dark:border-gray-600 rounded px-2 py-1">
                 {user.role === "admin" ? "Admin" : "Usuario"}
               </span>
             )}

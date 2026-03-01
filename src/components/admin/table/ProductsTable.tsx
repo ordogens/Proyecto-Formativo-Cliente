@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Minus, Plus, Pencil, Trash2 } from "lucide-react"
 
 /* =====================
-   Tipos van en types.ts
+   * Tipos (idealmente van en types.ts)
 ===================== */
 export type Category = "men_clothing" | "women_clothing" | "hats"
 
@@ -15,7 +15,7 @@ export interface Product {
   image: string
 }
 /* =====================
-   Datos quemados de prueba
+   ! Datos quemados de prueba
 ===================== */
 const initialProducts: Product[] = [
   {
@@ -45,7 +45,7 @@ const initialProducts: Product[] = [
 ]
 
 /* =====================
-   Esto va en helpers
+   ! Esto va en helpers
 ===================== */
 const categoryLabels: Record<Category, string> = {
   men_clothing: "Ropa hombre",
@@ -93,20 +93,20 @@ export const ProductsTable = ({ onEditProduct }: {
     <table className="w-full block max-h-[65vh] overflow-x-auto overflow-y-auto max-w-[700px] md:max-w-full md:table md:max-h-none md:overflow-visible md:min-w-0">
       <thead>
         <tr className="border-b">
-          <th className="w-16 px-3 py-2 text-left text-sm font-medium">Imagen</th>
-          <th className="px-3 py-2 text-left text-sm font-medium">Nombre</th>
-          <th className="hidden px-3 py-2 text-left text-sm font-medium md:table-cell">
+          <th className="w-16 px-3 py-2 text-left text-sm font-medium dark:text-gray-300">Imagen</th>
+          <th className="px-3 py-2 text-left text-sm font-medium dark:text-gray-300">Nombre</th>
+          <th className="hidden px-3 py-2 text-left text-sm font-medium dark:text-gray-300 md:table-cell">
             Categoría
           </th>
-          <th className="px-3 py-2 text-left text-sm font-medium">Precio</th>
-          <th className="px-3 py-2 text-left text-sm font-medium">Stock</th>
-          <th className="px-3 py-2 text-right text-sm font-medium">Acciones</th>
+          <th className="px-3 py-2 text-left text-sm font-medium dark:text-gray-300">Precio</th>
+          <th className="px-3 py-2 text-left text-sm font-medium dark:text-gray-300">Stock</th>
+          <th className="px-3 py-2 text-right text-sm font-medium dark:text-gray-300">Acciones</th>
         </tr>
       </thead>
 
-      <tbody>
+      <tbody className="dark:text-gray-300">
         {productsList.map((product) => (
-          <tr key={product.id} className="border-b last:border-b-0 hover:bg-[#ebe7e1]">
+          <tr key={product.id} className="border-b last:border-b-0 hover:bg-[#ebe7e1] dark:hover:bg-gray-800">
             <td className="px-3 py-2">
               <div className="relative h-10 w-10 overflow-hidden rounded-md bg-secondary">
                 <img
@@ -122,7 +122,7 @@ export const ProductsTable = ({ onEditProduct }: {
             </td>
 
             <td className="hidden px-3 py-2 md:table-cell">
-              <span className="inline-flex rounded-md bg-secondary px-2 py-1 text-xs font-medium bg-[#ebe5dd]">
+              <span className="inline-flex rounded-md bg-secondary px-2 py-1 text-xs font-medium bg-[#ebe5dd] dark:bg-gray-800 dark:border-1 dark:border-gray-600">
                 {categoryLabels[product.category] || product.category}
               </span>
             </td>

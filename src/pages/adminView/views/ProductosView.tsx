@@ -41,12 +41,12 @@ export const ProductosView = () => {
   }
 
   return (
-    <div className="bg-[#f3f0eb] w-full h-full md:p-4">
+    <div className="bg-[#f3f0eb] w-full h-full md:p-4 dark:bg-gray-900">
       <header className="mb-4 flex flex-col md:flex-row w-full items-start md:items-center justify-between">
-        <h2 className="font-serif text-xl">Gestión de productos</h2>
+        <h2 className="font-serif text-2xl md:text-xl dark:text-gray-300">Gestión de productos</h2>
         <button
           onClick={openAddProduct}
-          className="flex items-center gap-2 rounded-lg border border-red-300 px-2 py-1 text-red-400 transition hover:bg-red-500 hover:text-white cursor-pointer"
+          className="flex items-center gap-2 rounded-lg border border-red-300 px-2 py-1 text-red-400 transition hover:bg-red-500 hover:text-white cursor-pointer "
         >
           <Plus size={20} />
           <span>Agregar producto</span>
