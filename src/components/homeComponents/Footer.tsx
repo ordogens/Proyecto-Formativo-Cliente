@@ -31,7 +31,7 @@ export const Footer = () => {
 
         {/* Columna 3 */}
         <div className="flex flex-col gap-3 w-80">
-          <h2 className="font-bold text-white">NAVEGACIÓN</h2>
+          <h2 className="font-bold text-white">INFORMACIÓN</h2>
           <ul className="list-none">
             <li className="hover:text-red-400 transition cursor-pointer"><a href="#">📩 craftyourstyle@gmail.com</a></li>
             <li className="hover:text-red-400 transition cursor-pointer"><a href="#">📞 300 222 11 33</a></li>
