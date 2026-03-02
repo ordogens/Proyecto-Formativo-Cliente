@@ -11,8 +11,8 @@ import type { Role } from "../../types/auth.types";
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role>("user");
-  const { login } = useAuth();
+  const [registerRole, setRegisterRole] = useState<Role>("user");
+  const { login, register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -41,7 +41,22 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return;
     }
 
-    login(isLogin ? selectedRole : "user");
+    const result = isLogin
+      ? login({
+          email: formData.email,
+          password: formData.password,
+        })
+      : register({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          role: registerRole,
+        });
+
+    if (!result.ok) {
+      setError(result.error ?? "No se pudo completar la operacion");
+      return;
+    }
 
     const isDarkMode = document.documentElement.classList.contains("dark");
     Swal.fire({
@@ -95,47 +110,30 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </section>
 
       <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-        {isLogin && (
-          <div>
-            <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
-              Simular ingreso como:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedRole("user")}
-                className={`rounded-md border px-3 py-2 text-sm cursor-pointer ${
-                  selectedRole === "user"
-                    ? "border-red-500 bg-red-500 text-white"
-                    : "border-gray-300 dark:border-gray-700"
-                }`}
-              >
-                Usuario
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedRole("admin")}
-                className={`rounded-md border px-3 py-2 text-sm cursor-pointer ${
-                  selectedRole === "admin"
-                    ? "border-red-500 bg-red-500 text-white"
-                    : "border-gray-300 dark:border-gray-700"
-                }`}
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-        )}
-
         {!isLogin && (
-          <CustomInput
-            label="Nombre de usuario"
-            name="username"
-            type="text"
-            value={formData.username}
-            placeholder="Tu nombre"
-            onChange={handleChange}
-          />
+          <>
+            <CustomInput
+              label="Nombre de usuario"
+              name="username"
+              type="text"
+              value={formData.username}
+              placeholder="Tu nombre"
+              onChange={handleChange}
+            />
+            <div>
+              <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
+                Tipo de cuenta:
+              </p>
+              <select
+                value={registerRole}
+                onChange={(e) => setRegisterRole(e.target.value as Role)}
+                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
+              >
+                <option value="user">Usuario</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </>
         )}
 
         <CustomInput
