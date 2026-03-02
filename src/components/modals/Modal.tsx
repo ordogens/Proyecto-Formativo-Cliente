@@ -1,5 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   isOpen: boolean;
@@ -8,11 +9,29 @@ interface ModalProps {
 }
 
 export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 bg-black/70 dark:bg-black/80 flex justify-center items-center z-50 w-screen h-screen"
+      className="fixed inset-0 bg-black/70 dark:bg-black/80 flex justify-center items-center z-[9999] w-screen h-screen"
       onClick={onClose}
     >
       <div
@@ -27,6 +46,7 @@ export const Modal = ({ isOpen, onClose, children }: ModalProps) => {
         </button>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
