@@ -52,9 +52,8 @@ export const CustomizationCanvas = ({
   return (
     <main className="flex-1 flex flex-col p-4 md:p-6">
       <div
-        className={`bg-zinc-900 rounded-2xl border pt-15 flex items-center justify-center overflow-hidden shadow-2xl relative transition-colors ${
-          isDragging ? "border-yellow-400 bg-zinc-800/90" : "border-zinc-800"
-        }`}
+        className={`bg-white dark:bg-gray-800 rounded-2xl border pt-15 flex items-center justify-center overflow-hidden shadow-2xl relative transition-colors ${isDragging ? "border-yellow-400 bg-zinc-800/90" : "border-zinc-800"
+          }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -67,7 +66,7 @@ export const CustomizationCanvas = ({
               Tambien puedes arrastrar una imagen y soltarla aqui
             </p>
 
-            <label className="px-2 py-1 md:px-4 md:py-2 bg-yellow-400 text-black rounded-lg cursor-pointer hover:bg-yellow-300 transition">
+            <label className="px-2 py-1 md:px-4 md:py-2 text-[#c65a4f] border-1 border-[#c65a4f] rounded-lg cursor-pointer hover:bg-[#c65a4f] hover:text-gray-100 transition">
               Subir Imagen
               <input
                 type="file"
@@ -87,7 +86,7 @@ export const CustomizationCanvas = ({
 
             <button
               onClick={removeImage}
-              className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-lg text-xs hover:bg-red-600 transition"
+              className="absolute top-4 right-4 bg-[#c65a4f] text-white px-3 py-1 rounded-lg text-xs hover:bg-red-500 transition cursor-pointer"
             >
               Eliminar
             </button>
@@ -100,7 +99,7 @@ export const CustomizationCanvas = ({
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div
             key={i}
-            className="min-w-[70px] h-full bg-zinc-800 rounded-md border border-zinc-700 cursor-pointer hover:border-yellow-500 transition-all"
+            className="min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700 cursor-pointer hover:border-[#c65a4f] transition-all"
           />
         ))}
       </div>

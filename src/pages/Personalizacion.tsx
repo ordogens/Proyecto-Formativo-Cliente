@@ -70,7 +70,7 @@ export const Personalizacion = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full bg-zinc-950 text-zinc-100">
+    <div className="flex flex-col lg:flex-row h-full bg-[#f3f0eb] dark:bg-gray-900 text-zinc-100">
       <CustomizationCanvas
         image={image}
         setImage={setImage}
