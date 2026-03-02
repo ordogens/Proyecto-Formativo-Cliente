@@ -77,7 +77,7 @@ export const CustomizationForm = ({
               onClick={() => setAspectRatio(ratio)}
               className={`py-2 rounded-lg text-xs border transition-colors cursor-pointer ${aspectRatio === ratio
                 ? "bg-[#c65a4f] text-black border-[#c65a4f]"
-                : "bg-[#f3f0eb] dark:bg-gray-800 border-gray-700 text-gray-100 hover:dark:bg-gray-700 hover:border-[#c65a4f] hover:text-[#c65a4f]"
+                : "bg-[#f3f0eb] dark:bg-gray-800 border-gray-700 text-black hover:dark:bg-gray-700 hover:border-[#c65a4f] hover:text-[#c65a4f]"
                 }`}
             >
               {ratio}
