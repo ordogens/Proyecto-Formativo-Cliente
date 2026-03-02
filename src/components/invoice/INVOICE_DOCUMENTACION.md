@@ -10,6 +10,7 @@ Carpeta principal:
 
 ## Flujo general (en orden)
 1. En el carrito (`CarritoDeCompras.tsx`) el usuario pulsa `Finalizar compra`.
+   - Si el carrito esta vacio, el boton esta deshabilitado y no se abre factura.
 2. Se abre `InvoiceModal`.
 3. `InvoiceModal` reutiliza el componente base `Modal` y renderiza `Invoice`.
 4. `Invoice` prepara fechas, productos y totales.
@@ -96,12 +97,16 @@ Dependencias directas:
   - overlay,
   - cierre por click externo,
   - boton `X`,
+  - cierre por tecla `Esc`,
+  - bloqueo de scroll del fondo,
+  - render en portal (`document.body`),
   - render de `children`.
 
 ## 5) `src/pages/carrito/CarritoDeCompras.tsx`
 - Punto donde se integra invoice en el flujo real de compra:
   - maneja estado `isInvoiceOpen`,
-  - monta `InvoiceModal`.
+  - monta `InvoiceModal`,
+  - bloquea la compra/factura cuando `cart.length === 0`.
 
 ---
 

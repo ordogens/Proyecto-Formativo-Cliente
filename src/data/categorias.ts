@@ -1,6 +1,6 @@
-import hombre from "../assets/photo.png";
-import mujer from "../assets/mujer.jpg";
-import gorros from "../assets/gorros.jpg";
+import hombre from "../assets/photo.webp";
+import mujer from "../assets/mujer.webp";
+import gorros from "../assets/gorros.webp";
 import type { Categoria } from "../types/categoria.types";
 
 export const categorias: Categoria[] = [

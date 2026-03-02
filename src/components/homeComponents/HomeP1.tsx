@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import modelo from "../../assets/Sleeveless shirt.png";
+import modelo from "../../assets/Sleeveless shirt.webp";
 
 export const HomeP1 = () => {
   return (

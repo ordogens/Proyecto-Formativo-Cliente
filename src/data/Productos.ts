@@ -1,6 +1,6 @@
-import camisa from "../assets/photo.png";
-import mujer from "../assets/mujer.jpg";
-import gorro from "../assets/gorros.jpg";
+import camisa from "../assets/photo.webp";
+import mujer from "../assets/mujer.webp";
+import gorro from "../assets/gorros.webp";
 
 export type Categoria = "hombre" | "mujer" | "gorros";
 

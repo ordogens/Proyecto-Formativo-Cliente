@@ -1,16 +1,16 @@
 # Flujo General de la Aplicacion (Mapa de Estudio)
 
-Proyecto: `Proyecto-Formativo-Cliente`  
-Enfoque: explicar como se conecta todo lo que existe hoy para que la app funcione.
+Proyecto: `Proyecto-Formativo-Cliente`
+Enfoque: explicar como se conecta lo que existe hoy para que la app funcione.
 
 ## 1) Vision global
 
-La app es una SPA en React + TypeScript + Vite con:
+La app es una SPA con React + TypeScript + Vite, con:
 - Enrutamiento con `react-router-dom`.
 - Estado global con Context API para:
   - Tema (`ThemeContext`)
   - Carrito (`ShopContext`)
-  - Autenticacion simulada por rol con persistencia local (`AuthContext`)
+  - Autenticacion local (`AuthContext`) con `login/register/logout`
 - Layout principal con header persistente.
 - Vistas publicas (home, catalogo, categorias, detalle, carrito, personalizacion).
 - Vista administrativa protegida por rol (`admin`).
@@ -26,18 +26,9 @@ Orden de montaje:
 4. `BrowserRouter`
 5. `App`
 
-Por que este orden importa:
-- Cualquier componente dentro de `App` puede leer tema, auth y carrito.
-- Si un componente usa `useThemeContext`, `useAuth` o `ShopContext`, no rompe porque el provider ya esta arriba.
-
 ## 3) Enrutamiento y layout base
 
 Archivo: `src/App.tsx`
-
-Estructura:
-- `PrincipalLayout` envuelve todas las rutas.
-- `PrincipalLayout` siempre renderiza `Header`.
-- Debajo del header cambia el contenido segun la ruta.
 
 Rutas actuales:
 - `/` -> `Home`
@@ -50,246 +41,158 @@ Rutas actuales:
 - `/carrito` -> `CarritoDeCompras`
 - `/admin-view` -> `AdminView` protegido por `RequireAdmin`
 
-Guardia de rol:
+Guardia:
 - `RequireAdmin` revisa `user?.role`.
 - Si no hay usuario o no es admin, redirige a `/`.
 
-## 4) Header: centro de orquestacion de UX global
+## 4) Header y capa global de UI
 
 Archivo: `src/components/header/Header.tsx`
 
-El header conecta varias capacidades transversales:
-- Navegacion (`useNavigate` y `NavLink`)
+El header conecta:
+- Navegacion (`useNavigate`, `NavLink`)
 - Tema (`useThemeContext`)
-- Carrito (`ShopContext`) mostrando contador `totalItems`
-- Autenticacion (`useAuth`) mostrando:
-  - `Login` cuando no hay sesion
-  - `Logout` cuando hay sesion
-  - Badge con rol actual
-  - acceso al panel admin solo cuando `role === "admin"`
-- Modal de login (`AuthModal`)
-- Menu movil (`DropMenu`) con opciones condicionales
+- Carrito (`ShopContext`)
+- Auth (`useAuth`)
+- Apertura de `AuthModal`
 
-En la practica, el header es la "capa de control UI" global de la app.
-
-## 5) Flujo de autenticacion actual (simulada con persistencia local)
+## 5) Flujo de autenticacion actual (local, sin backend)
 
 Archivos clave:
 - `src/context/AuthContext.tsx`
-- `src/components/auth/AuthModal.tsx`
 - `src/components/auth/AuthForm.tsx`
-- `src/App.tsx` (guard de admin)
-- `src/components/header/Header.tsx` / `DropMenu.tsx`
+- `src/components/auth/AuthModal.tsx`
+- `src/components/modals/Modal.tsx`
+- `src/App.tsx`
 
 Flujo:
-1. Usuario abre login desde header o menu movil.
-2. `AuthModal` monta `AuthForm` dentro de `Modal`.
-3. En login, `AuthForm` permite elegir rol simulado: `Usuario` o `Admin`.
-4. Al enviar, llama `login(role)` del contexto.
-5. `AuthContext` crea usuario fake y lo guarda en `localStorage` (`auth_user_session`).
-6. UI se actualiza automaticamente (React state):
-   - login -> logout
-   - badge de rol
-   - opcion admin habilitada si es admin
-7. Al recargar la app, `AuthProvider` intenta restaurar la sesion desde `localStorage`.
-8. Si navega a `/admin-view`, el guard valida rol.
-
-Estado actual:
-- No hay backend.
-- No hay tokens.
-- Si hay persistencia de sesion local por navegador.
+1. Usuario abre modal desde Header/DropMenu.
+2. `Modal` bloquea scroll del fondo, renderiza en portal (`document.body`) y permite cierre por:
+   - `X`
+   - click fuera
+   - tecla `Esc`
+3. En login:
+   - se valida `email + password`
+   - NO se selecciona rol en pantalla
+4. En registro:
+   - se captura `username`, `email`, `password` y rol (`user` o `admin`)
+5. `AuthContext` guarda cuentas locales en `localStorage` (`auth_users_db`) y sesion en `auth_user_session`.
+6. El rol se reconoce segun la cuenta registrada al iniciar sesion.
+7. `RequireAdmin` mantiene protegido `/admin-view`.
 
 ## 6) Flujo de carrito y compra
 
 Archivos clave:
 - `src/context/ShopProvide.tsx`
-- `src/context/shopContext.ts`
 - `src/pages/vistaDinamica/VistaDinamica.tsx`
 - `src/pages/carrito/CarritoDeCompras.tsx`
 - `src/components/invoice/*`
 
 ### 6.1 Agregar al carrito
-1. Usuario entra a detalle de producto en `/vista-dinamica/:id`.
-2. `VistaDinamica` busca el producto en `productos`.
-3. Boton "Agregar al carrito" llama `addToCart(...)`.
-4. `ShopProvider`:
-   - si existe mismo `productId` + mismo `personalized`, suma cantidad
-   - si no existe, agrega nuevo item
-5. Header refleja contador actualizado (`totalItems`).
+1. En `/vista-dinamica/:id`, usuario pulsa agregar.
+2. Se usa `addToCart(...)` del contexto.
+3. Header actualiza contador.
 
 ### 6.2 Administrar carrito
 En `CarritoDeCompras`:
-- lista `cart`
-- permite aumentar/disminuir cantidad
-- permite eliminar item
-- calcula subtotal desde contexto
-- suma envio fijo para total final
+- Listar items.
+- Aumentar/disminuir cantidad.
+- Eliminar item.
+- Calcular subtotal y total con envio.
 
-### 6.3 Finalizar compra (simulado)
-- Se lanza alerta de compra exitosa (`sweetalert2`).
-- Se abre `InvoiceModal` para mostrar factura.
-- El PDF se puede generar con utilidades (`generateInvoicePDF`), segun flujo del modulo invoice.
+### 6.3 Finalizar compra y factura
+- Si el carrito esta vacio:
+  - boton `Finalizar compra` deshabilitado
+  - no se ejecuta la funcion de compra
+  - no se abre factura
+- Si hay productos:
+  - se muestra alerta de compra
+  - se abre `InvoiceModal`
 
-## 7) Flujo de catalogo y navegacion de productos
+## 7) Flujo de catalogo y detalle
 
-### 7.1 Catalogo general
-Archivo: `src/pages/Catalogo.tsx`
-- Muestra 3 cards de categoria.
-- Cada card navega a su pagina.
-- En home, el bloque de categorias visuales lo renderiza `HomeP2`.
+- `Catalogo.tsx`: entrada por categorias.
+- `RopaHombre.tsx`, `RopaMujer.tsx`, `Gorros.tsx`: filtrado por categoria.
+- `ProductCard` navega a `/vista-dinamica/:id`.
 
-### 7.2 Paginas por categoria
-Archivos:
-- `RopaHombre.tsx`
-- `RopaMujer.tsx`
-- `Gorros.tsx`
-
-Patron comun:
-1. filtran `productos` por categoria
-2. renderizan `ProductsLayout`
-3. dentro, renderizan `ProductCard` por item
-
-### 7.3 Card y detalle
-`ProductCard` navega a `/vista-dinamica/:id` para ver informacion completa y comprar.
-
-## 8) Flujo de personalizacion (subir, arrastrar, descargar, compartir)
+## 8) Flujo de personalizacion
 
 Archivo: `src/pages/Personalizacion.tsx`
-Documentacion detallada del modulo: `src/components/componentesPersonalizacion/PERSONALIZACION_DOCUMENTACION.md`
 
-Comportamiento actual:
-1. Permite subir imagen desde selector de archivos (`input type="file"`).
-2. Permite arrastrar y soltar imagen directamente en el canvas (drag & drop).
-3. Valida tipo de archivo (`image/*`) antes de cargar.
-4. Muestra estado visual mientras arrastras (`isDragging`).
-5. Permite eliminar la imagen cargada.
-6. Boton `Descargar`:
-   - descarga la imagen actual como `.png`.
-7. Boton `Compartir`:
-   - intenta compartir archivo con Web Share API.
-   - si el navegador no soporta compartir archivos, hace fallback a descarga.
+Incluye:
+- Carga de imagen
+- Drag and drop
+- Descarga
+- Compartir (con fallback)
 
-## 9) Flujo de tema (light/dark)
+## 9) Flujo de tema
 
 Archivos:
 - `src/context/ThemeProvider.tsx`
-- `src/context/ThemeContext.tsx`
 - `src/components/header/Header.tsx`
 - `src/components/header/DropMenu.tsx`
 
 Comportamiento:
-1. Al iniciar, lee `localStorage("theme")`.
-2. Si no hay valor, usa preferencia del sistema.
-3. Aplica clase `dark` al elemento `html`.
-4. Guarda cambios en `localStorage`.
-5. Header y menu movil exponen boton para alternar tema.
+- Lee/guarda tema en `localStorage`.
+- Aplica clase `dark` en `html`.
 
-## 10) Flujo de panel administrador
+## 10) Flujo de panel admin
 
 Archivos:
 - `src/pages/adminView/AdminView.tsx`
-- `src/components/admin/AdminNavbar.tsx`
-- `src/components/admin/AdminContent.tsx`
-- `src/data/adminViews.ts`
-- `src/pages/adminView/views/*`
+- `src/pages/adminView/views/ProductosView.tsx`
+- `src/components/admin/ModalProducts.tsx`
+- `src/components/admin/table/ProductsTable.tsx`
 
-Como opera:
-1. Solo entra un usuario `admin` por `RequireAdmin`.
-2. `AdminView` maneja `activeView` local.
-3. `AdminNavbar` cambia pestaña (`resumen`, `productos`, `pedidos`, `ia`, `clientes`).
-4. `AdminContent` decide que vista renderizar con switch.
+Estado actual:
+- Panel por tabs funcional.
+- Vista de productos con modal de alta/edicion.
+- Validaciones en modal:
+  - obligatorios: `name`, `stock`, `category`, `image`
+  - `price/stock` permiten placeholder cuando estan vacios
+  - `Seleccionar categoria` no es opcion valida para guardar
 
-Resultado:
-- Navegacion interna del panel sin cambiar URL.
+## 11) Estado actual del MVP
 
-## 11) Dependencias funcionales entre capas
+Estado: `MVP funcional de frontend`.
 
-Mapa simplificado:
+Incluye:
+1. Navegacion completa y estructura modular.
+2. Login/registro local con roles y proteccion de vista admin.
+3. Modal reutilizable con bloqueo de fondo y cierre por `Esc`.
+4. Carrito funcional con regla de no generar factura cuando esta vacio.
+5. Modulo de personalizacion operativo.
+6. Panel admin funcional en frontend con gestion base de productos.
 
-`main.tsx`  
--> providers globales  
--> `App.tsx` (rutas + guardias)  
--> `PrincipalLayout` (header fijo)  
--> pagina activa por ruta  
--> componentes de feature  
--> contextos/estado global (auth, carrito, tema)
+## 12) Limites actuales del MVP
 
-Regla general del proyecto:
-- Datos compartidos: contextos.
-- Datos de vista puntual: `useState` local en componentes.
-- Navegacion: router.
+1. No hay backend real para auth/productos/pedidos/clientes.
+2. Persistencia de auth local (solo navegador actual).
+3. Passwords y cuentas se guardan en `localStorage` (no es seguro).
+4. No hay refresh token ni sesion real (`/me`) contra API.
+5. Panel admin usa datos mock/locales y no persiste cambios.
+6. Factura aun no usa productos reales del carrito en todo el flujo PDF.
+7. No hay validaciones de negocio del lado servidor.
+8. Faltan estados de carga/error consistentes en toda la app.
+9. Faltan pruebas automatizadas (unitarias, integracion, e2e).
+10. Falta accesibilidad completa en modales/formularios (focus trap, navegacion teclado completa).
+11. El bundle es grande (warning de chunks > 500 kB en build).
+12. No hay observabilidad de produccion (logs estructurados, metricas, tracing).
 
-## 12) Que permite que tu app funcione hoy
+## 13) Backlog recomendado para construir (roadmap)
 
-1. Providers en `main.tsx` correctamente montados.
-2. Router y rutas en `App.tsx`.
-3. Header persistente que conecta navigation + auth + carrito + tema.
-4. `ShopProvider` con logica de carrito.
-5. `AuthContext` con rol simulado y guard de admin.
-6. Componentes de pagina conectados a `productos` y `ProductCard`.
-7. Modulo de factura para cierre visual de compra.
-
-Sin cualquiera de esos bloques, el flujo end-to-end se rompe.
-
-## 13) Observaciones tecnicas actuales (importante para estudiar)
-
-1. La autenticacion es simulada (aunque persista localmente), no segura para produccion.
-2. En `Gorros.tsx` se esta filtrando por `"hombre"` y no por `"gorros"`.
-3. En `data/Productos.ts` hay IDs repetidos en productos de hombre.
-4. La factura actual usa lista de productos hardcodeada en `Invoice.tsx`, no toma directamente el carrito real.
-5. Hay varios textos con caracteres mal codificados (tildes) por encoding.
-
-Estas observaciones no impiden estudiar arquitectura, pero si son puntos claros de mejora.
-
-## 14) Orden recomendado para estudiar tu codigo
-
-1. `src/main.tsx`
-2. `src/App.tsx`
-3. `src/layouts/PrincipalLayout.tsx`
-4. `src/components/header/Header.tsx`
-5. `src/context/*`
-6. `src/pages/Catalogo.tsx`
-7. `src/pages/RHombre|RMujer|Gorros/*.tsx`
-8. `src/pages/vistaDinamica/VistaDinamica.tsx`
-9. `src/pages/Personalizacion.tsx`
-10. `src/pages/carrito/CarritoDeCompras.tsx`
-11. `src/pages/adminView/*`
-12. `src/components/invoice/*`
-
-## 15) Resumen rapido
-
-Tu app funciona porque combina:
-- Router para mover pantallas,
-- Contextos para estado global,
-- Layout con header persistente,
-- Componentes de feature por dominio (catalogo, carrito, auth, admin, invoice),
-- y guardias de rol para separar usuario comun vs administrador en modo simulacion.
-
-## 16) Estado general del proyecto
-
-Estado actual: `Funcional en frontend (MVP avanzado)`.
-
-El proyecto ya tiene:
-1. Flujo completo de navegacion y estructura modular.
-2. Simulacion de autenticacion por roles con persistencia local.
-3. Carrito funcional con calculos y flujo de compra simulado.
-4. Panel administrativo en frontend protegido por rol.
-5. Modulo de personalizacion funcional (subir, arrastrar, generar, descargar, compartir).
-
-Limitacion principal:
-- Todavia depende de simulaciones y no tiene cierre completo de backend/produccion.
-
-## 17) Lo que falta para ser un producto mas completo
-
-1. Integrar autenticacion real con backend (`login`, `register`, `me`, `logout`, refresh token).
-2. Validar autorizacion por rol en backend (no solo ocultar/permitir en frontend).
-3. Persistir carrito en backend o base de datos por usuario.
-4. Conectar catalogo/productos a API y eliminar datos hardcodeados.
-5. Corregir inconsistencias de datos actuales (IDs duplicados, filtro de gorros).
-6. Conectar factura al carrito real (no lista fija de productos).
-7. Manejar errores y estados de carga globales de forma unificada (UI/UX).
-8. Agregar pruebas automatizadas (unitarias + integracion + e2e basico).
-9. Endurecer seguridad (tokens seguros, validaciones servidor, proteccion de endpoints).
-10. Mejorar rendimiento de bundle (code splitting/chunks) y optimizacion de assets.
-11. Estandarizar encoding/textos para evitar caracteres mal renderizados.
-12. Definir pipeline de despliegue (ambientes dev/staging/prod + variables de entorno).
+1. Backend base: API para `auth`, `products`, `orders`, `users`.
+2. Auth real: `login/register/me/logout/refresh` y proteccion de rutas por token.
+3. Seguridad: mover refresh token a cookie `httpOnly`; eliminar persistencia sensible en `localStorage`.
+4. Catalogo real: listar/crear/editar/eliminar productos conectados a backend.
+5. Admin real: conectar `ProductosView` y tabla a endpoints CRUD con persistencia.
+6. Carrito persistente: guardar carrito por usuario y restaurarlo al iniciar sesion.
+7. Factura real: generar factura desde items reales del carrito/orden creada.
+8. Pedidos reales: crear orden al comprar y mostrar historial de pedidos.
+9. Manejo de UX de red: loaders, errores, reintentos y mensajes unificados.
+10. Validaciones: reglas compartidas front+back para formularios y archivos.
+11. Accesibilidad: focus trap en modales, roles ARIA y flujo teclado.
+12. Testing: unit tests, integracion de flujos criticos y e2e basico.
+13. Observabilidad: logging de errores, metricas y alertas.
+14. Performance: dividir chunks, lazy loading y optimizacion de assets.
+15. DevOps: ambientes `dev/staging/prod`, variables de entorno y pipeline de despliegue.

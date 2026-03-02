@@ -12,6 +12,8 @@ Carpeta documentada:
 - `AdminNavbar.tsx`
 - `AdminContent.tsx`
 - `AdminCards.tsx`
+- `ModalProducts.tsx`
+- `table/ProductsTable.tsx`
 - `AdminViews.tsx` (archivo legado/no usado en el flujo actual)
 
 ---
@@ -84,6 +86,27 @@ Uso real actual:
 Recomendacion:
 - Mantenerlo solo si lo vas a reutilizar.
 - Si no se usa, conviene eliminarlo para evitar confusion con `pages/adminView/views`.
+
+## 5) `ModalProducts.tsx`
+- Responsabilidad:
+  - Mostrar formulario de alta/edicion de productos.
+  - Recibir `form`, `setForm`, `editingProduct` y `onSave`.
+- Validaciones de UX implementadas:
+  - Boton `Agregar/Guardar` deshabilitado si falta:
+    - `name`
+    - `stock`
+    - `category`
+    - `image`
+  - `price` y `stock` permiten estado vacio para mostrar placeholder.
+  - opcion `Seleccionar categoria` es placeholder no valido (`disabled`).
+
+## 6) `table/ProductsTable.tsx`
+- Responsabilidad:
+  - Mostrar lista de productos de prueba.
+  - Permitir:
+    - editar producto (abre modal via callback)
+    - eliminar producto
+    - ajustar stock con botones `+/-`
 
 ---
 

@@ -72,9 +72,12 @@ Dependencias:
 
 ## 3) `views/ProductosView.tsx`
 - Estado actual:
-  - Placeholder visual (`ProductosView`).
+  - Vista funcional para gestion base de productos.
 - Proposito esperado:
   - Gestion CRUD de productos.
+  - Apertura de `ModalProducts` para agregar/editar.
+  - Validaciones de formulario antes de guardar.
+  - `Seleccionar categoria` funciona como opcion no valida para guardado.
 
 ## 4) `views/PedidosView.tsx`
 - Estado actual:

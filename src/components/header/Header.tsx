@@ -64,8 +64,8 @@ export const Header = () => {
         {/* ===== MOBILE VIEW ===== */}
         <div className="flex items-center md:hidden w-full justify-between">
 
-          < img
-            src={isDarkMode ? "/logo-cys-neg.png" : "/logo-cys-pos.png"}
+          <img
+            src={isDarkMode ? "/logo-cys-neg.webp" : "/logo-cys-pos.webp"}
             alt="logo"
             className="size-12 cursor-pointer"
             onClick={() => navigate("/")}
@@ -118,7 +118,7 @@ export const Header = () => {
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Craft</span>
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Your</span>
             <span className="w-11 hover:text-red-500 hover:scale-110 transition duration-200">Style</span>
-            <img ref={penRef} src={isDarkMode ? "/pluma-bl.png" : "/pluma-de-tinta.png"} alt="pluma" className="size-7 ml-2 transition-transform duration-75 origin-center pointer-events-none" />
+            <img ref={penRef} src={isDarkMode ? "/pluma-bl.webp" : "/pluma-de-tinta.webp"} alt="pluma" className="size-7 ml-2 transition-transform duration-75 origin-center pointer-events-none" />
 
           </NavLink>
 
