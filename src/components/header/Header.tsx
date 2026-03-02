@@ -176,9 +176,9 @@ export const Header = () => {
               aria-label="Cambiar tema"
             >
               {theme === "dark" ? (
-                <Sun size={26} className="text-yellow-400" />
+                <Sun size={26} className="text-yellow-400 hover:text-red-500" />
               ) : (
-                <Moon size={26} className="text-gray-700" />
+                <Moon size={26} className="text-gray-700 hover:text-red-500" />
               )}
             </button>
 
