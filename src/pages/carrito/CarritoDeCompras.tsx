@@ -8,11 +8,10 @@ import { InvoiceModal } from "../../components/invoice/InvoiceModal";
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState(false)
+  const [invoice, setInvoice] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
 
-  if (!shop)
-    throw new Error("ShopContext must be used inside ShopProvider");
+  if (!shop) throw new Error("ShopContext must be used inside ShopProvider");
 
   const {
     cart,
@@ -25,20 +24,23 @@ export const CarritoDeCompras = () => {
 
   const shipping = 9000;
   const finalTotal = total + shipping;
+  const isCartEmpty = cart.length === 0;
 
   const handleFinalizePurchase = () => {
+    if (isCartEmpty) return;
+
     const isDarkMode = document.documentElement.classList.contains("dark");
 
     Swal.fire({
       title: "Compra exitosa",
       text: "Dirigite a tu correo para revisar el mail que te llego.",
       icon: "success",
-      confirmButtonText: "Entendido",
-      confirmButtonColor: "#fb2c36",
       ...(isDarkMode && {
         background: "#101828",
         color: "#e5e7eb",
       }),
+      showConfirmButton: false,
+      timer: 2000,
     });
   };
 
@@ -54,7 +56,9 @@ export const CarritoDeCompras = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-6">
           {cart.length === 0 ? (
-            <p className="text-gray-500 dark:text-gray-300">Tu carrito esta vacio</p>
+            <p className="text-gray-500 dark:text-gray-300">
+              Tu carrito esta vacio
+            </p>
           ) : (
             cart.map((item) => (
               <div
@@ -132,10 +136,16 @@ export const CarritoDeCompras = () => {
           <button
             onClick={() => {
               handleFinalizePurchase();
+              if (isCartEmpty) return;
               setInvoice(true);
               setIsInvoiceOpen(true);
             }}
-            className="w-full bg-[#c65a4f] text-white py-3 rounded-lg mb-3 hover:opacity-90 transition cursor-pointer"
+            disabled={isCartEmpty}
+            className={`w-full py-3 rounded-lg mb-3 transition ${
+              isCartEmpty
+                ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-300 cursor-not-allowed"
+                : "bg-[#c65a4f] text-white hover:opacity-90 cursor-pointer"
+            }`}
           >
             Finalizar compra
           </button>

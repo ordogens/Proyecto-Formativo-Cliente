@@ -2,20 +2,20 @@ import { useState } from "react"
 import { Plus } from "lucide-react"
 import { ProductsTable } from "../../../components/admin/table/ProductsTable"
 import type { Product } from "../../../components/admin/table/ProductsTable"
-import { ModalProducts } from "../../../components/admin/ModalProducts"
+import { ModalProducts, type ProductForm } from "../../../components/admin/ModalProducts"
 
-const emptyForm: Omit<Product, "id"> = {
+const emptyForm: ProductForm = {
   name: "",
-  category: "men_clothing",
-  price: 0,
-  stock: 0,
+  category: "",
+  price: "",
+  stock: "",
   image: ""
 }
 
 export const ProductosView = () => {
   const [showProductDialog, setShowProductDialog] = useState(false)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
-  const [form, setForm] = useState<Omit<Product, "id">>(emptyForm)
+  const [form, setForm] = useState<ProductForm>(emptyForm)
 
   const openAddProduct = () => {
     setEditingProduct(null)
@@ -36,7 +36,23 @@ export const ProductosView = () => {
   }
 
   const handleSaveProduct = () => {
-    console.log("Guardar producto:", { editingProduct, form })
+    if (
+      form.name.trim() === "" ||
+      form.stock === "" ||
+      form.category === "" ||
+      form.image.trim() === ""
+    ) {
+      return
+    }
+
+    const payload: Omit<Product, "id"> = {
+      ...form,
+      category: form.category as Product["category"],
+      price: Number(form.price),
+      stock: Number(form.stock)
+    }
+
+    console.log("Guardar producto:", { editingProduct, form: payload })
     setShowProductDialog(false)
   }
 

@@ -1,12 +1,18 @@
 import type { Product } from "./table/ProductsTable"
 import { Modal } from "../../components/modals/Modal"
 
+export type ProductForm = Omit<Product, "id" | "price" | "stock" | "category"> & {
+  price: number | ""
+  stock: number | ""
+  category: Product["category"] | ""
+}
+
 interface ModalProductsProps {
   isOpen: boolean
   onClose: () => void
   editingProduct: Product | null
-  form: Omit<Product, "id">
-  setForm: React.Dispatch<React.SetStateAction<Omit<Product, "id">>>
+  form: ProductForm
+  setForm: React.Dispatch<React.SetStateAction<ProductForm>>
   onSave: () => void
 }
 
@@ -18,6 +24,12 @@ export const ModalProducts = ({
   setForm,
   onSave
 }: ModalProductsProps) => {
+  const isSubmitDisabled =
+    form.name.trim() === "" ||
+    form.stock === "" ||
+    form.category === "" ||
+    form.image.trim() === ""
+
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h3 className="font-serif text-lg font-bold flex flex-col">
@@ -25,7 +37,7 @@ export const ModalProducts = ({
         <span className="mb-4 text-[10px] font-light tracking-wide text-gray-500">
           {editingProduct
             ? "Modifica los datos del producto."
-            : "Completa la información del nuevo producto."}
+            : "Completa la informacion del nuevo producto."}
         </span>
       </h3>
 
@@ -44,7 +56,10 @@ export const ModalProducts = ({
           placeholder="Precio"
           value={form.price}
           onChange={(e) =>
-            setForm({ ...form, price: Number(e.target.value) })
+            setForm({
+              ...form,
+              price: e.target.value === "" ? "" : Number(e.target.value)
+            })
           }
         />
 
@@ -55,7 +70,10 @@ export const ModalProducts = ({
           placeholder="Stock"
           value={form.stock}
           onChange={(e) =>
-            setForm({ ...form, stock: Number(e.target.value) })
+            setForm({
+              ...form,
+              stock: e.target.value === "" ? "" : Number(e.target.value)
+            })
           }
         />
 
@@ -65,10 +83,13 @@ export const ModalProducts = ({
           onChange={(e) =>
             setForm({
               ...form,
-              category: e.target.value as Product["category"]
+              category: e.target.value as Product["category"] | ""
             })
           }
         >
+          <option value="" disabled>
+            Seleccionar categoria
+          </option>
           <option value="men_clothing">Ropa hombre</option>
           <option value="women_clothing">Ropa mujer</option>
           <option value="hats">Gorros</option>
@@ -91,7 +112,12 @@ export const ModalProducts = ({
         </button>
         <button
           onClick={onSave}
-          className="rounded px-4 py-2 text-red-500 w-full border-1 border-red-500 hover:bg-red-600 hover:text-white cursor-pointer"
+          disabled={isSubmitDisabled}
+          className={`rounded px-4 py-2 w-full border-1 transition ${
+            isSubmitDisabled
+              ? "border-gray-300 text-gray-400 cursor-not-allowed"
+              : "text-red-500 border-red-500 hover:bg-red-600 hover:text-white cursor-pointer"
+          }`}
         >
           {editingProduct ? "Guardar cambios" : "Agregar"}
         </button>
