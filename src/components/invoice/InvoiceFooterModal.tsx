@@ -47,6 +47,7 @@ export const InvoiceFooterModal = ({ onClose, products, totalProducts, totalValo
 
       <section className="flex gap-2 border-t-1 pt-2 border-zinc-600">
         <PDFDownloadLink
+          key={`${issueDate}-${dueDate}-${products.length}-${totalValor}`}
           document={
             <InvoicePDF
               products={products}
