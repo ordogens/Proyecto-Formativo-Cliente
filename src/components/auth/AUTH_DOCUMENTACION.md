@@ -5,9 +5,9 @@ Ubicacion del feature: `src/components/auth`
 
 ## 1) Objetivo actual
 
-Este modulo implementa autenticacion local (sin backend) con:
-- `login` por `email + password`
-- `register` con seleccion de rol (`user` o `admin`)
+Este modulo implementa autenticacion con backend con:
+- `login` por `email + contraseña`
+- `register` sin seleccion de rol en frontend
 - `logout`
 - control de acceso al panel admin
 
@@ -15,9 +15,8 @@ Este modulo implementa autenticacion local (sin backend) con:
 
 - `src/context/AuthContext.tsx`
   - expone `user`, `login`, `register`, `logout`
-  - persiste:
-    - cuentas locales: `auth_users_db`
-    - sesion activa: `auth_user_session`
+  - mantiene el estado de sesion del cliente usando datos de la API
+  - persiste sesion de usuario en `auth_user_session`
 
 - `src/types/auth.types.ts`
   - `Role`, `User`
@@ -28,11 +27,19 @@ Este modulo implementa autenticacion local (sin backend) con:
 
 - `src/components/auth/AuthForm.tsx`
   - alterna login/registro
-  - en login NO hay selector de rol
-  - en registro SI se elige rol de cuenta
+  - no hay selector de rol en login/registro
+  - muestra alertas de error/exito segun respuesta del backend
 
 - `src/components/auth/AuthModal.tsx`
   - wrapper de `Modal` + `AuthForm`
+
+- `src/services/auth.service.ts`
+  - cliente `axios` de autenticacion
+  - endpoints:
+    - `POST /v1/usuarios/login`
+    - `POST /v1/usuarios`
+    - `POST /v1/usuarios/logout` (con fallback `POST /v1/usuarios/cerrar-sesion`)
+  - guarda token en `auth_access_token`
 
 - `src/components/modals/Modal.tsx`
   - overlay reutilizable
@@ -49,13 +56,16 @@ Este modulo implementa autenticacion local (sin backend) con:
 2. Se monta `AuthModal`.
 3. `Modal` bloquea interaccion de fondo.
 4. Login:
-   - valida `email + password`
-   - busca coincidencia en cuentas registradas locales
-   - toma rol desde la cuenta encontrada
+   - valida `email + contraseña`
+   - autentica contra backend
+   - toma `role` desde la respuesta del login (`ADMIN`/`USER`)
+   - guarda token de sesion para requests autenticados
 5. Registro:
    - valida `username + email + password`
-   - usuario elige rol de cuenta (`user/admin`)
-   - crea cuenta local y abre sesion
+   - frontend envia datos al backend sin rol
+   - payload actual al backend: `nombre`, `email`, `contraseña`
+   - backend define rol y devuelve datos de usuario
+   - si hay timeout de red pero el usuario se crea, se intenta login automatico
 6. UI se actualiza:
    - Login/Logout en header
    - badge de rol
@@ -64,13 +74,18 @@ Este modulo implementa autenticacion local (sin backend) con:
 
 ## 4) Estado de seguridad
 
-- Es un flujo de frontend local.
-- No hay tokens reales ni validacion de servidor.
-- Sirve para MVP y pruebas de UX/roles en cliente.
+- El control de identidad y rol depende del backend.
+- El frontend no asigna roles ni crea admins.
+- El backend crea el admin automaticamente segun su configuracion.
+- El frontend usa token `Bearer` almacenado en cliente.
 
-## 5) Siguiente paso para backend real
+## 5) Contrato actual esperado (backend usuarios)
 
-1. Crear `src/services/auth.service.ts`.
-2. Mover `login/register/logout/me` a API.
-3. Mantener `AuthContext` como capa de estado, no como almacenamiento de cuentas.
-4. Mantener `RequireAdmin` basado en rol real del backend.
+1. Login (`POST /v1/usuarios/login`):
+   - body: `{ "email": string, "contraseña": string }`
+2. Register (`POST /v1/usuarios`):
+   - body: `{ "nombre": string, "email": string, "contraseña": string }`
+3. Respuesta login:
+   - incluye `token`, `role`, `usuario` (u objeto equivalente).
+4. `RequireAdmin`:
+   - usa `user.role` mapeado desde `role` de backend (`ADMIN -> admin`).

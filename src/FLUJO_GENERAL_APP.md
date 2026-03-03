@@ -10,10 +10,10 @@ La app es una SPA con React + TypeScript + Vite, con:
 - Estado global con Context API para:
   - Tema (`ThemeContext`)
   - Carrito (`ShopContext`)
-  - Autenticacion local (`AuthContext`) con `login/register/logout`
+  - Autenticacion (`AuthContext`) con `login/register/logout`
 - Layout principal con header persistente.
 - Vistas publicas (home, catalogo, categorias, detalle, carrito, personalizacion).
-- Vista administrativa protegida por rol (`admin`).
+- Vista administrativa protegida por rol (`admin`) obtenido desde backend.
 
 ## 2) Punto de entrada real
 
@@ -56,13 +56,14 @@ El header conecta:
 - Auth (`useAuth`)
 - Apertura de `AuthModal`
 
-## 5) Flujo de autenticacion actual (local, sin backend)
+## 5) Flujo de autenticacion actual
 
 Archivos clave:
 - `src/context/AuthContext.tsx`
 - `src/components/auth/AuthForm.tsx`
 - `src/components/auth/AuthModal.tsx`
 - `src/components/modals/Modal.tsx`
+- `src/services/auth.service.ts`
 - `src/App.tsx`
 
 Flujo:
@@ -72,12 +73,17 @@ Flujo:
    - click fuera
    - tecla `Esc`
 3. En login:
-   - se valida `email + password`
+   - se valida `email + contraseña`
    - NO se selecciona rol en pantalla
+   - request: `POST /v1/usuarios/login` con `{ email, contraseña }`
+   - backend responde con sesion, token y rol del usuario
 4. En registro:
-   - se captura `username`, `email`, `password` y rol (`user` o `admin`)
-5. `AuthContext` guarda cuentas locales en `localStorage` (`auth_users_db`) y sesion en `auth_user_session`.
-6. El rol se reconoce segun la cuenta registrada al iniciar sesion.
+   - se captura `username`, `email`, `password` en UI
+   - NO se envia ni asigna rol desde frontend
+   - request: `POST /v1/usuarios` con `{ nombre, email, contraseña }`
+   - el backend gestiona rol/privilegios y crea el admin automaticamente segun su configuracion
+5. `AuthContext` mantiene estado de sesion, guarda `auth_user_session` y token `auth_access_token`.
+6. El rol se reconoce segun los datos devueltos por backend.
 7. `RequireAdmin` mantiene protegido `/admin-view`.
 
 ## 6) Flujo de carrito y compra
@@ -158,7 +164,7 @@ Estado: `MVP funcional de frontend`.
 
 Incluye:
 1. Navegacion completa y estructura modular.
-2. Login/registro local con roles y proteccion de vista admin.
+2. Login/registro con roles definidos por backend y proteccion de vista admin.
 3. Modal reutilizable con bloqueo de fondo y cierre por `Esc`.
 4. Carrito funcional con regla de no generar factura cuando esta vacio.
 5. Modulo de personalizacion operativo.
@@ -166,33 +172,29 @@ Incluye:
 
 ## 12) Limites actuales del MVP
 
-1. No hay backend real para auth/productos/pedidos/clientes.
-2. Persistencia de auth local (solo navegador actual).
-3. Passwords y cuentas se guardan en `localStorage` (no es seguro).
-4. No hay refresh token ni sesion real (`/me`) contra API.
-5. Panel admin usa datos mock/locales y no persiste cambios.
-6. Factura aun no usa productos reales del carrito en todo el flujo PDF.
-7. No hay validaciones de negocio del lado servidor.
-8. Faltan estados de carga/error consistentes en toda la app.
-9. Faltan pruebas automatizadas (unitarias, integracion, e2e).
-10. Falta accesibilidad completa en modales/formularios (focus trap, navegacion teclado completa).
-11. El bundle es grande (warning de chunks > 500 kB en build).
-12. No hay observabilidad de produccion (logs estructurados, metricas, tracing).
+1. No hay backend real para productos/pedidos/clientes.
+2. Panel admin usa datos mock/locales y no persiste cambios.
+3. Factura aun no usa productos reales del carrito en todo el flujo PDF.
+4. No hay validaciones de negocio del lado servidor para compras/pedidos/clientes.
+5. Faltan estados de carga/error consistentes en toda la app.
+6. Faltan pruebas automatizadas (unitarias, integracion, e2e).
+7. Falta accesibilidad completa en modales/formularios (focus trap, navegacion teclado completa).
+8. El bundle es grande (warning de chunks > 500 kB en build).
+9. No hay observabilidad de produccion (logs estructurados, metricas, tracing).
 
 ## 13) Backlog recomendado para construir (roadmap)
 
-1. Backend base: API para `auth`, `products`, `orders`, `users`.
-2. Auth real: `login/register/me/logout/refresh` y proteccion de rutas por token.
-3. Seguridad: mover refresh token a cookie `httpOnly`; eliminar persistencia sensible en `localStorage`.
-4. Catalogo real: listar/crear/editar/eliminar productos conectados a backend.
-5. Admin real: conectar `ProductosView` y tabla a endpoints CRUD con persistencia.
-6. Carrito persistente: guardar carrito por usuario y restaurarlo al iniciar sesion.
-7. Factura real: generar factura desde items reales del carrito/orden creada.
-8. Pedidos reales: crear orden al comprar y mostrar historial de pedidos.
-9. Manejo de UX de red: loaders, errores, reintentos y mensajes unificados.
-10. Validaciones: reglas compartidas front+back para formularios y archivos.
-11. Accesibilidad: focus trap en modales, roles ARIA y flujo teclado.
-12. Testing: unit tests, integracion de flujos criticos y e2e basico.
-13. Observabilidad: logging de errores, metricas y alertas.
-14. Performance: dividir chunks, lazy loading y optimizacion de assets.
-15. DevOps: ambientes `dev/staging/prod`, variables de entorno y pipeline de despliegue.
+1. Backend base: API para `products`, `orders`, `users` (auth/roles ya definidos en backend).
+2. Seguridad: consolidar estrategia de sesion/token y evitar persistencia sensible en frontend.
+3. Catalogo real: listar/crear/editar/eliminar productos conectados a backend.
+4. Admin real: conectar `ProductosView` y tabla a endpoints CRUD con persistencia.
+5. Carrito persistente: guardar carrito por usuario y restaurarlo al iniciar sesion.
+6. Factura real: generar factura desde items reales del carrito/orden creada.
+7. Pedidos reales: crear orden al comprar y mostrar historial de pedidos.
+8. Manejo de UX de red: loaders, errores, reintentos y mensajes unificados.
+9. Validaciones: reglas compartidas front+back para formularios y archivos.
+10. Accesibilidad: focus trap en modales, roles ARIA y flujo teclado.
+11. Testing: unit tests, integracion de flujos criticos y e2e basico.
+12. Observabilidad: logging de errores, metricas y alertas.
+13. Performance: dividir chunks, lazy loading y optimizacion de assets.
+14. DevOps: ambientes `dev/staging/prod`, variables de entorno y pipeline de despliegue.

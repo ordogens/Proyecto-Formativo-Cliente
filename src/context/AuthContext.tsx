@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState } from "react";
 import type { ReactNode } from "react";
+import axios from "axios";
 import type {
   AuthActionResult,
   AuthContextType,
@@ -8,9 +9,9 @@ import type {
   RegisterData,
   User,
 } from "../types/auth.types";
+import { authService } from "../services/auth.service";
 
 const AUTH_STORAGE_KEY = "auth_user_session";
-const AUTH_USERS_STORAGE_KEY = "auth_users_db";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -18,41 +19,66 @@ interface Props {
   children: ReactNode;
 }
 
-interface StoredAuthUser extends User {
-  email: string;
-  password: string;
-}
-
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
-
 const isValidRole = (role: unknown): role is User["role"] =>
   role === "admin" || role === "user";
 
-const readUsersFromStorage = (): StoredAuthUser[] => {
-  try {
-    const raw = localStorage.getItem(AUTH_USERS_STORAGE_KEY);
-    if (!raw) return [];
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (axios.isAxiosError(error)) {
+    if (error.code === "ECONNABORTED") {
+      return "La solicitud tardo demasiado. Si el usuario se creo, intenta iniciar sesion.";
+    }
 
-    const parsed = JSON.parse(raw) as StoredAuthUser[];
-    if (!Array.isArray(parsed)) return [];
+    const data = error.response?.data as
+      | {
+          message?: string;
+          error?: string;
+          mensaje?: string;
+          detalle?: string;
+          details?: string;
+          errors?: string[] | Record<string, string[]>;
+        }
+      | undefined;
 
-    return parsed.filter(
-      (item) =>
-        Boolean(item?.id) &&
-        Boolean(item?.name) &&
-        Boolean(item?.email) &&
-        Boolean(item?.password) &&
-        isValidRole(item?.role)
-    );
-  } catch {
-    localStorage.removeItem(AUTH_USERS_STORAGE_KEY);
-    return [];
+    const directMessage =
+      data?.message ??
+      data?.mensaje ??
+      data?.error ??
+      data?.detalle ??
+      data?.details;
+
+    if (typeof directMessage === "string" && directMessage.trim()) {
+      return directMessage.trim();
+    }
+
+    if (Array.isArray(data?.errors) && data.errors.length > 0) {
+      const first = data.errors[0];
+      if (typeof first === "string" && first.trim()) {
+        return first.trim();
+      }
+    }
+
+    if (data?.errors && typeof data.errors === "object") {
+      const firstFieldErrors = Object.values(data.errors)[0];
+      if (Array.isArray(firstFieldErrors) && firstFieldErrors[0]) {
+        return firstFieldErrors[0];
+      }
+    }
+
+    if (typeof error.message === "string" && error.message.trim()) {
+      return error.message.trim();
+    }
+
+    return fallback;
   }
+
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  return fallback;
 };
 
 export const AuthProvider = ({ children }: Props) => {
-  const [users, setUsers] = useState<StoredAuthUser[]>(() => readUsersFromStorage());
-
   // Restaura la sesion guardada para mantener el rol al recargar la pagina.
   const [user, setUser] = useState<User | null>(() => {
     try {
@@ -73,75 +99,75 @@ export const AuthProvider = ({ children }: Props) => {
     }
   });
 
-  const saveUsers = (nextUsers: StoredAuthUser[]) => {
-    setUsers(nextUsers);
-    localStorage.setItem(AUTH_USERS_STORAGE_KEY, JSON.stringify(nextUsers));
-  };
+  const login = async ({
+    email,
+    password,
+  }: LoginCredentials): Promise<AuthActionResult> => {
+    try {
+      const sessionUser = await authService.login({
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-  const login = ({ email, password }: LoginCredentials): AuthActionResult => {
-    const normalizedEmail = normalizeEmail(email);
-    const matchedUser = users.find(
-      (account) =>
-        normalizeEmail(account.email) === normalizedEmail &&
-        account.password === password
-    );
-
-    if (!matchedUser) {
-      return { ok: false, error: "Correo o contrasena incorrectos" };
+      setUser(sessionUser);
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        error: getErrorMessage(error, "No se pudo iniciar sesion. Intenta de nuevo"),
+      };
     }
-
-    const sessionUser: User = {
-      id: matchedUser.id,
-      name: matchedUser.name,
-      role: matchedUser.role,
-    };
-
-    setUser(sessionUser);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
-
-    return { ok: true };
   };
 
-  const register = ({
+  const register = async ({
     username,
     email,
     password,
-    role,
-  }: RegisterData): AuthActionResult => {
-    const normalizedEmail = normalizeEmail(email);
-    const alreadyExists = users.some(
-      (account) => normalizeEmail(account.email) === normalizedEmail
-    );
+  }: RegisterData): Promise<AuthActionResult> => {
+    try {
+      const sessionUser = await authService.register({
+        username: username.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
 
-    if (alreadyExists) {
-      return { ok: false, error: "Ese correo ya esta registrado" };
+      setUser(sessionUser);
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
+      return { ok: true };
+    } catch (error) {
+      // Si el registro tardo demasiado, puede haberse creado en backend.
+      // Intentamos login automatico para evitar falso negativo en UI.
+      if (axios.isAxiosError(error) && error.code === "ECONNABORTED") {
+        try {
+          const sessionUser = await authService.login({
+            email: email.trim().toLowerCase(),
+            password,
+          });
+
+          setUser(sessionUser);
+          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
+          return { ok: true };
+        } catch {
+          // Si el login fallback falla, mantenemos mensaje de timeout.
+        }
+      }
+
+      return {
+        ok: false,
+        error: getErrorMessage(error, "No se pudo registrar la cuenta. Intenta de nuevo"),
+      };
     }
-
-    const newAccount: StoredAuthUser = {
-      id: `${Date.now()}`,
-      name: username.trim(),
-      email: normalizedEmail,
-      password,
-      role,
-    };
-
-    saveUsers([...users, newAccount]);
-
-    const sessionUser: User = {
-      id: newAccount.id,
-      name: newAccount.name,
-      role: newAccount.role,
-    };
-
-    setUser(sessionUser);
-    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
-
-    return { ok: true };
   };
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Si falla el backend, igualmente se limpia la sesion local.
+    }
+
     setUser(null);
-    // Limpia sesion persistida al cerrar sesion.
     localStorage.removeItem(AUTH_STORAGE_KEY);
   };
 

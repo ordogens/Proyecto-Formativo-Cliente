@@ -1,13 +1,14 @@
-FLUJO DE AUTH (ARQUITECTURA MODULAR)
+FLUJO DE AUTH (BACKEND + AXIOS)
 Proyecto: cliente
 Carpeta: src/components/auth
 
 1) VISTA GENERAL
-- Header.tsx: abre/cierra modal.
+- Header.tsx: abre/cierra modal y muestra estado de usuario.
 - AuthModal.tsx: conecta Header con Modal/AuthForm.
 - Modal.tsx: overlay reutilizable con bloqueo de fondo y cierre por Esc.
-- AuthForm.tsx: formulario login/registro.
-- AuthContext.tsx: estado global y persistencia local.
+- AuthForm.tsx: formulario login/registro y alertas de resultado.
+- AuthContext.tsx: estado global de sesion.
+- auth.service.ts: llamadas HTTP a backend de usuarios.
 
 2) JERARQUIA
 Header
@@ -28,21 +29,32 @@ B. Cerrar
 4. onSuccess del form.
 
 C. Login
-1. Valida email + password.
-2. AuthContext busca cuenta en auth_users_db.
-3. Si coincide, abre sesion con rol de esa cuenta.
-4. Si no coincide, muestra error.
+1. Valida email + password en UI.
+2. auth.service envia POST /v1/usuarios/login con:
+   - email
+   - contraseña
+3. Si es exitoso:
+   - guarda token (auth_access_token)
+   - mapea role backend (ADMIN/USER) a admin/user
+   - guarda sesion en auth_user_session
+4. Si falla, muestra mensaje de backend.
 
 D. Registro
 1. Valida username + email + password.
-2. Permite seleccionar rol (user/admin) solo en registro.
-3. Guarda cuenta local y abre sesion.
+2. auth.service envia POST /v1/usuarios con:
+   - nombre
+   - email
+   - contraseña
+3. Si es exitoso, abre sesion.
+4. Si hay timeout, AuthContext intenta login automatico para evitar falso error cuando backend ya creo usuario.
 
 4) RESPONSABILIDADES
-- Header: orquesta apertura/cierre.
+- Header: orquesta apertura/cierre y acciones de sesion.
 - Modal: comportamiento de capa y cierre.
-- AuthForm: validacion UI y envio.
-- AuthContext: reglas de login/register/logout y persistencia.
+- AuthForm: validacion UI y feedback.
+- AuthContext: login/register/logout + persistencia de sesion.
+- auth.service: contrato HTTP y manejo de token.
 
 5) RESUMEN
-El rol ya no se elige en login; se define al registrarse y luego se reconoce automaticamente al iniciar sesion.
+El frontend no asigna roles.
+El backend define el rol y la app protege /admin-view con ese role recibido.

@@ -100,7 +100,9 @@ export const Header = () => {
               onLoginClick={() => setIsLoginOpen(true)}
               isLoggedIn={Boolean(user)}
               isAdmin={user?.role === "admin"}
-              onLogout={logout}
+              onLogout={async () => {
+                await logout();
+              }}
             />
 
             <button onClick={() => setMenuMobileOpen(!menuMobileOpen)}>
@@ -198,13 +200,15 @@ export const Header = () => {
                 />
               </button>
             ) : (
-              <button
-                type="button"
-                className="border border-zinc-200 dark:border-gray-600 hover:bg-red-500 hover:text-white py-1 px-2 rounded-md cursor-pointer transition-colors duration-200"
-                onClick={logout}
-              >
-                Logout
-              </button>
+                <button
+                  type="button"
+                  className="border border-zinc-200 dark:border-gray-600 hover:bg-red-500 hover:text-white py-1 px-2 rounded-md cursor-pointer transition-colors duration-200"
+                  onClick={() => {
+                    void logout();
+                  }}
+                >
+                  Logout
+                </button>
             )}
           </div>
         </div>

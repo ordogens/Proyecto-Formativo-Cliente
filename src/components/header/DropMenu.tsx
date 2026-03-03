@@ -5,12 +5,12 @@ import { useThemeContext } from "../../context/ThemeContext";
 
 interface DropMenuProps {
   onLoginClick: () => void;
-  onLogout: () => void;
+  onLogout: () => Promise<void>;
   isLoggedIn: boolean;
   isAdmin: boolean;
 }
 
-type MenuAction = () => void;
+type MenuAction = () => void | Promise<void>;
 
 export const DropMenu = ({
   onLoginClick,
@@ -58,8 +58,8 @@ export const DropMenu = ({
         ]),
   ];
 
-  const handleClick = (action: MenuAction) => {
-    action();
+  const handleClick = async (action: MenuAction) => {
+    await action();
     setOpen(false);
   };
 
@@ -76,7 +76,9 @@ export const DropMenu = ({
               <li key={label}>
                 <button
                   className="w-full flex items-center justify-between px-4 py-1 rounded-md bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
-                  onClick={() => handleClick(action)}
+                  onClick={() => {
+                    void handleClick(action);
+                  }}
                 >
                   {label}
 

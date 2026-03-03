@@ -1,69 +1,76 @@
 import { useState } from "react";
-import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from "lucide-react";
-import { CustomInput } from "../ui/inputs/CustomInput";
-import { SocialButton } from "../ui/buttons/SocialBotton";
-import { FacebookIcon } from "../icons/FacebookIcon";
-import { GoogleIcon } from "../icons/GoogleIcon";
+import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
-import type { Role } from "../../types/auth.types";
+import type { LoginCredentials, RegisterData } from "../../types/auth.types";
+import { FacebookIcon } from "../icons/FacebookIcon";
+import { GoogleIcon } from "../icons/GoogleIcon";
+import { SocialButton } from "../ui/buttons/SocialBotton";
+import { CustomInput } from "../ui/inputs/CustomInput";
 
 export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [registerRole, setRegisterRole] = useState<Role>("user");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { login, register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     username: "",
   });
-
   const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
     setError("");
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (
-      !formData.email ||
-      !formData.password ||
-      (!isLogin && !formData.username)
-    ) {
+    if (!formData.email || !formData.password || (!isLogin && !formData.username)) {
       setError("Todos los campos son obligatorios");
       return;
     }
 
+    const loginPayload: LoginCredentials = {
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password,
+    };
+
+    const registerPayload: RegisterData = {
+      username: formData.username.trim(),
+      email: formData.email.trim().toLowerCase(),
+      password: formData.password,
+    };
+
+    setIsSubmitting(true);
     const result = isLogin
-      ? login({
-          email: formData.email,
-          password: formData.password,
-        })
-      : register({
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          role: registerRole,
-        });
+      ? await login(loginPayload)
+      : await register(registerPayload);
+    setIsSubmitting(false);
 
     if (!result.ok) {
-      setError(result.error ?? "No se pudo completar la operacion");
+      const message = result.error ?? "No se pudo completar la operacion";
+      setError(message);
+      Swal.fire({
+        title: "Error",
+        text: message,
+        icon: "error",
+        confirmButtonColor: "#fb2c36",
+      });
       return;
     }
 
     const isDarkMode = document.documentElement.classList.contains("dark");
     Swal.fire({
-      title: isLogin ? "Inicio de sesión exitoso" : "Registro exitoso",
+      title: isLogin ? "Inicio de sesion exitoso" : "Registro exitoso",
       text: isLogin
         ? "Bienvenido de nuevo"
-        : "Revisa tu correo, te enviamos un link de confirmacion de cuenta",
+        : "Tu cuenta fue creada correctamente",
       icon: "success",
       confirmButtonColor: "#fb2c36",
       ...(isDarkMode && {
@@ -75,12 +82,10 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
     onSuccess();
   };
 
-  //=======================ALERTS========================//
-
   return (
     <>
-      <h1 className="text-black dark:text-gray-100 font-serif text-center text-2xl font-bold mb-6">
-        {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
+      <h1 className="mb-6 text-center text-2xl font-bold font-serif text-black dark:text-gray-100">
+        {isLogin ? "Iniciar sesion" : "Crear cuenta"}
       </h1>
 
       <section className="flex flex-col gap-1">
@@ -90,7 +95,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           icon={
             <GoogleIcon
               size={20}
-              className="text-[#666666] group-hover:text-[#ff6467] transition-colors"
+              className="text-[#666666] transition-colors group-hover:text-[#ff6467]"
             />
           }
           text="Continuar con Google"
@@ -102,61 +107,46 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           icon={
             <FacebookIcon
               size={22}
-              className="text-[#666666] group-hover:text-[#0866ff] transition-colors"
+              className="text-[#666666] transition-colors group-hover:text-[#0866ff]"
             />
           }
           text="Continuar con Facebook"
         />
       </section>
 
-      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {!isLogin && (
-          <>
-            <CustomInput
-              label="Nombre de usuario"
-              name="username"
-              type="text"
-              value={formData.username}
-              placeholder="Tu nombre"
-              onChange={handleChange}
-            />
-            <div>
-              <p className="text-sm mb-2 text-gray-700 dark:text-gray-300">
-                Tipo de cuenta:
-              </p>
-              <select
-                value={registerRole}
-                onChange={(e) => setRegisterRole(e.target.value as Role)}
-                className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm"
-              >
-                <option value="user">Usuario</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-          </>
+          <CustomInput
+            label="Nombre de usuario"
+            name="username"
+            type="text"
+            value={formData.username}
+            placeholder="Tu nombre"
+            onChange={handleChange}
+          />
         )}
 
         <CustomInput
-          label="Correo electrónico"
+          label="Correo electronico"
           name="email"
           type="email"
           value={formData.email}
           placeholder="tu@email.com"
-          icon={<MailIcon size={18} className="" />}
+          icon={<MailIcon size={18} />}
           onChange={handleChange}
         />
 
         <CustomInput
-          label="Contraseña"
+          label="Contrasena"
           name="password"
           type={showPassword ? "text" : "password"}
           value={formData.password}
-          placeholder="Tu contraseña"
-          icon={<LockIcon size={18} className="" />}
+          placeholder="Tu contrasena"
+          icon={<LockIcon size={18} />}
           rightElement={
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? <EyeOffIcon size={18} /> : <EyeIcon size={18} />}
             </button>
@@ -164,34 +154,40 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
           onChange={handleChange}
         />
 
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {error && <p className="text-center text-sm text-red-500">{error}</p>}
 
         <button
           type="submit"
-          className="w-full bg-red-500/90 hover:bg-red-500 text-white transition px-6 py-2 mt-2 rounded-lg font-medium cursor-pointer"
+          disabled={isSubmitting}
+          className="mt-2 w-full cursor-pointer rounded-lg bg-red-500/90 px-6 py-2 font-medium text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isLogin ? "Iniciar sesión" : "Crear cuenta"}
+          {isSubmitting
+            ? "Procesando..."
+            : isLogin
+              ? "Iniciar sesion"
+              : "Crear cuenta"}
         </button>
       </form>
-      <div className="flex justify-center mt-4 text-sm text-gray-700 dark:text-gray-300">
+
+      <div className="mt-4 flex justify-center text-sm text-gray-700 dark:text-gray-300">
         {isLogin ? (
           <>
-            <p>¿No tienes cuenta?</p>
+            <p>No tienes cuenta?</p>
             <p
               onClick={() => setIsLogin(false)}
-              className="ml-1 text-red-500 cursor-pointer hover:underline"
+              className="ml-1 cursor-pointer text-red-500 hover:underline"
             >
-              Regístrate aquí
+              Registrate aqui
             </p>
           </>
         ) : (
           <>
-            <p>¿Ya tienes cuenta?</p>
+            <p>Ya tienes cuenta?</p>
             <p
               onClick={() => setIsLogin(true)}
-              className="ml-1 text-red-500 cursor-pointer hover:underline"
+              className="ml-1 cursor-pointer text-red-500 hover:underline"
             >
-              Inicia sesión
+              Inicia sesion
             </p>
           </>
         )}

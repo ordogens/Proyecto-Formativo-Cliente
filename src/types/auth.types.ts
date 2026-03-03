@@ -15,7 +15,6 @@ export interface RegisterData {
   username: string;
   email: string;
   password: string;
-  role: Role;
 }
 
 export interface AuthActionResult {
@@ -25,7 +24,7 @@ export interface AuthActionResult {
 
 export interface AuthContextType {
   user: User | null;
-  login: (credentials: LoginCredentials) => AuthActionResult;
-  register: (data: RegisterData) => AuthActionResult;
-  logout: () => void;
+  login: (credentials: LoginCredentials) => Promise<AuthActionResult>;
+  register: (data: RegisterData) => Promise<AuthActionResult>;
+  logout: () => Promise<void>;
 }
