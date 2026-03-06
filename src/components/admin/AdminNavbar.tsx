@@ -20,7 +20,7 @@ export const AdminNavbar = ({ active, onChange }: Props) => {
       transition-all
       text-sm font-medium
       ${isActive
-        ? "bg-red-100 text-red-600 dark:bg-red-100/40 dark:text-red-400"
+        ? "bg-red-100 text-red-600 dark:bg-red-100/40 dark:text-gray-400"
         : "text-gray-700 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-gray-800"
       }
     `
