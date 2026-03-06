@@ -5,7 +5,7 @@ const AUTH_TOKEN_KEY = "auth_access_token";
 
 const USERS_API_URL =
   import.meta.env.VITE_USERS_API_URL ??
-  "http://localhost:8080/v1/usuarios";
+  "http://localhost:8080/v1/usuarios/login";
 const USERS_LOGOUT_PATH = import.meta.env.VITE_USERS_LOGOUT_PATH ?? "/logout";
 
 const usersApi = axios.create({
