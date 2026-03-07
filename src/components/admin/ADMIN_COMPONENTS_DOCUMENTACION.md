@@ -1,138 +1,72 @@
-# Documentacion de `components/admin`
+# Documentacion de `components/admin` (actualizada)
 
 ## Objetivo
-Documentar los componentes UI/reutilizables del panel admin y explicar como se conectan con `pages/adminView`.
+Documentar componentes reutilizables del panel admin y su conexion con `pages/adminView`.
 
-Carpeta documentada:
+Carpeta:
 - `src/components/admin`
 
----
-
-## Que contiene esta carpeta
+## Componentes activos
 - `AdminNavbar.tsx`
 - `AdminContent.tsx`
 - `AdminCards.tsx`
 - `ModalProducts.tsx`
 - `table/ProductsTable.tsx`
-- `AdminViews.tsx` (archivo legado/no usado en el flujo actual)
+- `table/PedidosTable.tsx`
 
----
+Componente legacy:
+- `AdminViews.tsx` (no participa en el flujo principal actual).
 
-## Flujo de uso (de esta carpeta hacia el panel)
-1. `AdminView.tsx` (page) guarda el estado `activeView`.
-2. `AdminView.tsx` renderiza `AdminNavbar` y le pasa:
-   - vista activa (`active`)
-   - callback para cambiar vista (`onChange`)
-3. Al hacer clic en navbar, cambia `activeView`.
-4. `AdminView.tsx` pasa `activeView` a `AdminContent`.
-5. `AdminContent` decide qué componente de `pages/adminView/views` renderizar.
-6. En `ResumenView`, se usa `AdminCards` para mostrar métricas.
-
----
+## Flujo entre page y componentes
+1. `AdminView.tsx` mantiene `activeView`.
+2. `AdminNavbar` dispara cambios de vista.
+3. `AdminContent` selecciona la vista concreta.
+4. `ProductosView` usa `ModalProducts` y `ProductsTable`.
+5. `PedidosView` usa `PedidosTable`.
 
 ## 1) `AdminNavbar.tsx`
-- Responsabilidad:
-  - Renderizar tabs del panel (Resumen, Productos, Pedidos, IA, Clientes).
-  - Marcar visualmente la vista activa.
-  - Disparar cambios de vista.
-
-Props:
-- `active: AdminViewType`
-- `onChange: (view: AdminViewType) => void`
-
-Dependencia clave:
-- `ADMIN_VIEWS` (`src/data/adminViews.ts`) para usar constantes tipadas y evitar strings sueltos.
-
-Punto fuerte:
-- `itemClass(view)` centraliza estilos de estado activo/inactivo.
+- Renderiza tabs disponibles segun `ADMIN_VIEWS`:
+  - `resumen`
+  - `productos`
+  - `pedidos`
+- Contrato:
+  - `active`
+  - `onChange`
 
 ## 2) `AdminContent.tsx`
-- Responsabilidad:
-  - Actuar como router interno del panel admin.
-  - Recibir `view` y seleccionar la vista correcta con `switch`.
-
-Props:
-- `view: AdminViewType`
-
-Salida por caso:
-- `resumen` -> `ResumenView`
-- `productos` -> `ProductosView`
-- `pedidos` -> `PedidosView`
-- `ia` -> `IAView`
-- `clientes` -> `ClientesView`
-
-Punto clave:
-- Separa la logica de seleccion de vista del archivo principal `AdminView.tsx`.
+- Router interno del panel.
+- `switch` real:
+  - `ADMIN_VIEWS.RESUMEN` -> `ResumenView`
+  - `ADMIN_VIEWS.PRODUCTOS` -> `ProductosView`
+  - `ADMIN_VIEWS.PEDIDOS` -> `PedidosView`
 
 ## 3) `AdminCards.tsx`
-- Responsabilidad:
-  - Mostrar tarjetas KPI reutilizables para el dashboard.
-  - Recibe icono dinamico (`LucideIcon`) + valor + descripcion.
+- Tarjetas KPI para `ResumenView`.
+- Datos actuales provienen de `src/data/cards.ts` (mock).
 
-Props:
-- `title`
-- `icon`
-- `value`
-- `description?`
+## 4) `ModalProducts.tsx`
+- Formulario de crear/editar producto.
+- Validaciones de campos obligatorios:
+  - `name`
+  - `stock`
+  - `categoryId`
+  - `image`
+- `price`/`stock` permiten valor vacio para UX de placeholder.
 
-Uso real actual:
-- En `ResumenView.tsx` mapeando `cards` desde `src/data/cards.ts`.
+## 5) `table/ProductsTable.tsx`
+- Carga productos y categorias desde API (`catalogService`).
+- Mapea datos API a formato UI local.
+- Soporta:
+  - editar (callback)
+  - eliminar (API)
+  - ajuste de stock local en tabla (no persistente)
 
-## 4) `AdminViews.tsx`
-- Estado actual:
-  - Exporta componentes simples (`ResumenView`, `ProductosView`, etc.) en el mismo archivo.
-  - No aparece importado por `AdminView` ni por `AdminContent` en el flujo vigente.
+## 6) `table/PedidosTable.tsx`
+- Carga facturas desde API (`orderService.getAllInvoices`).
+- Convierte API -> UI con `apiFacturaToOrder`.
+- Permite cambiar estado en UI local (sin persistencia backend).
 
-Recomendacion:
-- Mantenerlo solo si lo vas a reutilizar.
-- Si no se usa, conviene eliminarlo para evitar confusion con `pages/adminView/views`.
-
-## 5) `ModalProducts.tsx`
-- Responsabilidad:
-  - Mostrar formulario de alta/edicion de productos.
-  - Recibir `form`, `setForm`, `editingProduct` y `onSave`.
-- Validaciones de UX implementadas:
-  - Boton `Agregar/Guardar` deshabilitado si falta:
-    - `name`
-    - `stock`
-    - `category`
-    - `image`
-  - `price` y `stock` permiten estado vacio para mostrar placeholder.
-  - opcion `Seleccionar categoria` es placeholder no valido (`disabled`).
-
-## 6) `table/ProductsTable.tsx`
-- Responsabilidad:
-  - Mostrar lista de productos de prueba.
-  - Permitir:
-    - editar producto (abre modal via callback)
-    - eliminar producto
-    - ajustar stock con botones `+/-`
-
----
-
-## Dependencias de datos del modulo
-- `src/data/adminViews.ts`
-  - Define constantes de vistas y tipo `AdminViewType`.
-- `src/data/cards.ts`
-  - Define data mock de KPIs para `AdminCards`.
-
----
-
-## Guia de estudio (solo components/admin)
-1. Lee `AdminNavbar.tsx` y entiende el contrato `active/onChange`.
-2. Lee `adminViews.ts` para comprender el tipado de vistas.
-3. Lee `AdminContent.tsx` y sigue el `switch`.
-4. Lee `AdminCards.tsx` y revisa por qué recibe `icon` como componente.
-5. Revisa `ResumenView.tsx` para ver el uso real de `AdminCards`.
-
----
-
-## Checklist de mantenimiento
-- Si agregas una nueva vista:
-  - agrega constante en `adminViews.ts`,
-  - agrega item en `AdminNavbar.tsx`,
-  - agrega caso en `AdminContent.tsx`,
-  - crea la vista en `pages/adminView/views`.
-- Si cambias diseño de KPIs:
-  - ajusta `AdminCards.tsx`,
-  - verifica que `cards.ts` siga cumpliendo el contrato.
+## Pendientes del modulo
+1. Persistir ajustes de stock y estado de pedidos en backend.
+2. Mejorar manejo de errores visibles (hoy se usa `console.error`).
+3. Retirar o documentar definitivamente `AdminViews.tsx` para evitar confusion.
