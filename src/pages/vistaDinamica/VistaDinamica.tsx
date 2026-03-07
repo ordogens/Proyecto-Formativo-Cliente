@@ -24,6 +24,7 @@ export const VistaDinamica = () => {
 
   const { addToCart, /*cart*/ } = shop;
   const [addedMessageVisible, setAddedMessageVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   useEffect(() => {
     if (!addedMessageVisible) {
@@ -83,6 +84,8 @@ export const VistaDinamica = () => {
     return <h1 className="text-center mt-20 dark:text-gray-300">Producto no encontrado</h1>;
   }
 
+  const productImages = [producto.imagen, producto.imagen, producto.imagen];
+
   // const productCountInCart = cart
   //   .filter((item) => item.productId === producto.id)
   //   .reduce((acc, item) => acc + item.quantity, 0);
@@ -105,9 +108,28 @@ export const VistaDinamica = () => {
       <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 md:gap-10 md:items-center">
 
         <div className="flex justify-center md:scale-120">
+          <div className="hidden md:flex flex-col gap-2 mr-3">
+            {productImages.map((image, index) => (
+              <button
+                key={`thumb-${index}`}
+                type="button"
+                onClick={() => setSelectedImageIndex(index)}
+                className={`w-18 h-18 rounded-md overflow-hidden border cursor-pointer ${selectedImageIndex === index
+                  ? "border-gray-700 dark:border-gray-300"
+                  : "border-gray-300 dark:border-gray-700"
+                  }`}
+              >
+                <img
+                  src={image}
+                  alt={`${producto.nombre} vista ${index + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
           <div className="max-w-md h-fit md:h-lg md:max-w-lg rounded-2xl overflow-hidden shadow-sm">
             <img
-              src={producto.imagen}
+              src={productImages[selectedImageIndex]}
               alt={producto.nombre}
               className="w-screen md:w-full h-100 md:h-130 object-cover"
             />

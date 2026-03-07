@@ -28,13 +28,17 @@ export const DropMenu = ({
       action: toggleTheme,
     },
     {
-      label: "Catálogo",
+      label: isAdmin ? "Mi catálogo" : "Catálogo",
       action: () => navigate("/catalogo"),
     },
-    {
-      label: "Personalización",
-      action: () => navigate("/personalizacion"),
-    },
+    ...(!isAdmin
+      ? [
+          {
+            label: "Personalización",
+            action: () => navigate("/personalizacion"),
+          },
+        ]
+      : []),
     ...(isAdmin
       ? [
           {

@@ -16,6 +16,7 @@ export const Header = () => {
   const { theme, toggleTheme } = useThemeContext();
   const { user, logout } = useAuth();
   const isDarkMode = theme === "dark";
+  const isAdminUser = user?.role === "admin";
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -124,13 +125,23 @@ export const Header = () => {
 
           </NavLink>
 
-          <nav className="flex gap-10">
+          {isAdminUser && (
+            <nav className="flex gap-10">
+              <NavLink to="/catalogo" className="hover:text-red-500 dark:text-gray-300">
+                Mi catálogo
+              </NavLink>
+            </nav>
+          )}
+
+          <nav className={`flex gap-10 ${isAdminUser ? "hidden" : ""}`}>
             <NavLink to="/catalogo" className="hover:text-red-500 dark:text-gray-300">
               Catálogo
             </NavLink>
-            <NavLink to="/personalizacion" className="hover:text-red-500 dark:text-gray-300">
+            {!isAdminUser && (
+              <NavLink to="/personalizacion" className="hover:text-red-500 dark:text-gray-300">
               Personalización
-            </NavLink>
+              </NavLink>
+            )}
           </nav>
 
           <div className="flex gap-4 items-center">
