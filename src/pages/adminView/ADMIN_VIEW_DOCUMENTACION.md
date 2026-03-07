@@ -1,130 +1,61 @@
-# Documentacion de `pages/adminView`
+# Documentacion de `pages/adminView` (actualizada)
 
 ## Objetivo
-Explicar la pagina admin como modulo funcional: estado de vista activa, estructura principal y vistas hijas.
+Documentar la pagina administrativa real, su composicion y el estado de cada vista activa.
 
-Carpeta documentada:
+Carpeta:
 - `src/pages/adminView`
 
----
-
-## Por que esta guia va separada de `components/admin`
-Si, aqui conviene tener dos guias:
-1. `components/admin`: piezas reutilizables y UI.
-2. `pages/adminView`: composicion final y flujo de la pantalla.
-
-Separarlas ayuda a estudiar y mantener mejor:
-- una capa para bloques reutilizables,
-- otra para la pagina que los orquesta.
-
----
-
-## Estructura actual de la carpeta
+## Estructura actual valida
 - `AdminView.tsx`
 - `views/ResumenView.tsx`
 - `views/ProductosView.tsx`
 - `views/PedidosView.tsx`
-- `views/IAView.tsx`
-- `views/ClientesView.tsx`
 
----
+Nota:
+- No existen en el flujo actual `IAView.tsx` ni `ClientesView.tsx`.
 
-## Flujo principal del panel admin (en orden)
-1. Ruta en `src/App.tsx`:
-   - `/admin-view` -> `AdminView`.
-2. `AdminView.tsx` inicializa estado:
-   - `activeView = ADMIN_VIEWS.RESUMEN`.
-3. `AdminView.tsx` renderiza:
-   - encabezado del panel,
-   - `AdminNavbar`,
-   - zona de contenido.
-4. `AdminNavbar` actualiza `activeView` cuando el usuario cambia de tab.
-5. `AdminContent` recibe `activeView` y monta la vista correspondiente.
-6. Las vistas (`views/*`) renderizan contenido especifico por modulo.
+## Flujo principal del panel admin
+1. En `src/App.tsx` la ruta `/admin-view` esta protegida por `RequireAdmin`.
+2. `AdminView.tsx` inicializa `activeView = ADMIN_VIEWS.RESUMEN`.
+3. `AdminView.tsx` renderiza encabezado, `AdminNavbar` y `AdminContent`.
+4. `AdminNavbar` cambia `activeView`.
+5. `AdminContent` resuelve que vista montar (`resumen`, `productos`, `pedidos`).
 
----
+## 1) `AdminView.tsx`
+- Rol: orquestador de la pagina.
+- Estado: `useState<AdminViewType>`.
+- Usa `useAuth()` para mostrar nombre del admin en cabecera.
 
-## 1) `AdminView.tsx` (orquestador)
-- Responsabilidad:
-  - Componer todo el panel.
-  - Mantener el estado de navegacion interna (`activeView`).
-  - Pasar props a `AdminNavbar` y `AdminContent`.
-
-Estado:
-- `useState<AdminViewType>(ADMIN_VIEWS.RESUMEN)`
-
-Composicion:
-- Header de panel
-- Navegacion interna (`AdminNavbar`)
-- Contenedor de contenido (`AdminContent`)
-
----
+Detalle a revisar:
+- Contenedor visual temporal: `h-200 bg-red-400`.
 
 ## 2) `views/ResumenView.tsx`
-- Responsabilidad:
-  - Vista dashboard inicial.
-  - Mostrar tarjetas KPI con `AdminCards`.
-  - Reservar espacio para futuras graficas.
-
-Dependencias:
-- `AdminCards` (components/admin)
-- `cards` (data mock de `src/data/cards.ts`)
+- Dashboard inicial.
+- Renderiza KPIs con `AdminCards`.
+- Fuente actual: `src/data/cards.ts` (mock local).
 
 ## 3) `views/ProductosView.tsx`
-- Estado actual:
-  - Vista funcional para gestion base de productos.
-- Proposito esperado:
-  - Gestion CRUD de productos.
-  - Apertura de `ModalProducts` para agregar/editar.
-  - Validaciones de formulario antes de guardar.
-  - `Seleccionar categoria` funciona como opcion no valida para guardado.
+- Gestion de productos funcional.
+- Abre `ModalProducts` para crear/editar.
+- Carga categorias desde API (`catalogService.getCategories`).
+- Guarda cambios con:
+  - `catalogService.createProduct`
+  - `catalogService.updateProduct`
+- Filtra por categoria y genero.
 
 ## 4) `views/PedidosView.tsx`
-- Estado actual:
-  - Placeholder visual (`PedidosView`).
-- Proposito esperado:
-  - Tabla/estado de ordenes y seguimiento.
+- Vista activa de pedidos.
+- Renderiza `PedidosTable`.
+- Incluye botones de filtro visual (sin logica aplicada aun).
 
-## 5) `views/IAView.tsx`
-- Estado actual:
-  - Placeholder visual (`IAView`).
-- Proposito esperado:
-  - Gestion de personalizaciones IA y colas de generacion.
+## Estado actual del modulo admin
+- Panel operativo en tres tabs reales: resumen, productos y pedidos.
+- Integracion API activa en productos y pedidos.
+- Pendiente persistencia de cambios de estado en pedidos.
 
-## 6) `views/ClientesView.tsx`
-- Estado actual:
-  - Placeholder visual (`ClientesView`).
-- Proposito esperado:
-  - Listado y analitica de clientes.
-
----
-
-## Como se complementa con `components/admin`
-- `AdminView.tsx` no decide contenido por si solo.
-- Delega:
-  - navegacion de tabs a `AdminNavbar`,
-  - seleccion de vista a `AdminContent`,
-  - tarjetas KPI a `AdminCards` (dentro de `ResumenView`).
-
-Resumen tecnico:
-- `pages/adminView` = capa de pagina y experiencia final.
-- `components/admin` = bloques de UI + router interno reutilizable.
-
----
-
-## Guia de estudio recomendada (orden)
-1. `App.tsx`: ubica la ruta `/admin-view`.
-2. `AdminView.tsx`: identifica estado y estructura general.
-3. `AdminNavbar.tsx`: entiende como cambia `activeView`.
-4. `AdminContent.tsx`: entiende como se resuelve cada tab.
-5. `views/ResumenView.tsx`: analiza el primer caso real con `AdminCards`.
-6. `views/*` restantes: define qué falta para completarlas.
-
----
-
-## Checklist para dejar el panel listo para produccion
-- Reemplazar placeholders de `Productos/Pedidos/IA/Clientes` por componentes reales.
-- Conectar `cards.ts` a datos reales (API o estado global).
-- Agregar manejo de carga y error por cada vista.
-- Revisar accesibilidad de tabs (soporte teclado y `button` semantico).
-- Corregir altura fija del contenedor (`h-200`) si genera cortes en pantallas pequeñas.
+## Pendientes del modulo
+1. Persistir cambio de estado de pedidos en backend.
+2. Conectar filtros de `PedidosView` a logica real.
+3. Reemplazar KPI mock por datos reales.
+4. Ajustar layout temporal del contenedor principal.

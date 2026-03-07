@@ -1,73 +1,70 @@
-# React + TypeScript + Vite
+# Proyecto Formativo Cliente
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend SPA para e-commerce con personalizacion IA y panel admin.
 
-Currently, two official plugins are available:
+## Stack
+- React 19 + TypeScript + Vite
+- React Router DOM
+- Context API (tema, auth, carrito)
+- Tailwind CSS v4
+- Axios
+- Firebase Auth (Google popup)
+- SweetAlert2
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Scripts
+- `npm run dev`: entorno local
+- `npm run build`: build de produccion
+- `npm run lint`: analisis estatico
+- `npm run preview`: previsualizacion del build
 
-## React Compiler
+## Arquitectura general
+- Entrada: `src/main.tsx`
+- Ruteo: `src/App.tsx`
+- Layout principal: `src/layouts/PrincipalLayout.tsx`
+- Contextos globales:
+  - `src/context/ThemeProvider.tsx`
+  - `src/context/AuthContext.tsx`
+  - `src/context/ShopProvide.tsx`
+- Servicios API:
+  - `src/services/auth.service.ts`
+  - `src/services/catalog.service.ts`
+  - `src/services/order.service.ts`
+  - `src/services/nanoService.ts`
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Funcionalidades implementadas
+- Navegacion publica: home, catalogo, categorias, detalle, carrito, personalizacion.
+- Login/registro con backend y soporte de login con Google.
+- Proteccion de ruta `/admin-view` por rol `admin`.
+- Catalogo conectado a API (productos/categorias).
+- Panel admin con vistas activas de resumen, productos y pedidos.
+- CRUD base de productos (crear, editar, eliminar) conectado a API.
+- Vista de pedidos consumiendo facturas desde API.
+- Carrito con contexto global y calculo de totales.
+- Factura en modal con descarga PDF.
 
-## Expanding the ESLint configuration
+## Variables de entorno esperadas
+- `VITE_GATEWAY_URL` (opcional): URL base del gateway (default `http://localhost:1010`).
+- `VITE_USERS_LOGOUT_PATH` (opcional): endpoint de logout para usuarios.
+- Variables de Firebase usadas en `src/config/firebase.ts`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Endpoints consumidos (via gateway)
+Definidos en `src/config/api.ts`:
+- Auth: `.../api/usuarios/v1/usuarios`
+- Catalogo: `.../api/catalogo`
+- Admin: `.../api/admin/admin`
+- IA: `.../api/generate` y otros prefijos
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Estado actual
+El frontend esta funcional y ya consume API en auth, catalogo y pedidos.
+Aun hay partes en transicion a flujo 100% productivo (ejemplo: invoice del carrito todavia usa productos mock para el PDF/modal).
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Documentacion interna
+- Flujo general: `src/FLUJO_GENERAL_APP.md`
+- Auth: `src/components/auth/AUTH_DOCUMENTACION.md`
+- Admin (page): `src/pages/adminView/ADMIN_VIEW_DOCUMENTACION.md`
+- Admin (componentes): `src/components/admin/ADMIN_COMPONENTS_DOCUMENTACION.md`
+- Vista dinamica: `src/pages/vistaDinamica/VISTA_DINAMICA_DOCUMENTACION.md`
+- Invoice: `src/components/invoice/INVOICE_DOCUMENTACION.md`
+- Personalizacion: `src/components/componentesPersonalizacion/PERSONALIZACION_DOCUMENTACION.md`
+- Carrito: `src/context/CARRITO_CONTEXT_DOCUMENTACION.md`
+- Tema: `src/context/THEME_CONTEXT_DOCUMENTACION.md`

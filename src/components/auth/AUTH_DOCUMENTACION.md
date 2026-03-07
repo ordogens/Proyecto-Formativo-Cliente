@@ -1,91 +1,54 @@
-# Documentacion de Autenticacion y Roles
+# Documentacion de autenticacion y roles (actualizada)
 
 Proyecto: `Proyecto-Formativo-Cliente`
-Ubicacion del feature: `src/components/auth`
+Modulo: `src/components/auth` + `src/context/AuthContext.tsx`
 
-## 1) Objetivo actual
+## Objetivo actual
+Gestionar autenticacion de usuario con backend y control de acceso por rol.
 
-Este modulo implementa autenticacion con backend con:
-- `login` por `email + contraseña`
-- `register` sin seleccion de rol en frontend
-- `logout`
-- control de acceso al panel admin
+Flujos soportados:
+- Login con email/password
+- Registro
+- Login con Google (Firebase + backend)
+- Logout
 
-## 2) Archivos clave
-
+## Archivos clave
 - `src/context/AuthContext.tsx`
-  - expone `user`, `login`, `register`, `logout`
-  - mantiene el estado de sesion del cliente usando datos de la API
-  - persiste sesion de usuario en `auth_user_session`
-
-- `src/types/auth.types.ts`
-  - `Role`, `User`
-  - `LoginCredentials`
-  - `RegisterData`
-  - `AuthActionResult`
-  - `AuthContextType`
-
-- `src/components/auth/AuthForm.tsx`
-  - alterna login/registro
-  - no hay selector de rol en login/registro
-  - muestra alertas de error/exito segun respuesta del backend
-
-- `src/components/auth/AuthModal.tsx`
-  - wrapper de `Modal` + `AuthForm`
-
 - `src/services/auth.service.ts`
-  - cliente `axios` de autenticacion
-  - endpoints:
-    - `POST /v1/usuarios/login`
-    - `POST /v1/usuarios`
-    - `POST /v1/usuarios/logout` (con fallback `POST /v1/usuarios/cerrar-sesion`)
-  - guarda token en `auth_access_token`
-
+- `src/components/auth/AuthForm.tsx`
+- `src/components/auth/AuthModal.tsx`
 - `src/components/modals/Modal.tsx`
-  - overlay reutilizable
-  - bloqueo de scroll del fondo
-  - cierre por click fuera, `X` y `Esc`
-  - render en `createPortal(document.body)`
+- `src/types/auth.types.ts`
+- `src/App.tsx` (`RequireAdmin`)
 
-- `src/App.tsx`
-  - `RequireAdmin` protege `/admin-view`
+## Flujo real
+1. Usuario abre modal desde header.
+2. `AuthForm` ejecuta login, register o Google.
+3. `auth.service` llama API de usuarios.
+4. Si hay token en respuesta, se guarda en `auth_access_token`.
+5. `AuthContext` guarda usuario en memoria y en `auth_user_session`.
+6. `RequireAdmin` habilita `/admin-view` solo si `user.role === "admin"`.
 
-## 3) Flujo actual
+## Endpoints usados
+Base definida en `AUTH_API` (`src/config/api.ts`):
+- `POST /login`
+- `POST /` (registro)
+- `POST /login/google`
+- `GET /me`
+- `POST /logout` (fallback `/cerrar-sesion`)
 
-1. Usuario abre login desde Header/DropMenu.
-2. Se monta `AuthModal`.
-3. `Modal` bloquea interaccion de fondo.
-4. Login:
-   - valida `email + contraseña`
-   - autentica contra backend
-   - toma `role` desde la respuesta del login (`ADMIN`/`USER`)
-   - guarda token de sesion para requests autenticados
-5. Registro:
-   - valida `username + email + password`
-   - frontend envia datos al backend sin rol
-   - payload actual al backend: `nombre`, `email`, `contraseña`
-   - backend define rol y devuelve datos de usuario
-   - si hay timeout de red pero el usuario se crea, se intenta login automatico
-6. UI se actualiza:
-   - Login/Logout en header
-   - badge de rol
-   - opcion admin segun rol
-7. Si el rol es `admin`, `RequireAdmin` permite `/admin-view`.
+## Comportamientos relevantes
+- Normaliza email a minusculas.
+- Intenta login automatico tras timeout de registro (`ECONNABORTED`).
+- Extrae mensajes de error de diferentes formatos de backend.
+- Mapea rol a `admin` o `user`.
 
-## 4) Estado de seguridad
+## Estado actual
+- Modulo funcional para autenticacion tradicional y Google.
+- Persistencia de sesion y token activa.
+- Control de ruta admin funcional.
 
-- El control de identidad y rol depende del backend.
-- El frontend no asigna roles ni crea admins.
-- El backend crea el admin automaticamente segun su configuracion.
-- El frontend usa token `Bearer` almacenado en cliente.
-
-## 5) Contrato actual esperado (backend usuarios)
-
-1. Login (`POST /v1/usuarios/login`):
-   - body: `{ "email": string, "contraseña": string }`
-2. Register (`POST /v1/usuarios`):
-   - body: `{ "nombre": string, "email": string, "contraseña": string }`
-3. Respuesta login:
-   - incluye `token`, `role`, `usuario` (u objeto equivalente).
-4. `RequireAdmin`:
-   - usa `user.role` mapeado desde `role` de backend (`ADMIN -> admin`).
+## Pendientes recomendados
+1. Revisar estrategia de seguridad del token en cliente.
+2. Unificar contrato de respuestas backend para simplificar parseo.
+3. Incorporar recuperacion de password si aplica al alcance.
