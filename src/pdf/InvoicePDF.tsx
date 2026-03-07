@@ -13,6 +13,7 @@ interface Props {
   totalValor: number;
   issueDate: string;
   dueDate: string;
+  invoiceId: string;
 }
 
 const styles = StyleSheet.create({
@@ -73,12 +74,13 @@ export const InvoicePDF = ({
   totalValor,
   issueDate,
   dueDate,
+  invoiceId,
 }: Props) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <Text style={styles.title}>FACTURA DE COMPRA</Text>
 
-      <Text style={styles.text}>Factura Nº: 000123</Text>
+      <Text style={styles.text}>Factura Nº: {invoiceId}</Text>
       <Text style={styles.text}>Fecha de emisión: {issueDate}</Text>
       <Text style={styles.text}>Fecha de vencimiento: {dueDate}</Text>
 

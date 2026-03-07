@@ -47,11 +47,15 @@ const extractObject = (payload: unknown): Record<string, unknown> => {
 const extractUserSource = (payload: unknown): Record<string, unknown> => {
   const root = extractObject(payload);
   const directUser = extractObject(root.user);
+  const directUsuario = extractObject(root.usuario);
   const nestedData = extractObject(root.data);
   const nestedUser = extractObject(nestedData.user);
+  const nestedUsuario = extractObject(nestedData.usuario);
 
   if (Object.keys(directUser).length > 0) return directUser;
+  if (Object.keys(directUsuario).length > 0) return directUsuario;
   if (Object.keys(nestedUser).length > 0) return nestedUser;
+  if (Object.keys(nestedUsuario).length > 0) return nestedUsuario;
   if (Object.keys(nestedData).length > 0) return nestedData;
   return root;
 };
@@ -67,6 +71,20 @@ const readString = (source: Record<string, unknown>, keys: string[]) => {
   return "";
 };
 
+
+const readIdAsString = (source: Record<string, unknown>, keys: string[]) => {
+  for (const key of keys) {
+    const value = source[key];
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return String(value);
+    }
+  }
+
+  return "";
+};
 const toRole = (value: unknown): Role | null => {
   if (typeof value !== "string") return null;
   return value.toLowerCase() === "admin" ? "admin" : "user";
@@ -76,7 +94,7 @@ const toUser = (payload: unknown): User => {
   const source = extractUserSource(payload);
 
   const id =
-    readString(source, ["id", "_id", "usuarioId"]) ||
+    readIdAsString(source, ["id", "_id", "usuarioId", "idUsuario", "userId"]) ||
     String(Date.now());
 
   const name =

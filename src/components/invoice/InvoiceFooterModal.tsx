@@ -11,9 +11,18 @@ interface Props {
   totalValor: number;
   issueDate: Date;
   dueDate: Date;
+  invoiceId: string;
 }
 
-export const InvoiceFooterModal = ({ onClose, products, totalProducts, totalValor, issueDate, dueDate }: Props) => {
+export const InvoiceFooterModal = ({
+  onClose,
+  products,
+  totalProducts,
+  totalValor,
+  issueDate,
+  dueDate,
+  invoiceId,
+}: Props) => {
   return (
     <footer className="mt-1">
       <p className="text-[10px] text-justify">Gracias por su compra. Para cualquier consulta relacionada con esta factura, comuníquese con nosotros dentro de los plazos establecidos.</p>
@@ -55,6 +64,7 @@ export const InvoiceFooterModal = ({ onClose, products, totalProducts, totalValo
               totalValor={totalValor}
               issueDate={formatDate(issueDate)}
               dueDate={formatDate(dueDate)}
+              invoiceId={invoiceId}
             />
           }
           fileName="factura-compra.pdf"

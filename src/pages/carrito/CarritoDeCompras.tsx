@@ -4,12 +4,17 @@ import { ShopContext } from "../../context/shopContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { InvoiceModal } from "../../components/invoice/InvoiceModal";
+import { useAuth } from "../../context/AuthContext";
+import { orderService } from "../../services/order.service";
+import type { ApiFactura } from "../../types/api.types";
 
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState(false);
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
+  const [facturaGenerada, setFacturaGenerada] = useState<ApiFactura | null>(null);
+  const [creatingInvoice, setCreatingInvoice] = useState(false);
 
   if (!shop) throw new Error("ShopContext must be used inside ShopProvider");
 
@@ -26,22 +31,59 @@ export const CarritoDeCompras = () => {
   const finalTotal = total + shipping;
   const isCartEmpty = cart.length === 0;
 
-  const handleFinalizePurchase = () => {
-    if (isCartEmpty) return;
+  const handleFinalizePurchase = async () => {
+    if (isCartEmpty || creatingInvoice) return;
 
-    const isDarkMode = document.documentElement.classList.contains("dark");
+    if (!user?.id) {
+      await Swal.fire({
+        title: "Inicia sesión",
+        text: "Necesitas iniciar sesión para generar la factura.",
+        icon: "warning",
+      });
+      return;
+    }
 
-    Swal.fire({
-      title: "Compra exitosa",
-      text: "Dirigite a tu correo para revisar el mail que te llego.",
-      icon: "success",
-      ...(isDarkMode && {
-        background: "#101828",
-        color: "#e5e7eb",
-      }),
-      showConfirmButton: false,
-      timer: 2000,
-    });
+    const productosFactura = cart.map((item) => ({
+      nombre_producto: item.name,
+      precio_unitario: item.price,
+      cantidad: item.quantity,
+      subtotal: item.price * item.quantity,
+    }));
+
+    setCreatingInvoice(true);
+
+    try {
+      const { factura } = await orderService.createInvoiceForCustomer({
+        id_usuario: String(user.id),
+        productos: productosFactura,
+      });
+
+      setFacturaGenerada(factura);
+      setIsInvoiceOpen(true);
+
+      const isDarkMode = document.documentElement.classList.contains("dark");
+
+      await Swal.fire({
+        title: "Compra exitosa",
+        text: "La factura fue generada y enviada a tu correo.",
+        icon: "success",
+        ...(isDarkMode && {
+          background: "#101828",
+          color: "#e5e7eb",
+        }),
+        showConfirmButton: false,
+        timer: 2000,
+      });
+    } catch (error) {
+      console.error("Error creando factura:", error);
+      await Swal.fire({
+        title: "No se pudo generar la factura",
+        text: "Intenta nuevamente en unos segundos.",
+        icon: "error",
+      });
+    } finally {
+      setCreatingInvoice(false);
+    }
   };
 
   return (
@@ -134,27 +176,22 @@ export const CarritoDeCompras = () => {
           </div>
 
           <button
-            onClick={() => {
-              handleFinalizePurchase();
-              if (isCartEmpty) return;
-              setInvoice(true);
-              setIsInvoiceOpen(true);
-            }}
-            disabled={isCartEmpty}
+            onClick={handleFinalizePurchase}
+            disabled={isCartEmpty || creatingInvoice}
             className={`w-full py-3 rounded-lg mb-3 transition ${
-              isCartEmpty
+              isCartEmpty || creatingInvoice
                 ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-300 cursor-not-allowed"
                 : "bg-[#c65a4f] text-white hover:opacity-90 cursor-pointer"
             }`}
           >
-            Finalizar compra
+            {creatingInvoice ? "Generando factura..." : "Finalizar compra"}
           </button>
 
-          {invoice && (
-            // <Invoice onClose={() => setInvoice(false)} />
+          {facturaGenerada && (
             <InvoiceModal
               isOpen={isInvoiceOpen}
               onClose={() => setIsInvoiceOpen(false)}
+              factura={facturaGenerada}
             />
           )}
 

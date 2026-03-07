@@ -1,5 +1,16 @@
 import { apiClient, ADMIN_API } from "../config/api";
-import type { ApiFactura } from "../types/api.types";
+import type {
+  ApiCreateFacturaInput,
+  ApiCreateFacturaResult,
+  ApiFactura,
+} from "../types/api.types";
+
+interface ApiEnvelope<T> {
+  message: string;
+  data: T;
+}
+
+const ADMIN_FACTURAS_API = `${ADMIN_API}/facturas`;
 
 /**
  * Servicio de pedidos/facturas — consume micro admin a través del gateway.
@@ -12,37 +23,47 @@ import type { ApiFactura } from "../types/api.types";
  */
 export const orderService = {
   getAllInvoices: async (): Promise<ApiFactura[]> => {
-    const { data } = await apiClient.get<{ data: ApiFactura[] }>(
-      `${ADMIN_API}/facturas`
+    const { data } = await apiClient.get<ApiEnvelope<ApiFactura[]>>(
+      ADMIN_FACTURAS_API
     );
     return data.data;
   },
 
   createInvoice: async (
-    factura: Omit<ApiFactura, "id">
-  ): Promise<ApiFactura> => {
-    const { data } = await apiClient.post<ApiFactura>(
-      `${ADMIN_API}/facturas/crear`,
+    factura: ApiCreateFacturaInput
+  ): Promise<ApiCreateFacturaResult> => {
+    const { data } = await apiClient.post<ApiEnvelope<ApiCreateFacturaResult>>(
+      `${ADMIN_FACTURAS_API}/crear`,
       factura
     );
-    return data;
+    return data.data;
+  },
+
+  createInvoiceForCustomer: async (
+    factura: Omit<ApiCreateFacturaInput, "id_usuario"> & { id_usuario?: string }
+  ): Promise<ApiCreateFacturaResult> => {
+    const { data } = await apiClient.post<ApiEnvelope<ApiCreateFacturaResult>>(
+      `${ADMIN_FACTURAS_API}/crear-cliente`,
+      factura
+    );
+    return data.data;
   },
 
   getInvoicesByUser: async (userId: string): Promise<ApiFactura[]> => {
-    const { data } = await apiClient.get<ApiFactura[]>(
-      `${ADMIN_API}/facturas/usuario/${userId}`
+    const { data } = await apiClient.get<ApiEnvelope<ApiFactura[]>>(
+      `${ADMIN_FACTURAS_API}/usuario/${userId}`
     );
-    return data;
+    return data.data;
   },
 
   getInvoiceById: async (id: string): Promise<ApiFactura> => {
-    const { data } = await apiClient.get<ApiFactura>(
-      `${ADMIN_API}/facturas/${id}`
+    const { data } = await apiClient.get<ApiEnvelope<ApiFactura>>(
+      `${ADMIN_FACTURAS_API}/${id}`
     );
-    return data;
+    return data.data;
   },
 
   sendInvoiceEmail: async (id: string): Promise<void> => {
-    await apiClient.post(`${ADMIN_API}/facturas/${id}/enviar-correo`);
+    await apiClient.post(`${ADMIN_FACTURAS_API}/${id}/enviar-correo`);
   },
 };

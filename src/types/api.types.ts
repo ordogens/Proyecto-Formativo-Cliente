@@ -46,6 +46,23 @@ export interface ApiProductoFactura {
   subtotal: number;
 }
 
+export interface ApiCreateFacturaInput {
+  id_usuario: string;
+  productos: Array<{
+    nombre_producto: string;
+    precio_unitario: number;
+    cantidad: number;
+    subtotal?: number;
+  }>;
+  estado?: EstadoFactura;
+  dias_vencimiento?: number;
+}
+
+export interface ApiCreateFacturaResult {
+  factura: ApiFactura;
+  notificacion: unknown;
+}
+
 /** Coincide con Factura del micro admin */
 export type EstadoFactura = "PENDIENTE" | "PAGADA" | "VENCIDA";
 

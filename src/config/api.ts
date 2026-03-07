@@ -12,7 +12,7 @@ export const GATEWAY_URL =
 /** URLs por dominio — cada una apunta a un prefijo del gateway */
 export const AUTH_API = `${GATEWAY_URL}/api/usuarios/v1/usuarios`;
 export const CATALOG_API = `${GATEWAY_URL}/api/catalogo`;
-export const ADMIN_API = `${GATEWAY_URL}/api/admin/admin`;
+export const ADMIN_API = `${GATEWAY_URL}/api/admin`;
 export const IA_API = `${GATEWAY_URL}/api/agente-ia`;
 export const IA_GENERATE_API = `${GATEWAY_URL}/api/generate`;
 export const TRANSACTIONS_API = `${GATEWAY_URL}/api/transacciones`;
