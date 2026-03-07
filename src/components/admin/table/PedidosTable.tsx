@@ -1,66 +1,22 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import type { Order, OrderStatus } from "../../../types/invoice"
+import { orderService } from "../../../services/order.service"
+import { apiFacturaToOrder } from "../../../adapters/invoice.adapter"
 
 /* =====================
-   * Tipos (idealmente van en types.ts)
-===================== */
-export type OrderStatus = "confirmado" | "enviado" | "pendiente"
-
-export interface Order {
-  id: string
-  customerName: string
-  customerEmail: string
-  date: string
-  items: number
-  total: number
-  status: OrderStatus
-}
-
-/* =====================
-   ! Datos quemados de prueba
-===================== */
-const initialOrders: Order[] = [
-  {
-    id: "ORD-001",
-    customerName: "Carlos Mendoza",
-    customerEmail: "carlos@correo.com",
-    date: "2026-02-27",
-    items: 2,
-    total: 99980,
-    status: "confirmado"
-  },
-  {
-    id: "ORD-002",
-    customerName: "Maria Gonzalez",
-    customerEmail: "maria@correo.com",
-    date: "2026-02-26",
-    items: 2,
-    total: 119980,
-    status: "enviado"
-  },
-  {
-    id: "ORD-003",
-    customerName: "Andres Torres",
-    customerEmail: "andres@correo.com",
-    date: "2026-02-26",
-    items: 3,
-    total: 74970,
-    status: "pendiente"
-  }
-]
-
-/* =====================
-   ! Esto va en helpers
+   Estilos y labels de estado (alineados con backend)
+   PENDIENTE → pendiente, PAGADA → confirmado, VENCIDA → vencida
 ===================== */
 const statusStyles: Record<OrderStatus, string> = {
   confirmado: "bg-green-100 text-green-700 border-green-700",
-  enviado: "bg-blue-100 text-blue-700 border-blue-700",
-  pendiente: "bg-yellow-100 text-yellow-700 border-yellow-700"
+  pendiente: "bg-yellow-100 text-yellow-700 border-yellow-700",
+  vencida: "bg-red-100 text-red-700 border-red-700"
 }
 
 const statusLabels: Record<OrderStatus, string> = {
-  confirmado: "Confirmado",
-  enviado: "Enviado",
-  pendiente: "Pendiente"
+  confirmado: "Pagada",
+  pendiente: "Pendiente",
+  vencida: "Vencida"
 }
 
 const formatPrice = (price: number) =>
@@ -72,7 +28,22 @@ const formatPrice = (price: number) =>
 
 
 export const PedidosTable = () => {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const facturas = await orderService.getAllInvoices()
+        setOrders(facturas.map(apiFacturaToOrder))
+      } catch (err) {
+        console.error("Error cargando pedidos:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchOrders()
+  }, [])
 
   const handleStatusChange = (id: string, newStatus: OrderStatus) => {
     setOrders(prev =>
@@ -80,6 +51,10 @@ export const PedidosTable = () => {
         order.id === id ? { ...order, status: newStatus } : order
       )
     )
+  }
+
+  if (loading) {
+    return <p className="p-4 text-gray-500">Cargando pedidos...</p>
   }
 
   return (
@@ -143,9 +118,9 @@ export const PedidosTable = () => {
                 }
                 className="rounded-md border px-2 py-1 text-sm bg-background cursor-pointer dark:bg-gray-900 dark:text-gray-300"
               >
-                <option value="confirmado">Confirmado</option>
-                <option value="enviado">Enviado</option>
+                <option value="confirmado">Pagada</option>
                 <option value="pendiente">Pendiente</option>
+                <option value="vencida">Vencida</option>
               </select>
             </td>
           </tr>

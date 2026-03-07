@@ -1,56 +1,42 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Minus, Plus, Pencil, Trash2 } from "lucide-react"
+import { catalogService } from "../../../services/catalog.service"
+import type { ApiProducto, ApiCategoria } from "../../../types/api.types"
 
 /* =====================
-   * Tipos (idealmente van en types.ts)
+   * Tipos admin UI
 ===================== */
-export type Category = "men_clothing" | "women_clothing" | "hats"
-
 export interface Product {
   id: number
   name: string
-  category: Category
+  category: string
+  categoryId: number
+  gender: string
   price: number
   stock: number
   image: string
 }
-/* =====================
-   ! Datos quemados de prueba
-===================== */
-const initialProducts: Product[] = [
-  {
-    id: 1,
-    name: "Camiseta 1",
-    category: "men_clothing",
-    price: 49999,
-    stock: 12,
-    image: "https://via.placeholder.com/80"
-  },
-  {
-    id: 2,
-    name: "Pantalón 1",
-    category: "women_clothing",
-    price: 19900,
-    stock: 4,
-    image: "https://via.placeholder.com/80"
-  },
-  {
-    id: 3,
-    name: "Gorro 1",
-    category: "hats",
-    price: 9500,
-    stock: 20,
-    image: "https://via.placeholder.com/80"
-  }
-]
 
 /* =====================
-   ! Esto va en helpers
+   Convierte ApiProducto → Product (admin UI)
 ===================== */
-const categoryLabels: Record<Category, string> = {
-  men_clothing: "Ropa hombre",
-  women_clothing: "Ropa mujer",
-  hats: "Gorros"
+const apiToAdminProduct = (
+  api: ApiProducto,
+  categorias: ApiCategoria[]
+): Product => {
+  const catId = api.categoria_id ?? api.category_id ?? 0
+  const cat = categorias.find((c) => c.id === catId)
+  const imageUrl = api.imagen_url ?? api.image_url
+  return {
+    id: api.id ?? 0,
+    name: api.nombre,
+    category: cat?.nombre ?? "Sin categoría",
+    categoryId: catId,
+    gender: api.genero ?? api.gender ?? "Unisex",
+    price: api.price,
+    stock: 0,
+    image: imageUrl ?? "https://via.placeholder.com/80",
+  }
 }
 
 const formatPrice = (price: number) =>
@@ -60,10 +46,31 @@ const formatPrice = (price: number) =>
     minimumFractionDigits: 0
   })
 
-export const ProductsTable = ({ onEditProduct }: {
+export const ProductsTable = ({ onEditProduct, genderFilter, categoryFilterId }: {
   onEditProduct: (product: Product) => void
+  genderFilter: "Todos" | "Hombre" | "Mujer" | "Unisex"
+  categoryFilterId: number | "Todas"
 }) => {
-  const [productsList, setProductsList] = useState<Product[]>(initialProducts)
+  const [productsList, setProductsList] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [productos, categorias] = await Promise.all([
+          catalogService.getProducts(),
+          catalogService.getCategories(),
+        ])
+        setProductsList(productos.map((p) => apiToAdminProduct(p, categorias)))
+      } catch (err) {
+        console.error("Error cargando productos:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
   const openEditProduct = (product: Product) => {
     onEditProduct(product)
   }
@@ -80,14 +87,28 @@ export const ProductsTable = ({ onEditProduct }: {
     )
   }
 
-  const handleDeleteProduct = (id: number) => {
-    setProductsList((prev) => prev.filter((product) => product.id !== id))
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      await catalogService.deleteProduct(id)
+      setProductsList((prev) => prev.filter((product) => product.id !== id))
+    } catch (err) {
+      console.error("Error eliminando producto:", err)
+    }
   }
 
-  /**
-   *TODO: Modularizar componente.
-   *TODO: Importar funciones desde sus archivos correspondientes, helpers, utils, etc  
-   **/
+  if (loading) {
+    return <p className="p-4 text-gray-500">Cargando productos...</p>
+  }
+
+  const filteredProducts = productsList.filter((product) => {
+    const matchesGender =
+      genderFilter === "Todos" ||
+      product.gender.toLowerCase() === genderFilter.toLowerCase()
+    const matchesCategory =
+      categoryFilterId === "Todas" || product.categoryId === categoryFilterId
+
+    return matchesGender && matchesCategory
+  })
 
   return (
     <table className="w-full block max-h-[65vh] overflow-x-auto overflow-y-auto max-w-[700px] md:max-w-full md:table md:max-h-none md:overflow-visible md:min-w-0">
@@ -105,7 +126,7 @@ export const ProductsTable = ({ onEditProduct }: {
       </thead>
 
       <tbody className="dark:text-gray-300">
-        {productsList.map((product) => (
+        {filteredProducts.map((product) => (
           <tr key={product.id} className="border-b last:border-b-0 hover:bg-[#ebe7e1] dark:hover:bg-gray-800">
             <td className="px-3 py-2">
               <div className="relative h-10 w-10 overflow-hidden rounded-md bg-secondary">
@@ -123,7 +144,7 @@ export const ProductsTable = ({ onEditProduct }: {
 
             <td className="hidden px-3 py-2 md:table-cell">
               <span className="inline-flex rounded-md bg-secondary px-2 py-1 text-xs font-medium bg-[#ebe5dd] dark:bg-gray-800 dark:border-1 dark:border-gray-600">
-                {categoryLabels[product.category] || product.category}
+                {product.category}
               </span>
             </td>
 

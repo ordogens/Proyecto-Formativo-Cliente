@@ -5,6 +5,8 @@ interface SocialButtonProps {
   text: string;
   border?: string;
   bgColor?: string;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
 export const SocialButton = ({
@@ -12,10 +14,14 @@ export const SocialButton = ({
   text,
   border,
   bgColor,
+  onClick,
+  disabled,
 }: SocialButtonProps) => {
   return (
     <button
       type="button"
+      onClick={onClick}
+      disabled={disabled}
       className="
         group
         grid

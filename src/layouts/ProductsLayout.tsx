@@ -18,8 +18,7 @@ export const ProductsLayout = ({
   return (
     <section
       className="
-        h-220
-        md:h-240
+        min-h-screen
         bg-[#f3f0eb]
         dark:bg-gray-900
         text-black
@@ -30,7 +29,6 @@ export const ProductsLayout = ({
         flex
         flex-col
         gap-4
-        overflow-hidden
       "
     >
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:px-16 shrink-0">
@@ -73,7 +71,7 @@ export const ProductsLayout = ({
         )}
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto md:px-16 ">
+      <div className="md:px-16 pb-6">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4">
           {children}
         </div>

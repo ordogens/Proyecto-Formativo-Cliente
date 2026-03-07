@@ -1,11 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { productos } from "../../data/Productos";
+import type { Producto } from "../../data/Productos";
 import { ShopContext } from "../../context/shopContext";
 import { useNavigate } from "react-router-dom";
 import { Stars } from "../../components/icons/Stars";
 import { BadgeAlert } from "../../components/ui/BadgeAlert";
 import { ShoppingBag } from "lucide-react";
+import { catalogService } from "../../services/catalog.service";
+import { toUiProducto } from "../../utils/catalogProducts";
 
 export const VistaDinamica = () => {
   const { id } = useParams();
@@ -13,6 +15,8 @@ export const VistaDinamica = () => {
   const navigate = useNavigate();
   const stock = true;
   const customizable = false;
+  const [producto, setProducto] = useState<Producto | null>(null);
+  const [loading, setLoading] = useState(true);
 
   if (!shop) {
     throw new Error("Must be inside ShopProvider");
@@ -35,9 +39,45 @@ export const VistaDinamica = () => {
     };
   }, [addedMessageVisible]);
 
-  const producto = productos.find(
-    (p) => p.id === Number(id)
-  );
+  useEffect(() => {
+    let mounted = true;
+
+    const loadProduct = async () => {
+      const numericId = Number(id);
+      if (!Number.isFinite(numericId) || numericId <= 0) {
+        if (mounted) {
+          setProducto(null);
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const [apiProducto, categorias] = await Promise.all([
+          catalogService.getProductById(numericId),
+          catalogService.getCategories(),
+        ]);
+
+        if (!mounted) return;
+        setProducto(toUiProducto(apiProducto, categorias));
+      } catch (error) {
+        console.error("Error cargando detalle de producto:", error);
+        if (mounted) setProducto(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadProduct();
+
+    return () => {
+      mounted = false;
+    };
+  }, [id]);
+
+  if (loading) {
+    return <h1 className="text-center mt-20 dark:text-gray-300">Cargando producto...</h1>;
+  }
 
   if (!producto) {
     return <h1 className="text-center mt-20 dark:text-gray-300">Producto no encontrado</h1>;

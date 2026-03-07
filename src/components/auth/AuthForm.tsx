@@ -12,7 +12,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, register } = useAuth();
+  const { login, loginWithGoogle, register } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -89,7 +89,7 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
       </h1>
 
       <section className="flex flex-col gap-1">
-        <SocialButton
+      <SocialButton
           border="#ff6467"
           bgColor="#fffafa"
           icon={
@@ -99,6 +99,39 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
             />
           }
           text="Continuar con Google"
+          disabled={isSubmitting}
+          onClick={async () => {
+            setIsSubmitting(true);
+            setError("");
+            const result = await loginWithGoogle();
+            setIsSubmitting(false);
+
+            if (!result.ok) {
+              const message = result.error ?? "No se pudo iniciar sesion con Google";
+              setError(message);
+              Swal.fire({
+                title: "Error",
+                text: message,
+                icon: "error",
+                confirmButtonColor: "#fb2c36",
+              });
+              return;
+            }
+
+            const isDarkMode = document.documentElement.classList.contains("dark");
+            Swal.fire({
+              title: "Inicio de sesion exitoso",
+              text: "Bienvenido",
+              icon: "success",
+              confirmButtonColor: "#fb2c36",
+              ...(isDarkMode && {
+                background: "#101828",
+                color: "#e5e7eb",
+              }),
+            });
+
+            onSuccess();
+          }}
         />
 
         <SocialButton

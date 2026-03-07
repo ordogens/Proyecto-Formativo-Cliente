@@ -160,6 +160,20 @@ export const AuthProvider = ({ children }: Props) => {
     }
   };
 
+  const loginWithGoogle = async (): Promise<AuthActionResult> => {
+    try {
+      const sessionUser = await authService.loginWithGoogle();
+      setUser(sessionUser);
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(sessionUser));
+      return { ok: true };
+    } catch (error) {
+      return {
+        ok: false,
+        error: getErrorMessage(error, "No se pudo iniciar sesion con Google"),
+      };
+    }
+  };
+
   const logout = async () => {
     try {
       await authService.logout();
@@ -172,7 +186,7 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, loginWithGoogle, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

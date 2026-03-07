@@ -1,19 +1,19 @@
 import axios from "axios";
+import { signInWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "../config/firebase";
+import { AUTH_API } from "../config/api";
 import type { LoginCredentials, RegisterData, Role, User } from "../types/auth.types";
 
 const AUTH_TOKEN_KEY = "auth_access_token";
 
-const USERS_API_URL =
-  import.meta.env.VITE_USERS_API_URL ??
-  "http://localhost:8080/v1/usuarios";
 const USERS_LOGOUT_PATH = import.meta.env.VITE_USERS_LOGOUT_PATH ?? "/logout";
 
 const usersApi = axios.create({
-  baseURL: USERS_API_URL,
+  baseURL: AUTH_API,
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 5000,
+  timeout: 10_000,
 });
 
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
@@ -125,6 +125,25 @@ export const authService = {
 
     const response = await usersApi.post("", payload);
     return toUser(response.data);
+  },
+
+  loginWithGoogle: async (): Promise<User> => {
+    // 1. Login con Google usando Firebase popup
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+
+    // 2. Enviar idToken al backend para verificación
+    const response = await usersApi.post("/login/google", { idToken });
+
+    const root = extractObject(response.data);
+    saveToken(root.token);
+
+    const sessionUser = toUser(response.data);
+    if (sessionUser.name === "Usuario") {
+      sessionUser.name = result.user.displayName ?? result.user.email?.split("@")[0] ?? "Usuario";
+    }
+
+    return sessionUser;
   },
 
   me: async (): Promise<User> => {

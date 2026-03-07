@@ -1,10 +1,11 @@
 import type { Product } from "./table/ProductsTable"
+import type { ApiCategoria } from "../../types/api.types"
 import { Modal } from "../../components/modals/Modal"
 
-export type ProductForm = Omit<Product, "id" | "price" | "stock" | "category"> & {
+export type ProductForm = Omit<Product, "id" | "price" | "stock" | "category" | "categoryId"> & {
   price: number | ""
   stock: number | ""
-  category: Product["category"] | ""
+  categoryId: number | ""
 }
 
 interface ModalProductsProps {
@@ -13,6 +14,7 @@ interface ModalProductsProps {
   editingProduct: Product | null
   form: ProductForm
   setForm: React.Dispatch<React.SetStateAction<ProductForm>>
+  categories: ApiCategoria[]
   onSave: () => void
 }
 
@@ -22,12 +24,13 @@ export const ModalProducts = ({
   editingProduct,
   form,
   setForm,
+  categories,
   onSave
 }: ModalProductsProps) => {
   const isSubmitDisabled =
     form.name.trim() === "" ||
     form.stock === "" ||
-    form.category === "" ||
+    form.categoryId === "" ||
     form.image.trim() === ""
 
   return (
@@ -79,20 +82,32 @@ export const ModalProducts = ({
 
         <select
           className="rounded border px-3 py-2"
-          value={form.category}
+          value={form.categoryId}
           onChange={(e) =>
             setForm({
               ...form,
-              category: e.target.value as Product["category"] | ""
+              categoryId: e.target.value === "" ? "" : Number(e.target.value)
             })
           }
         >
           <option value="" disabled>
             Seleccionar categoria
           </option>
-          <option value="men_clothing">Ropa hombre</option>
-          <option value="women_clothing">Ropa mujer</option>
-          <option value="hats">Gorros</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>
+              {cat.nombre}
+            </option>
+          ))}
+        </select>
+
+        <select
+          className="rounded border px-3 py-2"
+          value={form.gender}
+          onChange={(e) => setForm({ ...form, gender: e.target.value })}
+        >
+          <option value="Unisex">Unisex</option>
+          <option value="Hombre">Hombre</option>
+          <option value="Mujer">Mujer</option>
         </select>
 
         <input

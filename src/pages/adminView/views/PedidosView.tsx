@@ -2,9 +2,9 @@ import { PedidosTable } from "../../../components/admin/table/PedidosTable"
 
 const options = [
   "Todos",
-  "Pedientes",
-  "Confirmados",
-  "Eviados"
+  "Pendientes",
+  "Pagadas",
+  "Vencidas"
 ]
 
 export const PedidosView = () => {

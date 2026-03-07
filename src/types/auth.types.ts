@@ -25,6 +25,7 @@ export interface AuthActionResult {
 export interface AuthContextType {
   user: User | null;
   login: (credentials: LoginCredentials) => Promise<AuthActionResult>;
+  loginWithGoogle: () => Promise<AuthActionResult>;
   register: (data: RegisterData) => Promise<AuthActionResult>;
   logout: () => Promise<void>;
 }
