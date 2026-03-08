@@ -5,3 +5,15 @@
   color: #000000 !important;
   background-color: #ffffff !important;
 }
+
+@font-face {
+  font-family: 'abff';
+  src: url('/fonts/AbrilFatface-Regular.ttf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-abff: 'abff';
+}

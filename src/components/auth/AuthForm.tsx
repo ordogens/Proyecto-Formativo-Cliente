@@ -84,12 +84,12 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   return (
     <>
-      <h1 className="mb-6 text-center text-2xl font-bold font-serif text-black dark:text-gray-100">
-        {isLogin ? "Iniciar sesion" : "Crear cuenta"}
+      <h1 className="mb-6 text-center text-2xl tracking-wider font-abff text-black dark:text-gray-100">
+        {isLogin ? "Iniciar sesión" : "Crear cuenta"}
       </h1>
 
       <section className="flex flex-col gap-1">
-      <SocialButton
+        <SocialButton
           border="#ff6467"
           bgColor="#fffafa"
           icon={

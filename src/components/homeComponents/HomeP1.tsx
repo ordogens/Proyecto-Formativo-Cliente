@@ -4,7 +4,7 @@ import modelo from "../../assets/Sleeveless shirt.webp";
 export const HomeP1 = () => {
   return (
     <section className="min-h-200 bg-[#0f0a08] text-white flex flex-col md:grid md:grid-cols-2 items-center px-6 md:px-20 md:pl-75 py-16 md:py-20 md:gap-50">
-      
+
       {/* Imagen (arriba en móvil, derecha en desktop) */}
       <div className="order-1 md:order-2 w-fit flex justify-center">
         <img
@@ -16,12 +16,12 @@ export const HomeP1 = () => {
 
       {/* Texto */}
       <div className="order-2 md:order-1 text-center md:text-left mt-10 md:mt-0 max-w-xl space-y-6">
-        
+
         <p className="text-red-400 font-medium tracking-wide">
           Inteligencia artificial + moda
         </p>
 
-        <h1 className="text-4xl md:text-6xl font-serif leading-tight dark:text-gray-300">
+        <h1 className="text-4xl md:text-6xl font-abff leading-tight dark:text-gray-300">
           Personaliza tu estilo con IA
         </h1>
 

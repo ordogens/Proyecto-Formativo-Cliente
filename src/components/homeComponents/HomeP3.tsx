@@ -9,7 +9,7 @@ export const HomeP3 = () => {
         <p className="text-red-500 font-bold tracking-widest uppercase text-sm">
           Por qué elegirnos
         </p>
-        <h2 className="text-4xl text-black dark:text-gray-300 font-serif md:text-5xl font-semibold mt-4">
+        <h2 className="text-4xl text-black dark:text-gray-300 font-abff md:text-5xl mt-4">
           Moda inteligente, hecha para tí
         </h2>
       </div>

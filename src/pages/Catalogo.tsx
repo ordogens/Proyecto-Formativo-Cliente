@@ -11,7 +11,7 @@ export const Catalogo = () => {
         <p className="text-red-500 font-semibold tracking-widest uppercase text-sm">
           Nuestras colecciones
         </p>
-        <h2 className="text-4xl font-serif md:text-5xl font-semibold mt-4">
+        <h2 className="text-4xl font-abff md:text-5xl mt-4">
           Catalogo
         </h2>
       </div>

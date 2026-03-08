@@ -34,7 +34,7 @@ export const ProductsLayout = ({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:px-16 shrink-0">
         <div>
           <p className="text-red-400 font-medium">{categoriaLabel}</p>
-          <h1 className="text-3xl md:text-4xl font-serif font-semibold">
+          <h1 className="text-3xl md:text-4xl font-abff">
             {titulo}
           </h1>
           <p className="text-gray-500 dark:text-gray-300 text-sm mt-2">
