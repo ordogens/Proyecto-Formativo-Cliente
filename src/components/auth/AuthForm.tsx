@@ -133,18 +133,6 @@ export const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
             onSuccess();
           }}
         />
-
-        <SocialButton
-          border="#0866ff"
-          bgColor="#f4f8ff"
-          icon={
-            <FacebookIcon
-              size={22}
-              className="text-[#666666] transition-colors group-hover:text-[#0866ff]"
-            />
-          }
-          text="Continuar con Facebook"
-        />
       </section>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
