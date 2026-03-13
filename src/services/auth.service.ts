@@ -182,4 +182,14 @@ export const authService = {
       clearToken();
     }
   },
+  verifyEmail: async (token: string): Promise<string> => {
+    const response = await usersApi.get("/verificar-email", {
+      params: { token },
+    });
+
+    const root = extractObject(response.data);
+    const message = readString(root, ["message", "mensaje", "detalle", "details"]);
+
+    return message || "Correo verificado correctamente";
+  },
 };

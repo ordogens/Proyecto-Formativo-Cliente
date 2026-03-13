@@ -50,5 +50,7 @@ export const toUiProducto = (
   precio: Number(producto.price ?? 0),
   imagen: producto.imagen_url ?? producto.image_url ?? "",
   categoria: forcedCategoria ?? resolveDisplayCategoria(producto, categorias),
+  categoriaNombre: getCategoryName(producto, categorias),
   descripcion: producto.descripcion ?? "",
 });
+

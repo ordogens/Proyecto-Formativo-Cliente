@@ -4,11 +4,14 @@ import type { ReactElement } from "react";
 import { Home } from "./pages/Home";
 import { Catalogo } from "./pages/Catalogo";
 import { Personalizacion } from "./pages/Personalizacion";
+import { VerificarEmail } from "./pages/VerificarEmail";
 import { RopaHombre } from "./pages/RHombre/RopaHombre";
 import { RopaMujer } from "./pages/RMujer/RopaMujer";
 import { Gorros } from "./pages/Gorros/Gorros";
+import { Personalizadas } from "./pages/Personalizadas/Personalizadas";
 import { VistaDinamica } from "./pages/vistaDinamica/VistaDinamica";
 import { CarritoDeCompras } from "./pages/carrito/CarritoDeCompras";
+import { MetodosPago } from "./pages/MetodosPago";
 import { PrincipalLayout } from "./layouts/PrincipalLayout";
 import { AdminView } from "./pages/adminView/AdminView";
 import { useAuth } from "./context/AuthContext";
@@ -33,8 +36,11 @@ export const App = () => {
         <Route path="/ropa-hombre" element={<RopaHombre />} />
         <Route path="/ropa-mujer" element={<RopaMujer />} />
         <Route path="/gorros" element={<Gorros />} />
+        <Route path="/personalizadas" element={<Personalizadas />} />
         <Route path="/vista-dinamica/:id" element={<VistaDinamica />} />
         <Route path="/carrito" element={<CarritoDeCompras />} />
+        <Route path="/metodos-pago" element={<MetodosPago />} />
+        <Route path="/verificar-email" element={<VerificarEmail />} />
         <Route
           path="/admin-view"
           element={

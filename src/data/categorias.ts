@@ -1,6 +1,7 @@
 import hombre from "../assets/photo.webp";
 import mujer from "../assets/mujer.webp";
 import gorros from "../assets/gorros.webp";
+import personalizado from "../assets/photo.webp";
 import type { Categoria } from "../types/categoria.types";
 
 export const categorias: Categoria[] = [
@@ -21,5 +22,11 @@ export const categorias: Categoria[] = [
     description: "Accesorios con actitud",
     image: gorros,
     path: "/gorros",
+  },
+  {
+    title: "Personalizadas",
+    description: "Tus diseños aprobados",
+    image: personalizado,
+    path: "/personalizadas",
   },
 ];

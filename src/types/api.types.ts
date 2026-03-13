@@ -78,3 +78,18 @@ export interface ApiFactura {
   fecha_vencimiento: string;
   estado: EstadoFactura;
 }
+
+export type ApiTipoCuenta = "debito" | "credito";
+
+export interface ApiCuentaBancaria {
+  id: number;
+  numero_de_cuenta: string;
+  tipo_de_cuenta: ApiTipoCuenta;
+  banco: string;
+  id_user: number;
+}
+
+export interface ApiCuentasUsuario {
+  usuario: unknown;
+  cuentas: ApiCuentaBancaria[];
+}

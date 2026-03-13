@@ -5,6 +5,8 @@ interface Props {
   titulo: string;
   totalProductos: number;
   filtros?: readonly string[];
+  filtroActivo?: string;
+  onFiltroChange?: (filtro: string) => void;
   children: ReactNode;
 }
 
@@ -13,6 +15,8 @@ export const ProductsLayout = ({
   titulo,
   totalProductos,
   filtros = [],
+  filtroActivo,
+  onFiltroChange,
   children,
 }: Props) => {
   return (
@@ -44,29 +48,26 @@ export const ProductsLayout = ({
 
         {filtros.length > 0 && (
           <div className="flex gap-3 flex-wrap">
-            {filtros.map((filtro) => (
-              <button
-                key={filtro}
-                className="
-                  border
-                  border-gray-300
-                  dark:border-gray-600
-                  px-4
-                  py-2
-                  rounded-lg
-                  text-sm
-                  hover:bg-gray-200
-                  dark:hover:bg-gray-700
-                  transition
-                  focus:bg-black
-                  focus:text-[#f3f0eb]
-                  dark:focus:bg-gray-100
-                  dark:focus:text-gray-900
-                "
-              >
-                {filtro}
-              </button>
-            ))}
+            {filtros.map((filtro) => {
+              const isActive = filtro === filtroActivo;
+
+              return (
+                <button
+                  key={filtro}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={onFiltroChange ? () => onFiltroChange(filtro) : undefined}
+                  className={
+                    "border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-lg text-sm transition " +
+                    (isActive
+                      ? "bg-black text-[#f3f0eb] dark:bg-gray-100 dark:text-gray-900"
+                      : "hover:bg-gray-200 dark:hover:bg-gray-700")
+                  }
+                >
+                  {filtro}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>

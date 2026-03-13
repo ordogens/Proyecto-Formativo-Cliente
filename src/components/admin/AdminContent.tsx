@@ -1,6 +1,7 @@
 import { ProductosView } from "../../pages/adminView/views/ProductosView"
 import { ResumenView } from "../../pages/adminView/views/ResumenView"
 import { PedidosView } from "../../pages/adminView/views/PedidosView"
+import { PersonalizacionesView } from "../../pages/adminView/views/PersonalizacionesView"
 import { ADMIN_VIEWS } from "../../data/adminViews"
 
 import type { AdminViewType } from "../../data/adminViews"
@@ -17,6 +18,8 @@ export const AdminContent = ({ view }: Props) => {
       return <ProductosView />
     case ADMIN_VIEWS.PEDIDOS:
       return <PedidosView />
+    case ADMIN_VIEWS.PERSONALIZACIONES:
+      return <PersonalizacionesView />
     default:
       return null
   }

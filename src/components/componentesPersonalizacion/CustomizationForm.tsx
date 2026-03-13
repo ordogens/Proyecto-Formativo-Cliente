@@ -1,4 +1,5 @@
 import { Wand2 } from "lucide-react";
+import { AgentChatPanel } from "./AgentChatPanel";
 
 interface Props {
   image: string | null;
@@ -11,6 +12,7 @@ interface Props {
   onDownload: () => void;
   onShare: () => void;
   onGenerate: () => void;
+  onImageGenerated: (url: string) => void;
   loading: boolean;
 }
 
@@ -25,6 +27,7 @@ export const CustomizationForm = ({
   onDownload,
   onShare,
   onGenerate,
+  onImageGenerated,
   loading,
 }: Props) => {
   const ratios = ["1:1", "16:9", "9:16"];
@@ -57,12 +60,7 @@ export const CustomizationForm = ({
         <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">
           Smart Prompt
         </label>
-        <textarea
-          className="w-full h-28 bg-[#f3f0eb] dark:bg-gray-800 border text-black dark:text-gray-100 border-gray-700 rounded-xl p-3 text-sm focus:ring-2 focus:ring-black dark:focus:ring-[#c65a4f] outline-none resize-none"
-          placeholder="Describe lo que tienes en mente..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
+        <AgentChatPanel prompt={prompt} setPrompt={setPrompt} onImageGenerated={onImageGenerated} />
       </section>
 
       <section>

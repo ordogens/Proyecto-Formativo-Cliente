@@ -10,6 +10,8 @@ export interface Producto {
   precio: number;
   imagen: string;
   categoria: Categoria;
+  /** Nombre normalizado de la categoria del catalogo (ej: camisas, pantalones) */
+  categoriaNombre?: string;
   descripcion: string;
 }
 
@@ -179,3 +181,6 @@ export const productos: Producto[] = [
     descripcion: "Diseño deportivo ligero y transpirable."
   }
 ];
+
+
+

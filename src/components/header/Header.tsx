@@ -139,7 +139,12 @@ export const Header = () => {
             </NavLink>
             {!isAdminUser && (
               <NavLink to="/personalizacion" className="hover:text-red-500 dark:text-gray-300">
-              Personalización
+                Personalización
+              </NavLink>
+            )}
+            {!isAdminUser && user && (
+              <NavLink to="/metodos-pago" className="hover:text-red-500 dark:text-gray-300">
+                Metodos de pago
               </NavLink>
             )}
           </nav>

@@ -5,8 +5,20 @@ import { ProductsLayout } from "../../layouts/ProductsLayout";
 import { catalogService } from "../../services/catalog.service";
 import { matchesAudience, toUiProducto } from "../../utils/catalogProducts";
 
+const normalize = (value: string) => value.trim().toLowerCase();
+const toFilterKey = (value: string) => {
+  const normalized = normalize(value);
+
+  if (normalized.startsWith("camis")) return "camis";
+  if (normalized.startsWith("pant")) return "pantalon";
+
+  return normalized;
+};
+
 export const RopaHombre = () => {
   const [productosHombre, setProductosHombre] = useState<Producto[]>([]);
+  const filtros = ["Todos", "Camisetas", "Pantalones"] as const;
+  const [filtroActivo, setFiltroActivo] = useState<string>(filtros[0]);
 
   useEffect(() => {
     let mounted = true;
@@ -38,14 +50,22 @@ export const RopaHombre = () => {
     };
   }, []);
 
+  const filtroKey = toFilterKey(filtroActivo);
+  const productosVisibles = productosHombre.filter((producto) => {
+    if (filtroKey === "todos") return true;
+    return toFilterKey(producto.categoriaNombre ?? "") === filtroKey;
+  });
+
   return (
     <ProductsLayout
       categoriaLabel="Categorías"
       titulo="Ropa de hombre"
-      totalProductos={productosHombre.length}
-      filtros={["Camisas", "Pantalones"]}
+      totalProductos={productosVisibles.length}
+      filtros={filtros}
+      filtroActivo={filtroActivo}
+      onFiltroChange={setFiltroActivo}
     >
-      {productosHombre.map((producto) => (
+      {productosVisibles.map((producto) => (
         <ProductCard key={producto.id} producto={producto} />
       ))}
     </ProductsLayout>

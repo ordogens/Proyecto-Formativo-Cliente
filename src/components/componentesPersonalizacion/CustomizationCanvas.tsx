@@ -1,11 +1,22 @@
 import { Image } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 
+interface SavedImage {
+  id: number;
+  image_url: string;
+}
+
 interface Props {
   image: string | null;
   setImage: Dispatch<SetStateAction<string | null>>;
   isDragging: boolean;
   setIsDragging: Dispatch<SetStateAction<boolean>>;
+  onSave?: () => void;
+  saving?: boolean;
+  saved?: boolean;
+  savedImages?: SavedImage[];
+  onSelectSaved?: (url: string) => void;
+  onDeleteSaved?: (id: number) => void;
 }
 
 export const CustomizationCanvas = ({
@@ -13,6 +24,12 @@ export const CustomizationCanvas = ({
   setImage,
   isDragging,
   setIsDragging,
+  onSave,
+  saving = false,
+  saved = false,
+  savedImages = [],
+  onSelectSaved,
+  onDeleteSaved,
 }: Props) => {
   const loadImageFile = (file: File | undefined) => {
     if (!file) return;
@@ -84,25 +101,64 @@ export const CustomizationCanvas = ({
               className="object-contain ratio-1/1 w-auto h-120 cursor-zoom-in"
             />
 
-            <button
-              onClick={removeImage}
-              className="absolute top-4 right-4 bg-[#c65a4f] text-white px-3 py-1 rounded-lg text-xs hover:bg-red-500 transition cursor-pointer"
-            >
-              Eliminar
-            </button>
+            <div className="absolute top-4 right-4 flex gap-2">
+              {onSave && (
+                <button
+                  onClick={onSave}
+                  disabled={saving || saved}
+                  className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs hover:bg-emerald-500 transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {saved ? "Guardado" : saving ? "Guardando..." : "Guardar"}
+                </button>
+              )}
+              <button
+                onClick={removeImage}
+                className="bg-[#c65a4f] text-white px-3 py-1 rounded-lg text-xs hover:bg-red-500 transition cursor-pointer"
+              >
+                Eliminar
+              </button>
+            </div>
           </>
         )}
       </div>
 
-      {/* Historial visual intacto */}
+      {/* Historial visual */}
       <div className="h-15 mt-4 flex gap-3 overflow-x-auto pb-2">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        {savedImages.length === 0 && (
+          [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div
+              key={i}
+              className="min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700"
+            />
+          ))
+        )}
+        {savedImages.map((img) => (
           <div
-            key={i}
-            className="min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700 cursor-pointer hover:border-[#c65a4f] transition-all"
-          />
+            key={img.id}
+            className="relative min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700 overflow-hidden"
+          >
+            <img
+              src={img.image_url}
+              alt="guardado"
+              className="w-full h-full object-cover cursor-pointer"
+              onClick={() => onSelectSaved && onSelectSaved(img.image_url)}
+              referrerPolicy="no-referrer"
+              crossOrigin="anonymous"
+            />
+            {onDeleteSaved && (
+              <button
+                type="button"
+                onClick={() => onDeleteSaved(img.id)}
+                className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded"
+                aria-label="Eliminar guardado"
+              >
+                x
+              </button>
+            )}
+          </div>
         ))}
       </div>
     </main>
   );
 };
+
