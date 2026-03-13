@@ -1,9 +1,15 @@
 import { apiClient, TRANSACTIONS_API } from "../config/api";
-import type { ApiCuentaBancaria, ApiCuentasUsuario, ApiTipoCuenta } from "../types/api.types";
+import type {
+  ApiBanco,
+  ApiCuentaBancaria,
+  ApiCuentasUsuario,
+  ApiTipoCuenta,
+} from "../types/api.types";
 
 interface ApiEnvelope<T> {
   message: string;
   data?: T;
+  bancos?: ApiBanco[];
   cuentas?: ApiCuentaBancaria[];
   usuario?: unknown;
 }
@@ -21,7 +27,59 @@ interface UpdateAccountPayload {
   banco?: string;
 }
 
+interface BankPayload {
+  nombre: string;
+}
+
 export const transactionsService = {
+  async getBanks(): Promise<ApiBanco[]> {
+    const { data } = await apiClient.get<ApiEnvelope<ApiBanco[]>>(
+      `${TRANSACTIONS_API}/obtenerBancos`
+    );
+
+    if (Array.isArray(data.data)) {
+      return data.data;
+    }
+
+    return data.bancos ?? [];
+  },
+
+  async createBank(payload: BankPayload): Promise<ApiBanco> {
+    const { data } = await apiClient.post<ApiEnvelope<ApiBanco>>(
+      `${TRANSACTIONS_API}/crearBanco`,
+      payload
+    );
+
+    if (data.data) {
+      return data.data;
+    }
+
+    return {
+      id: 0,
+      ...payload,
+    };
+  },
+
+  async updateBank(bankId: number, payload: BankPayload): Promise<ApiBanco> {
+    const { data } = await apiClient.patch<ApiEnvelope<ApiBanco>>(
+      `${TRANSACTIONS_API}/actualizarBanco/${bankId}`,
+      payload
+    );
+
+    if (data.data) {
+      return data.data;
+    }
+
+    return {
+      id: bankId,
+      ...payload,
+    };
+  },
+
+  async deleteBank(bankId: number): Promise<void> {
+    await apiClient.delete(`${TRANSACTIONS_API}/eliminarBanco/${bankId}`);
+  },
+
   async getAccountsByUser(userId: number): Promise<ApiCuentaBancaria[]> {
     const { data } = await apiClient.get<ApiEnvelope<ApiCuentasUsuario>>(
       `${TRANSACTIONS_API}/obtenerCuentas/${userId}`

@@ -81,6 +81,11 @@ export interface ApiFactura {
 
 export type ApiTipoCuenta = "debito" | "credito";
 
+export interface ApiBanco {
+  id: number;
+  nombre: string;
+}
+
 export interface ApiCuentaBancaria {
   id: number;
   numero_de_cuenta: string;

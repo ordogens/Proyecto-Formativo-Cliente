@@ -3,7 +3,6 @@ import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from "lucide-react";
 import Swal from "sweetalert2";
 import { useAuth } from "../../context/AuthContext";
 import type { LoginCredentials, RegisterData } from "../../types/auth.types";
-import { FacebookIcon } from "../icons/FacebookIcon";
 import { GoogleIcon } from "../icons/GoogleIcon";
 import { SocialButton } from "../ui/buttons/SocialBotton";
 import { CustomInput } from "../ui/inputs/CustomInput";

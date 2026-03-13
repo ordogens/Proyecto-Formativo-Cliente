@@ -1,4 +1,4 @@
-import { ChartColumnBig, Box, Truck, Sparkles } from "lucide-react"
+import { ChartColumnBig, Box, Landmark, Truck, Sparkles } from "lucide-react"
 import { ADMIN_VIEWS } from "../../data/adminViews"
 import type { AdminViewType } from "../../data/adminViews"
 
@@ -66,6 +66,14 @@ export const AdminNavbar = ({ active, onChange }: Props) => {
         >
           <Sparkles size={18} />
           <span>Personalizaciones</span>
+        </li>
+
+        <li
+          className={itemClass(ADMIN_VIEWS.BANCOS)}
+          onClick={() => onChange(ADMIN_VIEWS.BANCOS)}
+        >
+          <Landmark size={18} />
+          <span>Bancos</span>
         </li>
       </ul>
     </nav>

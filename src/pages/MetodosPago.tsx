@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { useAuth } from "../context/AuthContext";
+import { bankCatalogService } from "../services/bankCatalog.service";
 import { transactionsService } from "../services/transactions.service";
-import type { ApiCuentaBancaria, ApiTipoCuenta } from "../types/api.types";
+import type { ApiBanco, ApiCuentaBancaria, ApiTipoCuenta } from "../types/api.types";
 
 interface AccountForm {
   numero_de_cuenta: string;
@@ -19,10 +20,16 @@ const emptyForm: AccountForm = {
 export const MetodosPago = () => {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState<ApiCuentaBancaria[]>([]);
+  const [availableBanks, setAvailableBanks] = useState<ApiBanco[]>([]);
   const [form, setForm] = useState<AccountForm>(emptyForm);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingBanks, setLoadingBanks] = useState(false);
   const userId = user?.id ? Number(user.id) : null;
+  const bankOptions = form.banco.trim()
+    && !availableBanks.some((bank) => bank.nombre === form.banco)
+    ? [...availableBanks, { id: -1, nombre: form.banco }]
+    : availableBanks;
 
   const loadAccounts = async () => {
     if (!userId || Number.isNaN(userId)) {
@@ -41,6 +48,23 @@ export const MetodosPago = () => {
       setLoading(false);
     }
   };
+
+  const loadBanks = async () => {
+    try {
+      setLoadingBanks(true);
+      const banks = await bankCatalogService.getBanks();
+      setAvailableBanks(banks);
+    } catch (error) {
+      console.error("Error cargando bancos:", error);
+      setAvailableBanks([]);
+    } finally {
+      setLoadingBanks(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadBanks();
+  }, []);
 
   useEffect(() => {
     void loadAccounts();
@@ -109,14 +133,42 @@ export const MetodosPago = () => {
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm h-fit">
           <h1 className="text-3xl font-serif mb-2">Metodos de pago</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-            Guarda tus cuentas bancarias para usarlas durante la compra.
+            Primero elige un banco creado por el administrador y luego registra tu cuenta.
           </p>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {loadingBanks && (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Cargando bancos...
+              </p>
+            )}
+
+            {availableBanks.length === 0 && !form.banco && (
+              <div className="rounded-lg border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                Aun no hay bancos creados por el administrador para este flujo.
+              </div>
+            )}
+
+            <select
+              value={form.banco}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, banco: e.target.value }))
+              }
+              className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-4 py-3"
+            >
+              <option value="">Selecciona un banco</option>
+              {bankOptions.map((bank) => (
+                <option key={bank.id} value={bank.nombre}>
+                  {bank.nombre}
+                </option>
+              ))}
+            </select>
+
             <input
               type="text"
               placeholder="Numero de cuenta"
               value={form.numero_de_cuenta}
+              inputMode="numeric"
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, numero_de_cuenta: e.target.value }))
               }
@@ -137,20 +189,11 @@ export const MetodosPago = () => {
               <option value="credito">Credito</option>
             </select>
 
-            <input
-              type="text"
-              placeholder="Banco"
-              value={form.banco}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, banco: e.target.value }))
-              }
-              className="rounded-lg border border-gray-300 dark:border-gray-600 bg-transparent px-4 py-3"
-            />
-
             <div className="flex gap-3">
               <button
                 type="submit"
-                className="flex-1 bg-[#c65a4f] text-white py-3 rounded-lg hover:opacity-90"
+                disabled={loadingBanks || (availableBanks.length === 0 && !form.banco)}
+                className="flex-1 bg-[#c65a4f] text-white py-3 rounded-lg hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {editingId ? "Actualizar" : "Guardar"}
               </button>

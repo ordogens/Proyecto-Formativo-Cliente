@@ -19,7 +19,7 @@ export const AdminView = () => {
           </span>
         </h1>
         <p className="text-sm font-extralight md:font-normal text-gray-500">
-          Gestiona productos, pedidos y personalizaciones IA.
+          Gestiona productos, pedidos, personalizaciones IA y el catalogo de bancos.
         </p>
       </section>
       <AdminNavbar active={activeView} onChange={setActiveView} />
