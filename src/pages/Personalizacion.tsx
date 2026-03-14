@@ -50,20 +50,32 @@ export const Personalizacion = () => {
 
 
   const handleGenerate = async () => {
-    if (!image || !prompt.trim()) return;
+    if (!prompt.trim()) return;
 
     try {
       setLoading(true);
+      const referenceImage = image?.startsWith("data:image/") ? image : null;
 
       const result = await nanoService.generateImage({
-        image,
+        image: referenceImage,
         prompt,
         aspectRatio,
         creativity,
       });
+      const generatedImage =
+        result.generatedImage ??
+        result.imageUrl ??
+        result.url ??
+        result.data?.generatedImage ??
+        result.data?.imageUrl ??
+        result.data?.url;
+
+      if (!generatedImage) {
+        throw new Error("La API no devolvio una imagen generada valida.");
+      }
 
       setLastPrompt(prompt);
-      setImage(result.generatedImage);
+      setImage(generatedImage);
       setPrompt("");
     } catch (error) {
       console.error("Error generando imagen:", error);

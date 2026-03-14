@@ -1,4 +1,5 @@
 import { Image } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 interface SavedImage {
@@ -31,6 +32,13 @@ export const CustomizationCanvas = ({
   onSelectSaved,
   onDeleteSaved,
 }: Props) => {
+  const [imageLoadFailed, setImageLoadFailed] = useState(false);
+  const [failedSavedIds, setFailedSavedIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    setImageLoadFailed(false);
+  }, [image]);
+
   const loadImageFile = (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) return;
@@ -75,12 +83,18 @@ export const CustomizationCanvas = ({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {!image ? (
+        {!image || imageLoadFailed ? (
           <div className="text-zinc-500 text-center w-auto h-120 flex flex-col items-center justify-center">
             <Image size={64} className="mx-auto mb-4 opacity-20" />
-            <p className="mb-4 text-sm">Tu creacion aparecera aqui</p>
+            <p className="mb-4 text-sm">
+              {imageLoadFailed
+                ? "No se pudo cargar esta imagen"
+                : "Tu creacion aparecera aqui"}
+            </p>
             <p className="mb-4 text-xs text-zinc-400">
-              Tambien puedes arrastrar una imagen y soltarla aqui
+              {imageLoadFailed
+                ? "La URL de esta imagen ya no esta disponible. Genera o guarda una nueva version."
+                : "Tambien puedes arrastrar una imagen y soltarla aqui"}
             </p>
 
             <label className="px-2 py-1 md:px-4 md:py-2 text-[#c65a4f] border-1 border-[#c65a4f] rounded-lg cursor-pointer hover:bg-[#c65a4f] hover:text-gray-100 transition">
@@ -99,6 +113,9 @@ export const CustomizationCanvas = ({
               src={image}
               alt="preview"
               className="object-contain ratio-1/1 w-auto h-120 cursor-zoom-in"
+              onError={() => setImageLoadFailed(true)}
+              referrerPolicy="no-referrer"
+              crossOrigin="anonymous"
             />
 
             <div className="absolute top-4 right-4 flex gap-2">
@@ -137,14 +154,25 @@ export const CustomizationCanvas = ({
             key={img.id}
             className="relative min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700 overflow-hidden"
           >
-            <img
-              src={img.image_url}
-              alt="guardado"
-              className="w-full h-full object-cover cursor-pointer"
-              onClick={() => onSelectSaved && onSelectSaved(img.image_url)}
-              referrerPolicy="no-referrer"
-              crossOrigin="anonymous"
-            />
+            {failedSavedIds.includes(img.id) ? (
+              <div className="flex h-full w-full items-center justify-center bg-zinc-900 px-2 text-center text-[10px] text-zinc-400">
+                Imagen no disponible
+              </div>
+            ) : (
+              <img
+                src={img.image_url}
+                alt="guardado"
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => onSelectSaved && onSelectSaved(img.image_url)}
+                onError={() =>
+                  setFailedSavedIds((prev) =>
+                    prev.includes(img.id) ? prev : [...prev, img.id]
+                  )
+                }
+                referrerPolicy="no-referrer"
+                crossOrigin="anonymous"
+              />
+            )}
             {onDeleteSaved && (
               <button
                 type="button"

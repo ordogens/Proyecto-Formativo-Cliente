@@ -103,7 +103,7 @@ export const CustomizationForm = ({
 
       <button
         onClick={onGenerate}
-        disabled={!image || !prompt.trim() || loading}
+        disabled={!prompt.trim() || loading}
         className="w-full py-3 border-1 border-[#c65a4f] text-[#c65a4f] font-bold rounded-xl hover:bg-[#c65a4f] disabled:hover:bg-[#f3f0eb] disabled:hover:text-[#c65a4f] hover:text-gray-100 cursor-pointer transition active:scale-95 disabled:scale-none flex items-center justify-center gap-2 disabled:opacity-50"
       >
         <Wand2 size={18} />
