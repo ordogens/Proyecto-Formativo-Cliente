@@ -1,13 +1,18 @@
 import axios from "axios";
 
 const AUTH_TOKEN_KEY = "auth_access_token";
+const DEFAULT_GATEWAY_URL = "http://localhost:1010";
+
+function normalizeBaseUrl(url: string) {
+  return url.replace(/\/+$/, "");
+}
 
 /**
  * URL base del gateway. Todos los servicios se consumen a través de este punto único.
  * Configurable mediante variable de entorno VITE_GATEWAY_URL.
  */
 export const GATEWAY_URL =
-  import.meta.env.VITE_GATEWAY_URL ?? "http://localhost:1010";
+  normalizeBaseUrl(import.meta.env.VITE_GATEWAY_URL ?? DEFAULT_GATEWAY_URL);
 
 /** URLs por dominio — cada una apunta a un prefijo del gateway */
 export const AUTH_API = `${GATEWAY_URL}/api/usuarios/v1/usuarios`;

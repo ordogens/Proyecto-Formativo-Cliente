@@ -47,12 +47,20 @@ Frontend SPA para e-commerce con personalizacion IA y panel admin.
 - `VITE_USERS_LOGOUT_PATH` (opcional): endpoint de logout para usuarios.
 - Variables de Firebase usadas en `src/config/firebase.ts`.
 
+## Produccion con Render
+- El frontend debe consumir solo el gateway desplegado.
+- Se incluye [`C:\Users\USER\OneDrive\Desktop\back-front\Proyecto-Formativo-Cliente\.env.production`](/C:/Users/USER/OneDrive/Desktop/back-front/Proyecto-Formativo-Cliente/.env.production) con:
+  - `VITE_GATEWAY_URL=https://back-microservicios-craftyourstyle-v3ae.onrender.com`
+- `src/config/api.ts` normaliza la URL base para evitar dobles `/` si la variable termina en slash.
+
 ## Endpoints consumidos (via gateway)
 Definidos en `src/config/api.ts`:
 - Auth: `.../api/usuarios/v1/usuarios`
 - Catalogo: `.../api/catalogo`
-- Admin: `.../api/admin/admin`
-- IA: `.../api/generate` y otros prefijos
+- Admin: `.../api/admin`
+- IA: `.../api/agente-ia` y `.../api/generate`
+- Transacciones: `.../api/transacciones`
+- Notificaciones: `.../api/notificaciones`
 
 ## Estado actual
 El frontend esta funcional y ya consume API en auth, catalogo y pedidos.
