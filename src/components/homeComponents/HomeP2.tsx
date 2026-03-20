@@ -16,7 +16,7 @@ export const HomeP2 = () => {
         </h2>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-10">
+      <div className="grid md:grid-cols-4 gap-10">
         {categorias.map((categoria) => (
           <div
             key={categoria.title}
