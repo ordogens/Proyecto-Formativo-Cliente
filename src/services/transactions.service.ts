@@ -1,8 +1,11 @@
 import { apiClient, TRANSACTIONS_API } from "../config/api";
 import type {
   ApiBanco,
+  ApiCheckoutPayload,
+  ApiCheckoutResult,
   ApiCuentaBancaria,
   ApiCuentasUsuario,
+  ApiPaymentRecord,
   ApiTipoCuenta,
 } from "../types/api.types";
 
@@ -123,5 +126,30 @@ export const transactionsService = {
     await apiClient.delete(
       `${TRANSACTIONS_API}/eliminarCuenta/${accountId}/${userId}`
     );
+  },
+
+  async createCheckout(payload: ApiCheckoutPayload): Promise<ApiCheckoutResult> {
+    const { data } = await apiClient.post<ApiEnvelope<ApiCheckoutResult>>(
+      `${TRANSACTIONS_API}/checkout`,
+      payload
+    );
+
+    if (!data.data) {
+      throw new Error("El backend no devolvio informacion del checkout.");
+    }
+
+    return data.data;
+  },
+
+  async getPayment(reference: string): Promise<ApiPaymentRecord> {
+    const { data } = await apiClient.get<ApiEnvelope<ApiPaymentRecord>>(
+      `${TRANSACTIONS_API}/pagos/${reference}`
+    );
+
+    if (!data.data) {
+      throw new Error("No se pudo obtener el estado del pago.");
+    }
+
+    return data.data;
   },
 };

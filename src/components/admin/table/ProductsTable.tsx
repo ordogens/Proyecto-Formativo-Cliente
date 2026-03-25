@@ -34,7 +34,7 @@ const apiToAdminProduct = (
     categoryId: catId,
     gender: api.genero ?? api.gender ?? "Unisex",
     price: api.price,
-    stock: 0,
+    stock: Number(api.stock ?? api.existencias ?? 0),
     image: imageUrl ?? "https://via.placeholder.com/80",
   }
 }

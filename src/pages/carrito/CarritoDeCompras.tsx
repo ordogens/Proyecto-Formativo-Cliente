@@ -5,9 +5,28 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { InvoiceModal } from "../../components/invoice/InvoiceModal";
 import { useAuth } from "../../context/AuthContext";
+import { openEpaycoCheckout } from "../../services/epayco.service";
 import { orderService } from "../../services/order.service";
 import { transactionsService } from "../../services/transactions.service";
-import type { ApiCuentaBancaria, ApiFactura } from "../../types/api.types";
+import type {
+  ApiCuentaBancaria,
+  ApiEstadoPago,
+  ApiFactura,
+} from "../../types/api.types";
+
+const PAYMENT_FINAL_STATES: ApiEstadoPago[] = [
+  "APROBADA",
+  "RECHAZADA",
+  "CANCELADA",
+  "EXPIRADA",
+  "ERROR",
+];
+
+const sleep = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+function buildOrderId(userId: string | number) {
+  return `ORD-EPAYCO-${userId}-${Date.now()}`;
+}
 
 export const CarritoDeCompras = () => {
   const shop = useContext(ShopContext);
@@ -15,7 +34,8 @@ export const CarritoDeCompras = () => {
   const navigate = useNavigate();
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [facturaGenerada, setFacturaGenerada] = useState<ApiFactura | null>(null);
-  const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [processingCheckout, setProcessingCheckout] = useState(false);
+  const [checkoutLabel, setCheckoutLabel] = useState<string | null>(null);
   const [paymentMethods, setPaymentMethods] = useState<ApiCuentaBancaria[]>([]);
   const [loadingMethods, setLoadingMethods] = useState(false);
   const [selectedMethodId, setSelectedMethodId] = useState<number | null>(null);
@@ -27,6 +47,7 @@ export const CarritoDeCompras = () => {
     removeFromCart,
     increaseQuantity,
     decreaseQuantity,
+    clearCart,
     total,
     totalItems,
   } = shop;
@@ -34,8 +55,41 @@ export const CarritoDeCompras = () => {
   const shipping = 9000;
   const finalTotal = total + shipping;
   const isCartEmpty = cart.length === 0;
-  const selectedMethod =
-    paymentMethods.find((method) => method.id === selectedMethodId) ?? null;
+
+  const createInvoice = async () => {
+    const productosFactura = cart.map((item) => ({
+      nombre_producto: item.name,
+      precio_unitario: item.price,
+      cantidad: item.quantity,
+      subtotal: item.price * item.quantity,
+    }));
+
+    const { factura } = await orderService.createInvoiceForCustomer({
+      id_usuario: String(user?.id),
+      productos: productosFactura,
+    });
+
+    setFacturaGenerada(factura);
+    setIsInvoiceOpen(true);
+    clearCart();
+    return factura;
+  };
+
+  const waitForPaymentResult = async (reference: string) => {
+    const maxAttempts = 24;
+
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      const payment = await transactionsService.getPayment(reference);
+
+      if (PAYMENT_FINAL_STATES.includes(payment.status)) {
+        return payment;
+      }
+
+      await sleep(5000);
+    }
+
+    return transactionsService.getPayment(reference);
+  };
 
   const loadPaymentMethods = async (userId: number) => {
     try {
@@ -68,66 +122,99 @@ export const CarritoDeCompras = () => {
   }, [user?.id]);
 
   const handleFinalizePurchase = async () => {
-    if (isCartEmpty || creatingInvoice) return;
+    if (isCartEmpty || processingCheckout) return;
 
     if (!user?.id) {
       await Swal.fire({
         title: "Inicia sesión",
-        text: "Necesitas iniciar sesión para generar la factura.",
+        text: "Necesitas iniciar sesión para continuar con el pago.",
         icon: "warning",
       });
       return;
     }
-
-    if (!selectedMethodId) {
-      await Swal.fire({
-        title: "Selecciona un método de pago",
-        text: "Debes elegir una cuenta bancaria antes de finalizar la compra.",
-        icon: "warning",
-      });
-      return;
-    }
-
-    const productosFactura = cart.map((item) => ({
-      nombre_producto: item.name,
-      precio_unitario: item.price,
-      cantidad: item.quantity,
-      subtotal: item.price * item.quantity,
-    }));
-
-    setCreatingInvoice(true);
 
     try {
-      const { factura } = await orderService.createInvoiceForCustomer({
-        id_usuario: String(user.id),
-        productos: productosFactura,
+      setProcessingCheckout(true);
+      setCheckoutLabel("Preparando pago...");
+
+      const orderId = buildOrderId(user.id);
+      const checkout = await transactionsService.createCheckout({
+        orderId,
+        userId: Number(user.id),
+        amount: finalTotal,
+        currency: "COP",
+        description: `Pago pedido CraftYourStyle ${orderId}`,
+        tax: 0,
+        taxBase: finalTotal,
+        customer: {
+          name: user.name,
+        },
       });
 
-      setFacturaGenerada(factura);
-      setIsInvoiceOpen(true);
+      const payment = checkout.payment;
 
-      const isDarkMode = document.documentElement.classList.contains("dark");
+      if (payment.provider === "mock") {
+        setCheckoutLabel("Generando factura...");
+        await createInvoice();
+
+        await Swal.fire({
+          title: "Pago aprobado",
+          text: "La factura fue generada correctamente en modo de pruebas.",
+          icon: "success",
+        });
+        return;
+      }
+
+      setCheckoutLabel("Abriendo ePayco...");
+      await openEpaycoCheckout(checkout.checkoutConfig);
+      setCheckoutLabel("Verificando pago...");
+
+      const finalPayment = await waitForPaymentResult(payment.provider_reference);
+
+      if (finalPayment.status === "APROBADA") {
+        setCheckoutLabel("Generando factura...");
+        await createInvoice();
+
+        const isDarkMode = document.documentElement.classList.contains("dark");
+
+        await Swal.fire({
+          title: "Pago aprobado",
+          text: "Tu pago con ePayco fue aprobado y la factura fue generada.",
+          icon: "success",
+          ...(isDarkMode && {
+            background: "#101828",
+            color: "#e5e7eb",
+          }),
+          showConfirmButton: false,
+          timer: 2200,
+        });
+        return;
+      }
+
+      if (finalPayment.status === "PENDIENTE") {
+        await Swal.fire({
+          title: "Pago pendiente",
+          text: `Tu pago sigue pendiente de confirmación. Referencia: ${finalPayment.provider_reference}`,
+          icon: "info",
+        });
+        return;
+      }
 
       await Swal.fire({
-        title: "Compra exitosa",
-        text: `La factura fue generada y enviada a tu correo. Metodo usado: ${selectedMethod?.banco ?? "cuenta bancaria"}.`,
-        icon: "success",
-        ...(isDarkMode && {
-          background: "#101828",
-          color: "#e5e7eb",
-        }),
-        showConfirmButton: false,
-        timer: 2000,
+        title: "Pago no aprobado",
+        text: `El pago terminó en estado ${finalPayment.status.toLowerCase()}. Intenta nuevamente.`,
+        icon: "warning",
       });
     } catch (error) {
-      console.error("Error creando factura:", error);
+      console.error("Error iniciando checkout:", error);
       await Swal.fire({
-        title: "No se pudo generar la factura",
+        title: "No se pudo iniciar el pago",
         text: "Intenta nuevamente en unos segundos.",
         icon: "error",
       });
     } finally {
-      setCreatingInvoice(false);
+      setProcessingCheckout(false);
+      setCheckoutLabel(null);
     }
   };
 
@@ -222,7 +309,7 @@ export const CarritoDeCompras = () => {
 
           <div className="mb-6 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between mb-3 gap-3">
-              <h3 className="font-medium">Metodo de pago</h3>
+              <h3 className="font-medium">Cuentas guardadas</h3>
               <button
                 type="button"
                 onClick={() => navigate("/metodos-pago")}
@@ -239,7 +326,7 @@ export const CarritoDeCompras = () => {
             {!loadingMethods && paymentMethods.length === 0 && (
               <div className="space-y-3">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  No tienes cuentas bancarias registradas.
+                  No tienes cuentas bancarias registradas. Puedes pagar igual desde ePayco.
                 </p>
                 <button
                   type="button"
@@ -253,6 +340,9 @@ export const CarritoDeCompras = () => {
 
             {!loadingMethods && paymentMethods.length > 0 && (
               <div className="space-y-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Estas cuentas ya no bloquean la compra; ePayco te dejara elegir el medio de pago final.
+                </p>
                 {paymentMethods.map((method) => (
                   <label
                     key={method.id}
@@ -282,15 +372,19 @@ export const CarritoDeCompras = () => {
 
           <button
             onClick={handleFinalizePurchase}
-            disabled={isCartEmpty || creatingInvoice || paymentMethods.length === 0}
+            disabled={isCartEmpty || processingCheckout}
             className={`w-full py-3 rounded-lg mb-3 transition ${
-              isCartEmpty || creatingInvoice || paymentMethods.length === 0
+              isCartEmpty || processingCheckout
                 ? "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-300 cursor-not-allowed"
                 : "bg-[#c65a4f] text-white hover:opacity-90 cursor-pointer"
             }`}
           >
-            {creatingInvoice ? "Generando factura..." : "Finalizar compra"}
+            {checkoutLabel ?? "Pagar con ePayco"}
           </button>
+
+          <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
+            El pago se abre en el checkout seguro de ePayco y la factura se genera cuando el estado quede aprobado.
+          </p>
 
           {facturaGenerada && (
             <InvoiceModal

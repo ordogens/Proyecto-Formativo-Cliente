@@ -21,6 +21,8 @@ export interface ApiProducto {
   categoria_id?: number;
   category_id?: number;
   price: number;
+  stock?: number;
+  existencias?: number;
   talla: string;
   genero?: string;
   gender?: string;
@@ -97,4 +99,59 @@ export interface ApiCuentaBancaria {
 export interface ApiCuentasUsuario {
   usuario: unknown;
   cuentas: ApiCuentaBancaria[];
+}
+
+export type ApiEstadoPago =
+  | "PENDIENTE"
+  | "APROBADA"
+  | "RECHAZADA"
+  | "CANCELADA"
+  | "EXPIRADA"
+  | "ERROR";
+
+export interface ApiCheckoutCustomer {
+  name?: string;
+  email?: string;
+  phone?: string;
+  docType?: string;
+  docNumber?: string;
+}
+
+export interface ApiCheckoutPayload {
+  orderId: string;
+  userId: number;
+  amount: number;
+  currency?: string;
+  description: string;
+  tax?: number;
+  taxBase?: number;
+  customer?: ApiCheckoutCustomer;
+}
+
+export interface ApiPaymentRecord {
+  id?: number;
+  order_id: string;
+  user_id: number;
+  provider: "epayco" | "mock";
+  provider_reference: string;
+  epayco_ref?: string | null;
+  transaction_id?: string | null;
+  amount: number;
+  currency: string;
+  description: string;
+  status: ApiEstadoPago;
+  raw_response?: string | null;
+}
+
+export interface ApiCheckoutConfig {
+  provider: "epayco" | "mock";
+  key?: string;
+  test?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ApiCheckoutResult {
+  id: number | null;
+  payment: ApiPaymentRecord;
+  checkoutConfig: ApiCheckoutConfig;
 }

@@ -12,7 +12,7 @@ function normalizeBaseUrl(url: string) {
  * Configurable mediante variable de entorno VITE_GATEWAY_URL.
  */
 export const GATEWAY_URL =
-  normalizeBaseUrl(import.meta.env.VITE_GATEWAY_URL ?? DEFAULT_GATEWAY_URL);
+  normalizeBaseUrl(DEFAULT_GATEWAY_URL);
 
 /** URLs por dominio — cada una apunta a un prefijo del gateway */
 export const AUTH_API = `${GATEWAY_URL}/api/usuarios/v1/usuarios`;

@@ -74,6 +74,7 @@ export const ProductosView = () => {
       descripcion: "",
       category_id: Number(form.categoryId),
       price: Number(form.price),
+      stock: Number(form.stock),
       talla: "UNICA",
       genero: form.gender,
     }
