@@ -41,6 +41,8 @@ const readErrorMessage = async (response: Response) => {
 export interface AgentSession {
   id: number;
   id_user: number;
+  product_id?: number | null;
+  product_name?: string | null;
   fecha_inicio: string;
   fecha_fin?: string | null;
   estado: string;
@@ -59,12 +61,26 @@ export interface AgentChatResponse {
   imagenes_generadas?: string[] | null;
 }
 
+export interface AgentProductContext {
+  productId: number;
+  productName?: string | null;
+  termsAccepted?: boolean;
+}
+
 export const agentService = {
-  createSession: async (idUser: number): Promise<AgentSession> => {
+  createSession: async (
+    idUser: number,
+    productContext?: AgentProductContext
+  ): Promise<AgentSession> => {
     const response = await fetch(`${IA_API}/chat/session`, {
       method: "POST",
       headers: buildHeaders(),
-      body: JSON.stringify({ id_user: idUser }),
+      body: JSON.stringify({
+        id_user: idUser,
+        product_id: productContext?.productId ?? null,
+        product_name: productContext?.productName ?? null,
+        terms_accepted: productContext?.termsAccepted ?? false,
+      }),
     });
 
     if (!response.ok) {
@@ -110,11 +126,20 @@ export const agentService = {
     return response.json();
   },
 
-  sendMessage: async (sessionId: number, message: string): Promise<AgentChatResponse> => {
+  sendMessage: async (
+    sessionId: number,
+    message: string,
+    productContext: AgentProductContext
+  ): Promise<AgentChatResponse> => {
     const response = await fetch(`${IA_API}/chat/session/${sessionId}/message`, {
       method: "POST",
       headers: buildHeaders(),
-      body: JSON.stringify({ mensaje: message }),
+      body: JSON.stringify({
+        mensaje: message,
+        product_id: productContext.productId,
+        product_name: productContext.productName ?? null,
+        terms_accepted: productContext.termsAccepted ?? false,
+      }),
     });
 
     if (!response.ok) {

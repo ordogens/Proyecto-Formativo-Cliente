@@ -5,33 +5,29 @@ interface Props {
   image: string | null;
   prompt: string;
   setPrompt: React.Dispatch<React.SetStateAction<string>>;
-  aspectRatio: string;
-  setAspectRatio: React.Dispatch<React.SetStateAction<string>>;
-  creativity: number;
-  setCreativity: React.Dispatch<React.SetStateAction<number>>;
+  productId: number | null;
+  productName?: string | null;
+  productDescription?: string | null;
+  termsAccepted: boolean;
+  onToggleTerms: (accepted: boolean) => void;
   onDownload: () => void;
   onShare: () => void;
-  onGenerate: () => void;
   onImageGenerated: (url: string) => void;
-  loading: boolean;
 }
 
 export const CustomizationForm = ({
   image,
   prompt,
   setPrompt,
-  aspectRatio,
-  setAspectRatio,
-  creativity,
-  setCreativity,
+  productId,
+  productName,
+  productDescription,
+  termsAccepted,
+  onToggleTerms,
   onDownload,
   onShare,
-  onGenerate,
   onImageGenerated,
-  loading,
 }: Props) => {
-  const ratios = ["1:1", "16:9", "9:16"];
-
   return (
     <aside className="w-full lg:w-80 bg-[] dark:bg-gray-900 border-t lg:border-t-0 lg:border-l border-zinc-800 p-4 md:p-6 flex flex-col gap-6">
       <div className="flex items-center gap-2">
@@ -58,57 +54,67 @@ export const CustomizationForm = ({
 
       <section>
         <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">
-          Smart Prompt
+          Prenda Seleccionada
         </label>
-        <AgentChatPanel prompt={prompt} setPrompt={setPrompt} onImageGenerated={onImageGenerated} />
+        <div className="rounded-xl border border-zinc-300 bg-white p-4 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-gray-800 dark:text-zinc-200">
+          {productId ? (
+            <>
+              <p className="font-semibold">{productName || `Prenda #${productId}`}</p>
+              <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+                {productDescription || "Esta prenda se personaliza solo con cambios de color y logo."}
+              </p>
+              <p className="mt-3 text-xs font-medium text-[#c65a4f]">
+                Alcance permitido: color base y ubicacion de logo.
+              </p>
+            </>
+          ) : (
+            <p className="text-xs text-zinc-500">
+              Primero debes abrir esta pantalla desde una prenda del catálogo.
+            </p>
+          )}
+        </div>
       </section>
 
       <section>
         <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">
-          Aspect Ratio
+          Términos De Uso
         </label>
-        <div className="grid grid-cols-3 gap-2">
-          {ratios.map((ratio) => (
-            <button
-              key={ratio}
-              type="button"
-              onClick={() => setAspectRatio(ratio)}
-              className={`py-2 rounded-lg text-xs border transition-colors cursor-pointer ${aspectRatio === ratio
-                ? "bg-[#c65a4f] text-black border-[#c65a4f]"
-                : "bg-[#f3f0eb] dark:bg-gray-800 border-gray-700 text-black hover:dark:bg-gray-700 hover:border-[#c65a4f] hover:text-[#c65a4f]"
-                }`}
-            >
-              {ratio}
-            </button>
-          ))}
+        <div className="rounded-xl border border-zinc-300 bg-white p-4 text-xs leading-5 text-zinc-600 dark:border-zinc-700 dark:bg-gray-800 dark:text-zinc-300">
+          <p>
+            Para usar este agente debes aceptar que solo puedes subir contenido permitido y que eres responsable por las imágenes que compartes.
+          </p>
+          <p className="mt-2">
+            No se permite contenido sexual, desnudos ni material ofensivo. En esta fase el agente solo trabaja color y logo sobre la prenda actual.
+          </p>
+          <label className="mt-3 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(event) => onToggleTerms(event.target.checked)}
+              className="mt-0.5 accent-[#c65a4f]"
+            />
+            <span>Acepto los términos y condiciones para usar el agente de personalización.</span>
+          </label>
         </div>
       </section>
 
       <section>
-        <div className="flex justify-between mb-2">
-          <label className="text-xs font-semibold text-zinc-500 uppercase">
-            Creatividad
-          </label>
-          <span className="text-xs text-[#c65a4f]">{creativity}%</span>
-        </div>
-        <input
-          type="range"
-          min={0}
-          max={100}
-          value={creativity}
-          onChange={(e) => setCreativity(Number(e.target.value))}
-          className="w-full accent-[#c65a4f] cursor-pointer"
+        <label className="text-xs font-semibold text-zinc-500 uppercase mb-2 block">
+          Instrucciones Para El Agente
+        </label>
+        <AgentChatPanel
+          prompt={prompt}
+          setPrompt={setPrompt}
+          productId={productId}
+          productName={productName}
+          termsAccepted={termsAccepted}
+          onImageGenerated={onImageGenerated}
         />
       </section>
 
-      <button
-        onClick={onGenerate}
-        disabled={!prompt.trim() || loading}
-        className="w-full py-3 border-1 border-[#c65a4f] text-[#c65a4f] font-bold rounded-xl hover:bg-[#c65a4f] disabled:hover:bg-[#f3f0eb] disabled:hover:text-[#c65a4f] hover:text-gray-100 cursor-pointer transition active:scale-95 disabled:scale-none flex items-center justify-center gap-2 disabled:opacity-50"
-      >
-        <Wand2 size={18} />
-        {loading ? "Generando..." : "GENERAR IMAGEN"}
-      </button>
+      <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-4 text-xs leading-5 text-zinc-500 dark:border-zinc-700 dark:bg-gray-800 dark:text-zinc-400">
+        El agente ya no genera prendas libres. Usa el chat para pedir cambios concretos sobre la prenda seleccionada.
+      </div>
     </aside>
   );
 };

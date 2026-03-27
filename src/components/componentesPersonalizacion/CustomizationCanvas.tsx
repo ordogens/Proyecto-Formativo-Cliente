@@ -10,6 +10,7 @@ interface SavedImage {
 interface Props {
   image: string | null;
   setImage: Dispatch<SetStateAction<string | null>>;
+  allowImageUpload?: boolean;
   isDragging: boolean;
   setIsDragging: Dispatch<SetStateAction<boolean>>;
   onSave?: () => void;
@@ -23,6 +24,7 @@ interface Props {
 export const CustomizationCanvas = ({
   image,
   setImage,
+  allowImageUpload = true,
   isDragging,
   setIsDragging,
   onSave,
@@ -55,16 +57,19 @@ export const CustomizationCanvas = ({
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowImageUpload) return;
     e.preventDefault();
     setIsDragging(true);
   };
 
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowImageUpload) return;
     e.preventDefault();
     setIsDragging(false);
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    if (!allowImageUpload) return;
     e.preventDefault();
     setIsDragging(false);
     loadImageFile(e.dataTransfer.files?.[0]);
@@ -94,18 +99,22 @@ export const CustomizationCanvas = ({
             <p className="mb-4 text-xs text-zinc-400">
               {imageLoadFailed
                 ? "La URL de esta imagen ya no esta disponible. Genera o guarda una nueva version."
-                : "Tambien puedes arrastrar una imagen y soltarla aqui"}
+                : allowImageUpload
+                ? "Tambien puedes arrastrar una imagen y soltarla aqui"
+                : "La vista inicial muestra la prenda seleccionada del catálogo"}
             </p>
 
-            <label className="px-2 py-1 md:px-4 md:py-2 text-[#c65a4f] border-1 border-[#c65a4f] rounded-lg cursor-pointer hover:bg-[#c65a4f] hover:text-gray-100 transition">
-              Subir Imagen
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </label>
+            {allowImageUpload && (
+              <label className="px-2 py-1 md:px-4 md:py-2 text-[#c65a4f] border-1 border-[#c65a4f] rounded-lg cursor-pointer hover:bg-[#c65a4f] hover:text-gray-100 transition">
+                Subir Imagen
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            )}
           </div>
         ) : (
           <>
@@ -128,12 +137,14 @@ export const CustomizationCanvas = ({
                   {saved ? "Guardado" : saving ? "Guardando..." : "Guardar"}
                 </button>
               )}
-              <button
-                onClick={removeImage}
-                className="bg-[#c65a4f] text-white px-3 py-1 rounded-lg text-xs hover:bg-red-500 transition cursor-pointer"
-              >
-                Eliminar
-              </button>
+              {allowImageUpload && (
+                <button
+                  onClick={removeImage}
+                  className="bg-[#c65a4f] text-white px-3 py-1 rounded-lg text-xs hover:bg-red-500 transition cursor-pointer"
+                >
+                  Eliminar
+                </button>
+              )}
             </div>
           </>
         )}

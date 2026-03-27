@@ -14,7 +14,7 @@ export const VistaDinamica = () => {
   const shop = useContext(ShopContext);
   const navigate = useNavigate();
   const stock = true;
-  const customizable = false;
+  const customizable = true;
   const [producto, setProducto] = useState<Producto | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -168,7 +168,10 @@ export const VistaDinamica = () => {
                 <BadgeAlert alertText="Producto agregaddo correctamente a la bolsa de compras" />
               )}
 
-              <button onClick={() => navigate("/personalizacion")} className="w-full border flex gap-2 justify-center border-red-300 text-red-400 hover:bg-red-500 hover:text-white transition duration-300 py-3 rounded-lg cursor-pointer">
+              <button
+                onClick={() => navigate(`/personalizacion?productId=${producto.id}`)}
+                className="w-full border flex gap-2 justify-center border-red-300 text-red-400 hover:bg-red-500 hover:text-white transition duration-300 py-3 rounded-lg cursor-pointer"
+              >
                 <Stars size={20} />
                 <span>
                   Personalizar con IA

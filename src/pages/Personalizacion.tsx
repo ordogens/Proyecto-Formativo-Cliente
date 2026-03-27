@@ -1,22 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { CustomizationCanvas } from "../components/componentesPersonalizacion/CustomizationCanvas";
 import { CustomizationForm } from "../components/componentesPersonalizacion/CustomizationForm";
-import { nanoService } from "../services/nanoService";
 import { agentImagesService } from "../services/agentImages.service";
+import { catalogService } from "../services/catalog.service";
 import { useAuth } from "../context/AuthContext";
+import type { ApiProducto } from "../types/api.types";
+
+const TERMS_VERSION = "v1";
 
 export const Personalizacion = () => {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [prompt, setPrompt] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [aspectRatio, setAspectRatio] = useState("1:1");
-  const [creativity, setCreativity] = useState(75);
   const [savingImage, setSavingImage] = useState(false);
   const [savedImageId, setSavedImageId] = useState<number | null>(null);
   const [savedImages, setSavedImages] = useState<{ id: number; image_url: string }[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<ApiProducto | null>(null);
+  const [productError, setProductError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+
+  const productId = useMemo(() => {
+    const rawValue = searchParams.get("productId");
+    if (!rawValue) return null;
+    const parsed = Number(rawValue);
+    return Number.isFinite(parsed) ? parsed : null;
+  }, [searchParams]);
+
+  const termsStorageKey = useMemo(() => {
+    const userKey = user?.id ? String(user.id) : "anonymous";
+    return `agent_terms_acceptance:${TERMS_VERSION}:${userKey}`;
+  }, [user?.id]);
 
   const resolveGarmentType = (value: string) => {
     const normalized = value.trim().toLowerCase();
@@ -46,46 +63,50 @@ export const Personalizacion = () => {
   useEffect(() => {
     void loadSavedImages();
   }, [user?.id]);
-  
 
+  useEffect(() => {
+    setTermsAccepted(localStorage.getItem(termsStorageKey) === "accepted");
+  }, [termsStorageKey]);
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-
-    try {
-      setLoading(true);
-      const referenceImage = image?.startsWith("data:image/") ? image : null;
-
-      const result = await nanoService.generateImage({
-        image: referenceImage,
-        prompt,
-        aspectRatio,
-        creativity,
-      });
-      const generatedImage =
-        result.generatedImage ??
-        result.imageUrl ??
-        result.url ??
-        result.data?.generatedImage ??
-        result.data?.imageUrl ??
-        result.data?.url;
-
-      if (!generatedImage) {
-        throw new Error("La API no devolvio una imagen generada valida.");
-      }
-
-      setLastPrompt(prompt);
-      setImage(generatedImage);
-      setPrompt("");
-    } catch (error) {
-      console.error("Error generando imagen:", error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!productId) {
+      setSelectedProduct(null);
+      setProductError("Abre esta pantalla desde una prenda del catálogo.");
+      setImage(null);
+      return;
     }
-  };
+
+    let mounted = true;
+
+    const loadProduct = async () => {
+      try {
+        setProductError(null);
+        const product = await catalogService.getProductById(productId);
+        if (!mounted) return;
+        setSelectedProduct(product);
+        setImage(product.image_url ?? product.imagen_url ?? null);
+      } catch (error) {
+        if (!mounted) return;
+        console.error("No se pudo cargar la prenda seleccionada:", error);
+        setSelectedProduct(null);
+        setProductError("No se pudo cargar la prenda seleccionada.");
+        setImage(null);
+      }
+    };
+
+    void loadProduct();
+
+    return () => {
+      mounted = false;
+    };
+  }, [productId]);
 
   const handleDownloadImage = () => {
     if (!image) return;
+    if (!termsAccepted) {
+      alert("Debes aceptar los términos antes de descargar una personalización.");
+      return;
+    }
 
     const link = document.createElement("a");
     link.href = image;
@@ -98,6 +119,10 @@ export const Personalizacion = () => {
   
   const handleSaveImage = async () => {
     if (!image) return;
+    if (!termsAccepted) {
+      alert("Debes aceptar los términos antes de guardar una personalización.");
+      return;
+    }
     const userId = user?.id ? Number(user.id) : null;
     if (!userId || Number.isNaN(userId)) {
       alert("Debes iniciar sesión para guardar la imagen.");
@@ -111,8 +136,15 @@ export const Personalizacion = () => {
         id_user: userId,
         image_url: image,
         tipo: "usuario_diseño",
-        prompt: promptToSave || null,
-        garment_type: resolveGarmentType(promptToSave) ?? null,
+        prompt:
+          promptToSave ||
+          (selectedProduct?.nombre
+            ? `Base catálogo: ${selectedProduct.nombre}`
+            : null),
+        garment_type:
+          resolveGarmentType(promptToSave) ??
+          resolveGarmentType(selectedProduct?.nombre ?? "") ??
+          null,
       });
       setSavedImageId(saved.id);
       await loadSavedImages();
@@ -137,8 +169,22 @@ export const Personalizacion = () => {
       alert("No se pudo eliminar la imagen guardada.");
     }
   };
+
+  const handleToggleTerms = (accepted: boolean) => {
+    setTermsAccepted(accepted);
+    if (accepted) {
+      localStorage.setItem(termsStorageKey, "accepted");
+      return;
+    }
+    localStorage.removeItem(termsStorageKey);
+  };
+
 const handleShareImage = async () => {
     if (!image) return;
+    if (!termsAccepted) {
+      alert("Debes aceptar los términos antes de compartir una personalización.");
+      return;
+    }
 
     try {
       const response = await fetch(image);
@@ -167,6 +213,7 @@ const handleShareImage = async () => {
       <CustomizationCanvas
         image={image}
         setImage={setImage}
+        allowImageUpload={false}
         isDragging={isDragging}
         setIsDragging={setIsDragging}
         onSave={handleSaveImage}
@@ -177,20 +224,29 @@ const handleShareImage = async () => {
         onDeleteSaved={handleDeleteSaved}
       />
 
-      <CustomizationForm
-        image={image}
-        prompt={prompt}
-        setPrompt={setPrompt}
-        aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
-        creativity={creativity}
-        setCreativity={setCreativity}
-        onDownload={handleDownloadImage}
-        onShare={handleShareImage}
-        onGenerate={handleGenerate}
-        onImageGenerated={setImage}
-        loading={loading}
-      />
+      <div className="flex w-full flex-col lg:w-80">
+        {productError && (
+          <div className="mx-4 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+            {productError}
+          </div>
+        )}
+        <CustomizationForm
+          image={image}
+          prompt={prompt}
+          setPrompt={setPrompt}
+          productId={productId}
+          productName={selectedProduct?.nombre ?? null}
+          productDescription={selectedProduct?.descripcion ?? null}
+          termsAccepted={termsAccepted}
+          onToggleTerms={handleToggleTerms}
+          onDownload={handleDownloadImage}
+          onShare={handleShareImage}
+          onImageGenerated={(url) => {
+            setLastPrompt(prompt.trim());
+            setImage(url);
+          }}
+        />
+      </div>
     </div>
   );
 };

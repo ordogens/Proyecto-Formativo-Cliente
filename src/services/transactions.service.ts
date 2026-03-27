@@ -1,8 +1,11 @@
 import { apiClient, TRANSACTIONS_API } from "../config/api";
 import type {
   ApiBanco,
+  ApiCheckoutPayload,
+  ApiCheckoutResponse,
   ApiCuentaBancaria,
   ApiCuentasUsuario,
+  ApiPagoEpayco,
   ApiTipoCuenta,
 } from "../types/api.types";
 
@@ -123,5 +126,30 @@ export const transactionsService = {
     await apiClient.delete(
       `${TRANSACTIONS_API}/eliminarCuenta/${accountId}/${userId}`
     );
+  },
+
+  async createCheckout(payload: ApiCheckoutPayload): Promise<ApiCheckoutResponse> {
+    const { data } = await apiClient.post<ApiEnvelope<ApiCheckoutResponse>>(
+      `${TRANSACTIONS_API}/checkout`,
+      payload
+    );
+
+    if (!data.data) {
+      throw new Error("La respuesta del checkout no incluyó datos del pago.");
+    }
+
+    return data.data;
+  },
+
+  async getPayment(reference: string): Promise<ApiPagoEpayco> {
+    const { data } = await apiClient.get<ApiEnvelope<ApiPagoEpayco>>(
+      `${TRANSACTIONS_API}/pagos/${reference}`
+    );
+
+    if (!data.data) {
+      throw new Error("No se encontró la información del pago.");
+    }
+
+    return data.data;
   },
 };

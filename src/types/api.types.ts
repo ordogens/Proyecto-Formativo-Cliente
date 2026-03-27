@@ -98,3 +98,50 @@ export interface ApiCuentasUsuario {
   usuario: unknown;
   cuentas: ApiCuentaBancaria[];
 }
+
+export type ApiEstadoPago =
+  | "PENDIENTE"
+  | "APROBADA"
+  | "RECHAZADA"
+  | "ERROR"
+  | "CANCELADA"
+  | "EXPIRADA";
+
+export interface ApiCheckoutCustomer {
+  name: string;
+  email: string;
+  phone: string;
+  docType: string;
+  docNumber: string;
+}
+
+export interface ApiCheckoutPayload {
+  orderId: string;
+  userId: number;
+  amount: number;
+  description: string;
+  currency?: string;
+  tax?: number;
+  taxBase?: number;
+  customer: ApiCheckoutCustomer;
+}
+
+export interface ApiPagoEpayco {
+  id?: number | null;
+  order_id: string;
+  user_id: number;
+  provider: string;
+  provider_reference: string;
+  amount: number;
+  currency: string;
+  description: string;
+  status: ApiEstadoPago;
+  raw_response: string | null;
+  epayco_ref?: string | null;
+  transaction_id?: string | null;
+}
+
+export interface ApiCheckoutResponse {
+  payment: ApiPagoEpayco;
+  checkoutConfig: Record<string, unknown>;
+}
