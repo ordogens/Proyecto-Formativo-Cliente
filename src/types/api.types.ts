@@ -21,6 +21,8 @@ export interface ApiProducto {
   categoria_id?: number;
   category_id?: number;
   price: number;
+  stock?: number;
+  existencias?: number;
   talla: string;
   genero?: string;
   gender?: string;
@@ -103,45 +105,57 @@ export type ApiEstadoPago =
   | "PENDIENTE"
   | "APROBADA"
   | "RECHAZADA"
-  | "ERROR"
   | "CANCELADA"
-  | "EXPIRADA";
+  | "EXPIRADA"
+  | "ERROR";
 
 export interface ApiCheckoutCustomer {
-  name: string;
-  email: string;
-  phone: string;
-  docType: string;
-  docNumber: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  docType?: string;
+  docNumber?: string;
 }
 
 export interface ApiCheckoutPayload {
   orderId: string;
   userId: number;
   amount: number;
-  description: string;
   currency?: string;
+  description: string;
   tax?: number;
   taxBase?: number;
-  customer: ApiCheckoutCustomer;
+  customer?: ApiCheckoutCustomer;
 }
 
-export interface ApiPagoEpayco {
+export interface ApiPaymentRecord {
   id?: number | null;
   order_id: string;
   user_id: number;
-  provider: string;
+  provider: "epayco" | "mock" | string;
   provider_reference: string;
+  epayco_ref?: string | null;
+  transaction_id?: string | null;
   amount: number;
   currency: string;
   description: string;
   status: ApiEstadoPago;
-  raw_response: string | null;
-  epayco_ref?: string | null;
-  transaction_id?: string | null;
+  raw_response?: string | null;
 }
 
-export interface ApiCheckoutResponse {
-  payment: ApiPagoEpayco;
-  checkoutConfig: Record<string, unknown>;
+export interface ApiCheckoutConfig {
+  provider: "epayco" | "mock" | string;
+  key?: string;
+  test?: boolean;
+  [key: string]: unknown;
 }
+
+export interface ApiCheckoutResult {
+  id: number | null;
+  payment: ApiPaymentRecord;
+  checkoutConfig: ApiCheckoutConfig;
+}
+
+export type ApiPagoEpayco = ApiPaymentRecord;
+
+export type ApiCheckoutResponse = ApiCheckoutResult;

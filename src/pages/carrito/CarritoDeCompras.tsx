@@ -5,28 +5,15 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { InvoiceModal } from "../../components/invoice/InvoiceModal";
 import { useAuth } from "../../context/AuthContext";
+import { openEpaycoCheckout } from "../../services/epayco.service";
 import { orderService } from "../../services/order.service";
 import { transactionsService } from "../../services/transactions.service";
 import type {
   ApiCheckoutCustomer,
-  ApiCheckoutResponse,
   ApiCuentaBancaria,
   ApiFactura,
   ApiPagoEpayco,
 } from "../../types/api.types";
-
-type EpaycoHandler = {
-  open: (config: Record<string, unknown>) => void;
-};
-
-type EpaycoInstance = {
-  checkout: {
-    configure: (config: Record<string, unknown>) => EpaycoHandler;
-  };
-};
-
-const EPAYCO_SCRIPT_ID = "epayco-checkout-script";
-const EPAYCO_SCRIPT_SRC = "https://checkout.epayco.co/checkout.js";
 const FINAL_PAYMENT_STATUSES = new Set<string>([
   "APROBADA",
   "RECHAZADA",
@@ -35,82 +22,12 @@ const FINAL_PAYMENT_STATUSES = new Set<string>([
   "EXPIRADA",
 ]);
 
-let epaycoScriptPromise: Promise<EpaycoInstance> | null = null;
-
-const getEpaycoInstance = () => {
-  return (window as Window & { ePayco?: EpaycoInstance }).ePayco;
-};
-
-const loadEpaycoScript = async (): Promise<EpaycoInstance> => {
-  const existing = getEpaycoInstance();
-  if (existing) {
-    return existing;
-  }
-
-  if (!epaycoScriptPromise) {
-    epaycoScriptPromise = new Promise<EpaycoInstance>((resolve, reject) => {
-      const currentScript = document.getElementById(EPAYCO_SCRIPT_ID) as HTMLScriptElement | null;
-
-      if (currentScript) {
-        currentScript.addEventListener("load", () => {
-          const epayco = getEpaycoInstance();
-          if (epayco) {
-            resolve(epayco);
-            return;
-          }
-
-          reject(new Error("El script de ePayco cargó, pero no expuso la librería."));
-        });
-
-        currentScript.addEventListener("error", () => {
-          reject(new Error("No se pudo cargar el script de ePayco."));
-        });
-
-        return;
-      }
-
-      const script = document.createElement("script");
-      script.id = EPAYCO_SCRIPT_ID;
-      script.src = EPAYCO_SCRIPT_SRC;
-      script.async = true;
-
-      script.onload = () => {
-        const epayco = getEpaycoInstance();
-        if (epayco) {
-          resolve(epayco);
-          return;
-        }
-
-        reject(new Error("El script de ePayco cargó, pero no expuso la librería."));
-      };
-
-      script.onerror = () => {
-        reject(new Error("No se pudo cargar el script de ePayco."));
-      };
-
-      document.body.appendChild(script);
-    }).catch((error) => {
-      epaycoScriptPromise = null;
-      throw error;
-    });
-  }
-
-  return epaycoScriptPromise;
-};
-
 const sleep = (ms: number) =>
   new Promise((resolve) => {
     window.setTimeout(resolve, ms);
   });
 
 const buildOrderId = (userId: string) => `ORD-${userId}-${Date.now()}`;
-
-const normalizeCheckoutConfig = (
-  checkoutConfig: Record<string, unknown>
-) => {
-  const { provider: _provider, ...rest } = checkoutConfig;
-  return rest;
-};
 
 const getPaymentStatusMessage = (payment: ApiPagoEpayco) => {
   switch (payment.status) {
@@ -128,7 +45,6 @@ const getPaymentStatusMessage = (payment: ApiPagoEpayco) => {
       return "El pago sigue pendiente de confirmación.";
   }
 };
-
 const requestBillingInfo = async (defaultName: string) => {
   const result = await Swal.fire({
     title: "Datos para ePayco",
@@ -175,7 +91,6 @@ const requestBillingInfo = async (defaultName: string) => {
   if (!result.isConfirmed || !result.value) {
     return null;
   }
-
   return result.value;
 };
 
@@ -344,16 +259,6 @@ export const CarritoDeCompras = () => {
     }
   };
 
-  const openEpaycoCheckout = async (checkout: ApiCheckoutResponse) => {
-    const epayco = await loadEpaycoScript();
-    const handler = epayco.checkout.configure({
-      key: checkout.checkoutConfig.key,
-      test: checkout.checkoutConfig.test,
-    });
-
-    handler.open(normalizeCheckoutConfig(checkout.checkoutConfig));
-  };
-
   const handleFinalizePurchase = async () => {
     if (isCartEmpty || creatingInvoice || isPaying) return;
 
@@ -387,7 +292,7 @@ export const CarritoDeCompras = () => {
 
       setPendingPaymentReference(checkout.payment.provider_reference);
       setPendingPaymentStatus(checkout.payment.status);
-      await openEpaycoCheckout(checkout);
+      await openEpaycoCheckout(checkout.checkoutConfig);
       await Swal.fire({
         title: "Checkout abierto",
         text: "Completa el pago en ePayco. Cuando vuelva la confirmación, validaremos el estado automáticamente.",
@@ -529,6 +434,9 @@ export const CarritoDeCompras = () => {
 
             {!loadingMethods && paymentMethods.length > 0 && (
               <div className="space-y-2">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Estas cuentas ya no bloquean la compra; ePayco te dejara elegir el medio de pago final.
+                </p>
                 {paymentMethods.map((method) => (
                   <label
                     key={method.id}

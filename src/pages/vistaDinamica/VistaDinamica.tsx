@@ -84,7 +84,11 @@ export const VistaDinamica = () => {
     return <h1 className="text-center mt-20 dark:text-gray-300">Producto no encontrado</h1>;
   }
 
-  const productImages = [producto.imagen, producto.imagen, producto.imagen];
+  const baseImages = [producto.imagen].filter(Boolean);
+  const productImages = Array.from({ length: 3 }, (_, index) => {
+    if (baseImages.length === 0) return "";
+    return baseImages[index % baseImages.length];
+  });
 
   // const productCountInCart = cart
   //   .filter((item) => item.productId === producto.id)
@@ -104,18 +108,17 @@ export const VistaDinamica = () => {
   };
 
   return (
-    <section className="h-full bg-[#f5f3ef] dark:bg-gray-900 text-black dark:text-gray-300 transition-colors duration-300 flex md:justify-center px-6 ">
-      <div className="max-w-6xl w-full grid grid-cols-1 md:grid-cols-2 md:gap-10 md:items-center">
-
-        <div className="flex justify-center md:scale-120">
-          <div className="hidden md:flex flex-col gap-2 mr-3">
+    <section className="min-h-screen bg-[#f5f3ef] dark:bg-gray-900 text-black dark:text-gray-300 transition-colors duration-300 px-4 py-8 md:px-6 md:py-10">
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-2 md:items-start md:gap-10">
+        <div className="flex flex-col-reverse gap-4 md:flex-row md:justify-center">
+          <div className="flex gap-3 overflow-x-auto pb-1 md:flex-col md:overflow-visible">
             {productImages.map((image, index) => (
               <button
                 key={`thumb-${index}`}
                 type="button"
                 onClick={() => setSelectedImageIndex(index)}
-                className={`w-18 h-18 rounded-md overflow-hidden border cursor-pointer ${selectedImageIndex === index
-                  ? "border-gray-700 dark:border-gray-300"
+                className={`h-20 w-20 shrink-0 rounded-xl overflow-hidden border bg-white cursor-pointer transition ${selectedImageIndex === index
+                  ? "border-gray-700 dark:border-gray-300 shadow-sm"
                   : "border-gray-300 dark:border-gray-700"
                   }`}
               >
@@ -127,16 +130,19 @@ export const VistaDinamica = () => {
               </button>
             ))}
           </div>
-          <div className="max-w-md h-fit md:h-lg md:max-w-lg rounded-2xl overflow-hidden shadow-sm">
+
+          <div className="w-full max-w-2xl rounded-[28px] bg-white p-4 shadow-sm md:p-6">
+            <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl bg-white">
             <img
               src={productImages[selectedImageIndex]}
               alt={producto.nombre}
-              className="w-screen md:w-full h-100 md:h-130 object-cover"
+                className="h-full w-full object-contain"
             />
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:h-130 gap-4 md:gap-8 md:justify-center md:scale-120">
+        <div className="flex flex-col gap-5 pt-2 md:gap-8 md:pt-10">
           <section className="flex flex-col gap-4 md:gap-2">
             <span className="text-sm text-red-400 capitalize">
               {producto.categoria}
@@ -154,11 +160,11 @@ export const VistaDinamica = () => {
             </p>
           </section>
 
-          <div className="flex flex-col gap-4 md:gap-8">
+          <div className="flex flex-col gap-4 md:gap-6">
             <section className="flex flex-col gap-2 md:gap-3">
               <button
                 onClick={handleAddToCart}
-                className="w-full border border-black dark:border-gray-600 hover:border-gray-400 flex gap-2 justify-center bg-black dark:bg-zinc-950 text-white dark:text-gray-300 py-3 rounded-lg cursor-pointer"
+                className="w-full border border-black dark:border-gray-600 hover:border-gray-400 flex gap-2 justify-center bg-black dark:bg-zinc-950 text-white dark:text-gray-300 py-3 rounded-xl cursor-pointer"
               >
                 <ShoppingBag size={20} />
                 Agregar al carrito
@@ -170,7 +176,7 @@ export const VistaDinamica = () => {
 
               <button
                 onClick={() => navigate(`/personalizacion?productId=${producto.id}`)}
-                className="w-full border flex gap-2 justify-center border-red-300 text-red-400 hover:bg-red-500 hover:text-white transition duration-300 py-3 rounded-lg cursor-pointer"
+                className="w-full border flex gap-2 justify-center border-red-300 text-red-400 hover:bg-red-500 hover:text-white transition duration-300 py-3 rounded-xl cursor-pointer"
               >
                 <Stars size={20} />
                 <span>
@@ -180,7 +186,7 @@ export const VistaDinamica = () => {
             </section>
 
           </div>
-          <section className="bg-[#EFEBE4] dark:bg-gray-800 p-4 text-sm font-extralight flex flex-col gap-2 rounded-lg">
+          <section className="bg-[#EFEBE4] dark:bg-gray-800 p-4 text-sm font-extralight flex flex-col gap-2 rounded-xl">
             <p className="flex items-center">
               <span
                 className={`${stock ? "bg-green-400" : "bg-red-600"} size-2.5 inline-block rounded-2xl mr-3`}
