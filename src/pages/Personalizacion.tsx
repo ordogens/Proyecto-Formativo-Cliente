@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { CustomizationCanvas } from "../components/componentesPersonalizacion/CustomizationCanvas";
 import { CustomizationForm } from "../components/componentesPersonalizacion/CustomizationForm";
 import { agentImagesService } from "../services/agentImages.service";
+import { agentTryOnService, type UserPhotoResponse } from "../services/agentTryOn.service";
 import { catalogService } from "../services/catalog.service";
 import { useAuth } from "../context/AuthContext";
 import type { ApiProducto } from "../types/api.types";
@@ -22,6 +23,10 @@ export const Personalizacion = () => {
   const [selectedProduct, setSelectedProduct] = useState<ApiProducto | null>(null);
   const [productError, setProductError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [userPhotos, setUserPhotos] = useState<UserPhotoResponse[]>([]);
+  const [selectedUserPhotoId, setSelectedUserPhotoId] = useState<number | null>(null);
+  const [tryOnLoading, setTryOnLoading] = useState(false);
+  const [tryOnError, setTryOnError] = useState<string | null>(null);
 
   const productId = useMemo(() => {
     const rawValue = searchParams.get("productId");
@@ -55,6 +60,19 @@ export const Personalizacion = () => {
     }
   };
 
+  const loadUserPhotos = async () => {
+    const userId = user?.id ? Number(user.id) : null;
+    if (!userId || Number.isNaN(userId)) return;
+    try {
+      const photos = await agentTryOnService.getUserPhotos(userId);
+      setUserPhotos(photos);
+      const preferredPhoto = photos.find((photo) => photo.es_principal) ?? photos[0] ?? null;
+      setSelectedUserPhotoId(preferredPhoto?.id ?? null);
+    } catch (error) {
+      console.error("No se pudieron cargar las fotos del usuario:", error);
+    }
+  };
+
 
   useEffect(() => {
     setSavedImageId(null);
@@ -62,6 +80,10 @@ export const Personalizacion = () => {
 
   useEffect(() => {
     void loadSavedImages();
+  }, [user?.id]);
+
+  useEffect(() => {
+    void loadUserPhotos();
   }, [user?.id]);
 
   useEffect(() => {
@@ -179,7 +201,63 @@ export const Personalizacion = () => {
     localStorage.removeItem(termsStorageKey);
   };
 
-const handleShareImage = async () => {
+  const handleUploadUserPhoto = async (file: File) => {
+    const userId = user?.id ? Number(user.id) : null;
+    if (!userId || Number.isNaN(userId)) {
+      alert("Debes iniciar sesión para subir tu foto.");
+      return;
+    }
+
+    try {
+      setTryOnError(null);
+      const savedPhoto = await agentTryOnService.uploadUserPhoto(file, userId, true);
+      setUserPhotos((prev) => [savedPhoto, ...prev.filter((photo) => photo.id !== savedPhoto.id)]);
+      setSelectedUserPhotoId(savedPhoto.id);
+    } catch (error) {
+      console.error("No se pudo subir la foto del usuario:", error);
+      setTryOnError((error as Error).message || "No se pudo subir tu foto.");
+    }
+  };
+
+  const handleGenerateTryOn = async () => {
+    const userId = user?.id ? Number(user.id) : null;
+    if (!userId || Number.isNaN(userId)) {
+      setTryOnError("Debes iniciar sesión para usar el try-on.");
+      return;
+    }
+    if (!termsAccepted) {
+      setTryOnError("Acepta los términos antes de usar el try-on.");
+      return;
+    }
+    if (!image) {
+      setTryOnError("Primero genera o selecciona una personalización para probarla.");
+      return;
+    }
+    if (!selectedUserPhotoId) {
+      setTryOnError("Primero sube o selecciona una foto tuya.");
+      return;
+    }
+
+    try {
+      setTryOnLoading(true);
+      setTryOnError(null);
+      const response = await agentTryOnService.generateTryOn({
+        id_user: userId,
+        foto_usuario_id: selectedUserPhotoId,
+        variant_id: productId,
+        garment_image_url: image,
+      });
+      setLastPrompt("Resultado try-on");
+      setImage(response.imagen_resultado_url);
+    } catch (error) {
+      console.error("No se pudo generar el try-on:", error);
+      setTryOnError((error as Error).message || "No se pudo generar el try-on.");
+    } finally {
+      setTryOnLoading(false);
+    }
+  };
+
+  const handleShareImage = async () => {
     if (!image) return;
     if (!termsAccepted) {
       alert("Debes aceptar los términos antes de compartir una personalización.");
@@ -241,9 +319,17 @@ const handleShareImage = async () => {
           onToggleTerms={handleToggleTerms}
           onDownload={handleDownloadImage}
           onShare={handleShareImage}
+          userPhotos={userPhotos}
+          selectedUserPhotoId={selectedUserPhotoId}
+          tryOnLoading={tryOnLoading}
+          tryOnError={tryOnError}
+          onSelectUserPhoto={setSelectedUserPhotoId}
+          onUploadUserPhoto={handleUploadUserPhoto}
+          onGenerateTryOn={handleGenerateTryOn}
           onImageGenerated={(url) => {
             setLastPrompt(prompt.trim());
             setImage(url);
+            setTryOnError(null);
           }}
         />
       </div>
