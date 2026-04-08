@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Send } from "lucide-react";
-import { agentService } from "../../services/agent.service";
+import { agentService, type AgentUsageStatus } from "../../services/agent.service";
 import { useAuth } from "../../context/AuthContext";
 
 interface Props {
@@ -36,6 +36,7 @@ export const AgentChatPanel = ({
   const [messages, setMessages] = useState<ChatItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usageStatus, setUsageStatus] = useState<AgentUsageStatus | null>(null);
 
   const userId = useMemo(() => {
     if (!user?.id) return null;
@@ -43,11 +44,31 @@ export const AgentChatPanel = ({
     return Number.isFinite(parsed) ? parsed : null;
   }, [user?.id]);
 
+  const usageLabel = useMemo(() => {
+    if (!usageStatus) return null;
+    const remaining = usageStatus.usos_restantes;
+    const limit = usageStatus.limite_24h;
+    return `${remaining} de ${limit} personalizaciones disponibles`;
+  }, [usageStatus]);
+
+  const resetLabel = useMemo(() => {
+    if (!usageStatus?.reset_at) return null;
+    const date = new Date(usageStatus.reset_at);
+    if (Number.isNaN(date.getTime())) return null;
+    return new Intl.DateTimeFormat("es-CO", {
+      dateStyle: "short",
+      timeStyle: "short",
+    }).format(date);
+  }, [usageStatus?.reset_at]);
+
+  const isLimitReached = (usageStatus?.usos_restantes ?? 1) <= 0;
+
   useEffect(() => {
     if (!userId) {
       setError("Inicia sesión para usar el agente IA.");
       setSessionId(null);
       setMessages([]);
+      setUsageStatus(null);
       return;
     }
 
@@ -55,6 +76,7 @@ export const AgentChatPanel = ({
       setError("Selecciona una prenda del catálogo para personalizar.");
       setSessionId(null);
       setMessages([]);
+      setUsageStatus(null);
       return;
     }
 
@@ -62,6 +84,7 @@ export const AgentChatPanel = ({
       setError("Acepta los términos antes de usar el agente.");
       setSessionId(null);
       setMessages([]);
+      setUsageStatus(null);
       return;
     }
 
@@ -76,12 +99,24 @@ export const AgentChatPanel = ({
           termsAccepted,
         });
         if (!mounted) return;
+        const initialResetLabel = new Intl.DateTimeFormat("es-CO", {
+          dateStyle: "short",
+          timeStyle: "short",
+        }).format(new Date(newSession.reset_at));
         setSessionId(newSession.id);
+        setUsageStatus({
+          limite_24h: newSession.limite_24h,
+          usos_restantes: newSession.usos_restantes,
+          reset_at: newSession.reset_at,
+        });
         setMessages([
           {
             id: `system-${newSession.id}`,
             role: "system",
-            text: `Personalizando: ${productName || `prenda #${productId}`}. Puedes pedir únicamente cambios de color y logo.`,
+            text:
+              newSession.usos_restantes > 0
+                ? `Personalizando: ${productName || `prenda #${productId}`}. Puedes pedir únicamente cambios de color y logo.`
+                : `Llegaste al límite diario de personalizaciones. Podrás volver a generar después de ${initialResetLabel}.`,
           },
         ]);
       } catch (err) {
@@ -99,7 +134,7 @@ export const AgentChatPanel = ({
   }, [productId, productName, termsAccepted, userId]);
 
   const sendMessage = async () => {
-    if (!prompt.trim() || !sessionId || !productId || !termsAccepted) return;
+    if (!prompt.trim() || !sessionId || !productId || !termsAccepted || isLimitReached) return;
 
     const text = prompt.trim();
     setLoading(true);
@@ -114,6 +149,11 @@ export const AgentChatPanel = ({
         productId,
         productName,
         termsAccepted,
+      });
+      setUsageStatus({
+        limite_24h: response.limite_24h,
+        usos_restantes: response.usos_restantes,
+        reset_at: response.reset_at,
       });
       setMessages((prev) => [
         ...prev,
@@ -146,6 +186,23 @@ export const AgentChatPanel = ({
         </h3>
         {error && <span className="text-xs text-red-500">{error}</span>}
       </div>
+
+      {usageStatus && (
+        <div
+          className={`mb-3 rounded-xl border px-3 py-2 text-xs ${
+            isLimitReached
+              ? "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+              : "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+          }`}
+        >
+          <p className="font-medium">{usageLabel}</p>
+          <p className="mt-1">
+            {isLimitReached
+              ? `Tu límite se libera nuevamente el ${resetLabel ?? "próximo reinicio"}.`
+              : `Cada personalización cuenta dentro de una ventana móvil de 24 horas. Reinicio estimado: ${resetLabel ?? "pendiente"}.`}
+          </p>
+        </div>
+      )}
 
       <div className="h-40 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg p-3 flex flex-col gap-3">
         {messages.length === 0 && (
@@ -195,12 +252,19 @@ export const AgentChatPanel = ({
               void sendMessage();
             }
           }}
-          disabled={loading || !sessionId || !productId || !termsAccepted}
+          disabled={loading || !sessionId || !productId || !termsAccepted || isLimitReached}
         />
         <button
           type="button"
           onClick={() => void sendMessage()}
-          disabled={loading || !sessionId || !productId || !termsAccepted || !prompt.trim()}
+          disabled={
+            loading ||
+            !sessionId ||
+            !productId ||
+            !termsAccepted ||
+            !prompt.trim() ||
+            isLimitReached
+          }
           className="px-3 py-2 rounded-lg bg-[#c65a4f] text-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Send size={16} />

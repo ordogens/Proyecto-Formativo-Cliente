@@ -20,15 +20,39 @@ const readErrorMessage = async (response: Response) => {
     const data = (await response.json()) as {
       message?: string;
       mensaje?: string;
-      detail?: string;
+      detail?:
+        | string
+        | {
+            message?: string;
+            mensaje?: string;
+            detail?: string;
+            detalle?: string;
+            error?: string;
+            reset_at?: string;
+            remaining?: number;
+            limit?: number;
+          };
       detalle?: string;
       error?: string;
     };
+    const detailMessage =
+      typeof data.detail === "string" ? data.detail : undefined;
+
+    if (data.detail && typeof data.detail === "object") {
+      return (
+        data.detail.message ||
+        data.detail.mensaje ||
+        data.detail.detail ||
+        data.detail.detalle ||
+        data.detail.error ||
+        "Error en el servicio del agente"
+      );
+    }
 
     return (
       data.message ||
       data.mensaje ||
-      data.detail ||
+      detailMessage ||
       data.detalle ||
       data.error ||
       "Error en el servicio del agente"
@@ -38,6 +62,12 @@ const readErrorMessage = async (response: Response) => {
   }
 };
 
+export interface AgentUsageStatus {
+  limite_24h: number;
+  usos_restantes: number;
+  reset_at: string;
+}
+
 export interface AgentSession {
   id: number;
   id_user: number;
@@ -46,6 +76,9 @@ export interface AgentSession {
   fecha_inicio: string;
   fecha_fin?: string | null;
   estado: string;
+  limite_24h: number;
+  usos_restantes: number;
+  reset_at: string;
 }
 
 export interface AgentMessage {
@@ -59,6 +92,9 @@ export interface AgentChatResponse {
   sesion_id: number;
   mensaje: string;
   imagenes_generadas?: string[] | null;
+  limite_24h: number;
+  usos_restantes: number;
+  reset_at: string;
 }
 
 export interface AgentProductContext {
