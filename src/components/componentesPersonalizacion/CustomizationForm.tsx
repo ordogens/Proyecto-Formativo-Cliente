@@ -9,17 +9,21 @@ interface Props {
   productId: number | null;
   productName?: string | null;
   productDescription?: string | null;
+  productImageUrl?: string | null;
   termsAccepted: boolean;
   onToggleTerms: (accepted: boolean) => void;
   onDownload: () => void;
   onShare: () => void;
   onImageGenerated: (url: string) => void;
+  onResetWorkspace: () => void;
   userPhotos: UserPhotoResponse[];
   selectedUserPhotoId: number | null;
   tryOnLoading: boolean;
+  deletingUserPhotoId?: number | null;
   tryOnError: string | null;
   onSelectUserPhoto: (photoId: number) => void;
   onUploadUserPhoto: (file: File) => void;
+  onDeleteUserPhoto: (photoId: number) => void;
   onGenerateTryOn: () => void;
 }
 
@@ -30,21 +34,25 @@ export const CustomizationForm = ({
   productId,
   productName,
   productDescription,
+  productImageUrl,
   termsAccepted,
   onToggleTerms,
   onDownload,
   onShare,
   onImageGenerated,
+  onResetWorkspace,
   userPhotos,
   selectedUserPhotoId,
   tryOnLoading,
+  deletingUserPhotoId = null,
   tryOnError,
   onSelectUserPhoto,
   onUploadUserPhoto,
+  onDeleteUserPhoto,
   onGenerateTryOn,
 }: Props) => {
   return (
-    <aside className="w-full lg:w-80 bg-[] dark:bg-gray-900 border-t lg:border-t-0 lg:border-l border-zinc-800 p-4 md:p-6 flex flex-col gap-6">
+    <aside className="w-full p-4 md:p-6 xl:max-h-[calc(100vh-4rem)] xl:overflow-y-auto flex flex-col gap-6 dark:bg-gray-900">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-[#f3f0eb] dark:bg-gray-800 rounded-full flex items-center justify-center">
           <Wand2 size={18} className="text-[#c65a4f]" />
@@ -122,8 +130,11 @@ export const CustomizationForm = ({
           setPrompt={setPrompt}
           productId={productId}
           productName={productName}
+          productDescription={productDescription}
+          productImageUrl={productImageUrl}
           termsAccepted={termsAccepted}
           onImageGenerated={onImageGenerated}
+          onResetWorkspace={onResetWorkspace}
         />
       </section>
 
@@ -161,16 +172,19 @@ export const CustomizationForm = ({
           {userPhotos.length > 0 && (
             <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
               {userPhotos.map((photo) => (
-                <button
+                <div
                   key={photo.id}
-                  type="button"
-                  onClick={() => onSelectUserPhoto(photo.id)}
-                  className={`overflow-hidden rounded-lg border-2 ${
+                  className={`relative overflow-hidden rounded-lg border-2 ${
                     selectedUserPhotoId === photo.id
                       ? "border-[#c65a4f]"
                       : "border-transparent"
                   }`}
                 >
+                  <button
+                    type="button"
+                    onClick={() => onSelectUserPhoto(photo.id)}
+                    className="block"
+                  >
                   <img
                     src={photo.foto_url}
                     alt={`Foto ${photo.id}`}
@@ -178,7 +192,20 @@ export const CustomizationForm = ({
                     referrerPolicy="no-referrer"
                     crossOrigin="anonymous"
                   />
-                </button>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteUserPhoto(photo.id);
+                    }}
+                    disabled={deletingUserPhotoId === photo.id}
+                    className="absolute right-1 top-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-label={`Eliminar foto ${photo.id}`}
+                  >
+                    {deletingUserPhotoId === photo.id ? "..." : "x"}
+                  </button>
+                </div>
               ))}
             </div>
           )}

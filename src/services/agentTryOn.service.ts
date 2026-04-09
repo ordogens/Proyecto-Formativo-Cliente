@@ -11,17 +11,31 @@ const buildHeaders = () => {
   return headers;
 };
 
-const readTryOnError = async (response: Response) => {
+const readApiError = async (
+  response: Response,
+  fallbackMessage: string
+) => {
   try {
     const data = await response.json();
     if (typeof data?.detail === "object" && data.detail) {
-      return data.detail.message || "No se pudo generar el try-on";
+      return data.detail.message || fallbackMessage;
     }
-    return data?.detail || data?.message || "No se pudo generar el try-on";
+    return data?.detail || data?.message || fallbackMessage;
   } catch {
-    return "No se pudo generar el try-on";
+    try {
+      const text = await response.text();
+      return text || `${fallbackMessage} (HTTP ${response.status})`;
+    } catch {
+      return `${fallbackMessage} (HTTP ${response.status})`;
+    }
   }
 };
+
+const normalizeTryOnServiceMessage = (message: string) =>
+  message
+    .replace(/^Error:\s*/i, "")
+    .replace(/^(Error al generar try-on:\s*)+/i, "")
+    .trim();
 
 export interface UserPhotoResponse {
   id: number;
@@ -63,7 +77,7 @@ export const agentTryOnService = {
     });
 
     if (!response.ok) {
-      throw new Error(await readTryOnError(response));
+      throw new Error(await readApiError(response, "No se pudo subir tu foto."));
     }
 
     return response.json();
@@ -75,10 +89,26 @@ export const agentTryOnService = {
     });
 
     if (!response.ok) {
-      throw new Error(await readTryOnError(response));
+      throw new Error(
+        await readApiError(response, "No se pudieron cargar tus fotos.")
+      );
     }
 
     return response.json();
+  },
+
+  deleteUserPhoto: async (photoId: number, idUser: number): Promise<void> => {
+    const response = await fetch(
+      `${IA_API}/images/photo/${photoId}?id_user=${idUser}`,
+      {
+        method: "DELETE",
+        headers: buildHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(await readApiError(response, "No se pudo eliminar la foto."));
+    }
   },
 
   generateTryOn: async (payload: {
@@ -86,6 +116,8 @@ export const agentTryOnService = {
     foto_usuario_id: number;
     variant_id?: number | null;
     garment_image_url: string;
+    garment_description?: string | null;
+    garment_category?: string | null;
   }): Promise<TryOnResponse> => {
     const response = await fetch(`${IA_API}/tryon/generate`, {
       method: "POST",
@@ -97,7 +129,8 @@ export const agentTryOnService = {
     });
 
     if (!response.ok) {
-      throw new Error(await readTryOnError(response));
+      const message = await readApiError(response, "No se pudo generar el try-on.");
+      throw new Error(normalizeTryOnServiceMessage(message) || "No se pudo generar el try-on.");
     }
 
     return response.json();

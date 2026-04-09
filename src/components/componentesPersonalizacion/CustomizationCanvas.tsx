@@ -19,6 +19,8 @@ interface Props {
   savedImages?: SavedImage[];
   onSelectSaved?: (url: string) => void;
   onDeleteSaved?: (id: number) => void;
+  previewTag?: string | null;
+  onClearPreview?: () => void;
 }
 
 export const CustomizationCanvas = ({
@@ -33,9 +35,12 @@ export const CustomizationCanvas = ({
   savedImages = [],
   onSelectSaved,
   onDeleteSaved,
+  previewTag = null,
+  onClearPreview,
 }: Props) => {
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
   const [failedSavedIds, setFailedSavedIds] = useState<number[]>([]);
+  const placeholderSlots = Array.from({ length: 6 }, (_, index) => index + 1);
 
   useEffect(() => {
     setImageLoadFailed(false);
@@ -80,16 +85,35 @@ export const CustomizationCanvas = ({
   };
 
   return (
-    <main className="flex-1 flex flex-col p-4 md:p-6">
+    <main className="flex min-h-0 flex-1 flex-col p-4 md:p-6">
+      <div className="mb-4 flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+            Vista previa
+          </p>
+          <h1 className="mt-1 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+            Personaliza tu prenda
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            La prenda base se muestra aquí y tus diseños guardados se organizan abajo por filas.
+          </p>
+          {previewTag && (
+            <p className="mt-2 text-xs font-medium text-[#c65a4f]">
+              {previewTag}
+            </p>
+          )}
+        </div>
+      </div>
+
       <div
-        className={`bg-white dark:bg-gray-800 rounded-2xl border pt-15 flex items-center justify-center overflow-hidden shadow-2xl relative transition-colors ${isDragging ? "border-yellow-400 bg-zinc-800/90" : "border-zinc-800"
+        className={`relative flex min-h-[420px] flex-1 items-center justify-center overflow-hidden rounded-[28px] border bg-white p-6 shadow-xl transition-colors md:min-h-[520px] ${isDragging ? "border-yellow-400 bg-zinc-800/90" : "border-zinc-200 dark:border-zinc-800 dark:bg-gray-800"
           }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         {!image || imageLoadFailed ? (
-          <div className="text-zinc-500 text-center w-auto h-120 flex flex-col items-center justify-center">
+          <div className="flex min-h-[320px] w-full max-w-xl flex-col items-center justify-center text-center text-zinc-500">
             <Image size={64} className="mx-auto mb-4 opacity-20" />
             <p className="mb-4 text-sm">
               {imageLoadFailed
@@ -121,13 +145,21 @@ export const CustomizationCanvas = ({
             <img
               src={image}
               alt="preview"
-              className="object-contain ratio-1/1 w-auto h-120 cursor-zoom-in"
+              className="max-h-[min(68vh,42rem)] w-full cursor-zoom-in object-contain"
               onError={() => setImageLoadFailed(true)}
               referrerPolicy="no-referrer"
               crossOrigin="anonymous"
             />
 
             <div className="absolute top-4 right-4 flex gap-2">
+              {previewTag && onClearPreview && (
+                <button
+                  onClick={onClearPreview}
+                  className="rounded-lg bg-zinc-900 px-3 py-1 text-xs text-white transition hover:bg-zinc-700"
+                >
+                  Ver prenda
+                </button>
+              )}
               {onSave && (
                 <button
                   onClick={onSave}
@@ -150,20 +182,31 @@ export const CustomizationCanvas = ({
         )}
       </div>
 
-      {/* Historial visual */}
-      <div className="h-15 mt-4 flex gap-3 overflow-x-auto pb-2">
+      <section className="mt-6 rounded-[28px] border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-gray-800">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+              Diseños guardados
+            </p>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Se acomodan en filas para que puedas verlos mejor.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid max-h-72 grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {savedImages.length === 0 && (
-          [1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+          placeholderSlots.map((i) => (
             <div
               key={i}
-              className="min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700"
+              className="aspect-square rounded-2xl border border-dashed border-zinc-300 bg-[#f7f3ee] dark:border-zinc-700 dark:bg-gray-900"
             />
           ))
         )}
         {savedImages.map((img) => (
           <div
             key={img.id}
-            className="relative min-w-[70px] h-full bg-white dark:bg-gray-800 rounded-md border border-gray-700 overflow-hidden"
+            className="relative aspect-square overflow-hidden rounded-2xl border border-zinc-200 bg-[#f7f3ee] shadow-sm dark:border-zinc-700 dark:bg-gray-900"
           >
             {failedSavedIds.includes(img.id) ? (
               <div className="flex h-full w-full items-center justify-center bg-zinc-900 px-2 text-center text-[10px] text-zinc-400">
@@ -188,7 +231,7 @@ export const CustomizationCanvas = ({
               <button
                 type="button"
                 onClick={() => onDeleteSaved(img.id)}
-                className="absolute top-1 right-1 bg-black/70 text-white text-[10px] px-1 rounded"
+                className="absolute top-2 right-2 rounded bg-black/70 px-1.5 py-0.5 text-[10px] text-white"
                 aria-label="Eliminar guardado"
               >
                 x
@@ -196,7 +239,8 @@ export const CustomizationCanvas = ({
             )}
           </div>
         ))}
-      </div>
+        </div>
+      </section>
     </main>
   );
 };

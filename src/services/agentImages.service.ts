@@ -24,6 +24,10 @@ export interface SaveGeneratedImagePayload {
   garment_type?: string | null;
 }
 
+export interface ReferenceUploadResponse {
+  url: string;
+}
+
 export type ImageEstado = "pendiente" | "aprobada" | "rechazada";
 
 export interface SavedImageResponse {
@@ -134,5 +138,33 @@ export const agentImagesService = {
       const message = await response.text();
       throw new Error(message || "No se pudo eliminar la imagen");
     }
+  },
+
+  uploadReferenceImage: async (
+    file: File,
+    idUser: number
+  ): Promise<ReferenceUploadResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("id_user", String(idUser));
+
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${IA_API}/images/reference`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || "No se pudo subir la referencia.");
+    }
+
+    return response.json();
   },
 };

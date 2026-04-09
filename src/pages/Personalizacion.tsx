@@ -9,6 +9,54 @@ import { useAuth } from "../context/AuthContext";
 import type { ApiProducto } from "../types/api.types";
 
 const TERMS_VERSION = "v1";
+const isInvalidTryOnResultUrl = (value: string | null | undefined) => {
+  if (!value) return true;
+
+  try {
+    const parsed = new URL(value);
+    return parsed.hostname.includes("placeholder.com");
+  } catch {
+    return true;
+  }
+};
+
+const normalizeTryOnErrorMessage = (error: unknown) => {
+  const fallback = "No se pudo generar el try-on.";
+  const rawMessage =
+    error instanceof Error && error.message ? error.message : fallback;
+
+  const cleanedMessage = rawMessage
+    .replace(/^Error:\s*/i, "")
+    .replace(/^(Error al generar try-on:\s*)+/i, "")
+    .trim();
+
+  return cleanedMessage || fallback;
+};
+
+const resolveTryOnGarmentCategory = (value: string | null | undefined) => {
+  const normalized = (value || "").trim().toLowerCase();
+  if (!normalized) return "upper_body";
+
+  if (
+    normalized.includes("pantalon") ||
+    normalized.includes("pantalón") ||
+    normalized.includes("falda") ||
+    normalized.includes("short") ||
+    normalized.includes("bermuda")
+  ) {
+    return "lower_body";
+  }
+
+  if (
+    normalized.includes("vestido") ||
+    normalized.includes("enterizo") ||
+    normalized.includes("overall")
+  ) {
+    return "dresses";
+  }
+
+  return "upper_body";
+};
 
 export const Personalizacion = () => {
   const { user } = useAuth();
@@ -16,6 +64,7 @@ export const Personalizacion = () => {
   const [prompt, setPrompt] = useState("");
   const [lastPrompt, setLastPrompt] = useState("");
   const [image, setImage] = useState<string | null>(null);
+  const [tryOnPreviewImage, setTryOnPreviewImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
   const [savedImageId, setSavedImageId] = useState<number | null>(null);
@@ -27,6 +76,8 @@ export const Personalizacion = () => {
   const [selectedUserPhotoId, setSelectedUserPhotoId] = useState<number | null>(null);
   const [tryOnLoading, setTryOnLoading] = useState(false);
   const [tryOnError, setTryOnError] = useState<string | null>(null);
+  const [deletingUserPhotoId, setDeletingUserPhotoId] = useState<number | null>(null);
+  const previewImage = tryOnPreviewImage ?? image;
 
   const productId = useMemo(() => {
     const rawValue = searchParams.get("productId");
@@ -106,6 +157,7 @@ export const Personalizacion = () => {
         const product = await catalogService.getProductById(productId);
         if (!mounted) return;
         setSelectedProduct(product);
+        setTryOnPreviewImage(null);
         setImage(product.image_url ?? product.imagen_url ?? null);
       } catch (error) {
         if (!mounted) return;
@@ -219,6 +271,35 @@ export const Personalizacion = () => {
     }
   };
 
+  const handleDeleteUserPhoto = async (photoId: number) => {
+    const userId = user?.id ? Number(user.id) : null;
+    if (!userId || Number.isNaN(userId)) {
+      alert("Debes iniciar sesión para eliminar tu foto.");
+      return;
+    }
+
+    const confirmed = window.confirm("¿Quieres eliminar esta foto?");
+    if (!confirmed) return;
+
+    try {
+      setDeletingUserPhotoId(photoId);
+      setTryOnError(null);
+      await agentTryOnService.deleteUserPhoto(photoId, userId);
+      const remainingPhotos = userPhotos.filter((photo) => photo.id !== photoId);
+      setUserPhotos(remainingPhotos);
+      if (selectedUserPhotoId === photoId) {
+        const preferredPhoto =
+          remainingPhotos.find((photo) => photo.es_principal) ?? remainingPhotos[0] ?? null;
+        setSelectedUserPhotoId(preferredPhoto?.id ?? null);
+      }
+    } catch (error) {
+      console.error("No se pudo eliminar la foto del usuario:", error);
+      setTryOnError((error as Error).message || "No se pudo eliminar tu foto.");
+    } finally {
+      setDeletingUserPhotoId(null);
+    }
+  };
+
   const handleGenerateTryOn = async () => {
     const userId = user?.id ? Number(user.id) : null;
     if (!userId || Number.isNaN(userId)) {
@@ -246,12 +327,22 @@ export const Personalizacion = () => {
         foto_usuario_id: selectedUserPhotoId,
         variant_id: productId,
         garment_image_url: image,
+        garment_description:
+          selectedProduct?.descripcion?.trim() ||
+          selectedProduct?.nombre?.trim() ||
+          "Prenda personalizada",
+        garment_category: resolveTryOnGarmentCategory(selectedProduct?.nombre),
       });
-      setLastPrompt("Resultado try-on");
-      setImage(response.imagen_resultado_url);
+      if (isInvalidTryOnResultUrl(response.imagen_resultado_url)) {
+        throw new Error(
+          "El try-on no devolvio una imagen valida. Revisa la configuracion de Replicate o intenta mas tarde."
+        );
+      }
+      setTryOnPreviewImage(response.imagen_resultado_url);
     } catch (error) {
-      console.error("No se pudo generar el try-on:", error);
-      setTryOnError((error as Error).message || "No se pudo generar el try-on.");
+      const normalizedError = normalizeTryOnErrorMessage(error);
+      console.error("No se pudo generar el try-on:", normalizedError);
+      setTryOnError(normalizedError);
     } finally {
       setTryOnLoading(false);
     }
@@ -286,11 +377,24 @@ export const Personalizacion = () => {
     }
   };
 
+  const handleResetWorkspace = () => {
+    setPrompt("");
+    setLastPrompt("");
+    setTryOnError(null);
+    setTryOnPreviewImage(null);
+    setImage(null);
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row h-full bg-[#f3f0eb] dark:bg-gray-900 text-zinc-100">
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-[#f3f0eb] text-zinc-900 dark:bg-gray-900 dark:text-zinc-100 xl:flex-row">
       <CustomizationCanvas
-        image={image}
-        setImage={setImage}
+        image={previewImage}
+        setImage={(nextImage) => {
+          setTryOnPreviewImage(null);
+          setImage((currentImage) =>
+            typeof nextImage === "function" ? nextImage(currentImage) : nextImage
+          );
+        }}
         allowImageUpload={false}
         isDragging={isDragging}
         setIsDragging={setIsDragging}
@@ -298,11 +402,24 @@ export const Personalizacion = () => {
         saving={savingImage}
         saved={Boolean(savedImageId)}
         savedImages={savedImages}
-        onSelectSaved={setImage}
+        onSelectSaved={(url) => {
+          setTryOnPreviewImage(null);
+          setImage(url);
+        }}
         onDeleteSaved={handleDeleteSaved}
+        previewTag={
+          tryOnPreviewImage
+            ? "Vista previa try-on activa. Guardar conserva solo la prenda personalizada."
+            : null
+        }
+        onClearPreview={
+          tryOnPreviewImage
+            ? () => setTryOnPreviewImage(null)
+            : undefined
+        }
       />
 
-      <div className="flex w-full flex-col lg:w-80">
+      <div className="flex w-full shrink-0 flex-col border-t border-zinc-200/80 bg-[#efe9df] xl:w-[24rem] xl:border-t-0 xl:border-l xl:border-zinc-200/80 xl:bg-[#f7f3ee] dark:border-zinc-800 dark:bg-gray-900">
         {productError && (
           <div className="mx-4 mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
             {productError}
@@ -315,19 +432,29 @@ export const Personalizacion = () => {
           productId={productId}
           productName={selectedProduct?.nombre ?? null}
           productDescription={selectedProduct?.descripcion ?? null}
+          productImageUrl={
+            selectedProduct?.image_url ??
+            selectedProduct?.imagen_url ??
+            image ??
+            null
+          }
           termsAccepted={termsAccepted}
           onToggleTerms={handleToggleTerms}
           onDownload={handleDownloadImage}
           onShare={handleShareImage}
+          onResetWorkspace={handleResetWorkspace}
           userPhotos={userPhotos}
           selectedUserPhotoId={selectedUserPhotoId}
           tryOnLoading={tryOnLoading}
+          deletingUserPhotoId={deletingUserPhotoId}
           tryOnError={tryOnError}
           onSelectUserPhoto={setSelectedUserPhotoId}
           onUploadUserPhoto={handleUploadUserPhoto}
+          onDeleteUserPhoto={handleDeleteUserPhoto}
           onGenerateTryOn={handleGenerateTryOn}
           onImageGenerated={(url) => {
             setLastPrompt(prompt.trim());
+            setTryOnPreviewImage(null);
             setImage(url);
             setTryOnError(null);
           }}

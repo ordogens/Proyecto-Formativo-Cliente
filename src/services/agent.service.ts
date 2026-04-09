@@ -97,10 +97,25 @@ export interface AgentChatResponse {
   reset_at: string;
 }
 
+export interface AgentSessionListItem {
+  id: number;
+  id_user: number;
+  fecha_inicio: string;
+  fecha_fin?: string | null;
+  estado: string;
+  last_message?: string | null;
+  last_message_at?: string | null;
+  total_messages: number;
+  preview_image_url?: string | null;
+}
+
 export interface AgentProductContext {
   productId: number;
   productName?: string | null;
+  productDescription?: string | null;
+  productImageUrl?: string | null;
   termsAccepted?: boolean;
+  referenceImages?: string[];
 }
 
 export const agentService = {
@@ -115,6 +130,8 @@ export const agentService = {
         id_user: idUser,
         product_id: productContext?.productId ?? null,
         product_name: productContext?.productName ?? null,
+        product_description: productContext?.productDescription ?? null,
+        product_image_url: productContext?.productImageUrl ?? null,
         terms_accepted: productContext?.termsAccepted ?? false,
       }),
     });
@@ -162,6 +179,41 @@ export const agentService = {
     return response.json();
   },
 
+  listUserSessions: async (
+    idUser: number,
+    limit = 10
+  ): Promise<AgentSessionListItem[]> => {
+    const response = await fetch(
+      `${IA_API}/chat/sessions/user/${idUser}?limit=${limit}`,
+      {
+        headers: buildHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const message = await readErrorMessage(response);
+      const error = new Error(message);
+      (error as Error & { status?: number }).status = response.status;
+      throw error;
+    }
+
+    return response.json();
+  },
+
+  closeSession: async (sessionId: number): Promise<void> => {
+    const response = await fetch(`${IA_API}/chat/session/${sessionId}/close`, {
+      method: "POST",
+      headers: buildHeaders(),
+    });
+
+    if (!response.ok) {
+      const message = await readErrorMessage(response);
+      const error = new Error(message);
+      (error as Error & { status?: number }).status = response.status;
+      throw error;
+    }
+  },
+
   sendMessage: async (
     sessionId: number,
     message: string,
@@ -174,6 +226,11 @@ export const agentService = {
         mensaje: message,
         product_id: productContext.productId,
         product_name: productContext.productName ?? null,
+        product_description: productContext.productDescription ?? null,
+        product_image_url: productContext.productImageUrl ?? null,
+        imagenes: productContext.referenceImages?.length
+          ? productContext.referenceImages
+          : null,
         terms_accepted: productContext.termsAccepted ?? false,
       }),
     });
